@@ -23,6 +23,8 @@ names$Barr[1:ncol(Barr)]=colnames(Barr)
 names$Kiffney=NA
 names$Kiffney[1:ncol(Kiffney)]=colnames(Kiffney)
 
+names$Darrow=NA
+names$Darrow[1:ncol(Darrow)]=colnames(Darrow)
 # data verification
 test=identify_outliers(CB.2023, variabe=Tissue_N_Percent)
 # t2=PCB$Number_ID %in% test$Number_ID 

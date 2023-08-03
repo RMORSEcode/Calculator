@@ -1,6 +1,7 @@
 # library("googledrive")
 library(dplyr)
 library(lubridate)
+library(readxl)
 
 wd="C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/Nitrogen data"
 files=list.files(wd, pattern='.xls')
@@ -58,6 +59,10 @@ Kiff1=read.csv(paste(wd,'Oyster morphometrics/Kiffney/tissue2021.csv', sep=''))
 Kiff2=read.csv(paste(wd,'Oyster morphometrics/Kiffney/shell2021.csv', sep=''))
 Kiffney=left_join(Kiff1, Kiff2, by=c('Site', 'ShellHeight_mm', 'WholeWetWeight_g'))
 Kiffney2=read.csv(paste(wd,'Oyster morphometrics/Kiffney/tissuePloidy2022.csv', sep=''))
+
+## NC data from Beth Darrow
+Darrow=read_xlsx(paste(wd,"Oyster morphometrics/NC/NCOysterSizeData_DarrowKInsella_forJulieRose.xlsx", sep=''), sheet='RM_morpho')
+
 
 
 
