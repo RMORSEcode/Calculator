@@ -5,36 +5,39 @@
 library(readxl)
 library(lubridate)
 library(tidyverse)
-wd="C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/Nitrogen data"
-# files=list.files(wd, pattern='.xls')
+wd="C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/"
 
 
-### Cornwell CBP data ###
-CB.2023=readxl::read_xlsx("C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/Oyster morphometrics/Data_compiled_MASTER_updated on11-15-17_2.xlsx",
+### Cornwell CB data ###
+CB.2023=readxl::read_xlsx(paste(wd,"Oyster morphometrics/Data_compiled_MASTER_updated on11-15-17_2.xlsx",sep=''),
                           sheet='Compiled_With_Formulas', skip=0, col_names = T)
 CB.2023$Tissue_Dry_Weight_g[which(CB.2023$Tissue_Dry_Weight_g<=0)]=NA
-CB.tissue=readxl::read_xlsx("C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/Oyster morphometrics/Data_compiled_MASTER_updated on11-15-17_2.xlsx",
+CB.tissue=readxl::read_xlsx(paste(wd,"Oyster morphometrics/Data_compiled_MASTER_updated on11-15-17_2.xlsx", sep=''),
                             sheet='Used_Tissue Analysis', skip=0, col_names = T)
-CB.shell=readxl::read_xlsx("C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/Oyster morphometrics/Data_compiled_MASTER_updated on11-15-17_2.xlsx",
+CB.shell=readxl::read_xlsx(paste(wd,"Oyster morphometrics/Data_compiled_MASTER_updated on11-15-17_2.xlsx", sep=''),
                            sheet='Used_Shell Analysis', skip=0, col_names = T)
-CB=readxl::read_xlsx("C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/Oyster morphometrics/CB-oyster expert panel-compiled data 9.xlsx",
+## original data from Cromwell 2017 BMP
+CB=readxl::read_xlsx(paste(wd,"Oyster morphometrics/CB-oyster expert panel-compiled data 9.xlsx", sep=''),
                      sheet='All_Shell Height_Tissue_DryWT', skip=0, col_names = T)
-CB.update=read_xlsx()
+## from Julie Reichert, contains data from 2022 update to BMP
+CB.update=read_xlsx(paste(wd,"Oyster morphometrics/CBay/Tissue_Re-eval_9-6-17/Tissue_Re-eval_Gear_Ploidy_9-11-17.xlsx", sep=''), 
+                    sheet='Tissue_Re-eval')
 
 ### Poach CB data ###
 # poach=readxl::read_xlsx(paste(wd,'/', 'CB_oyster_nutrient_data_edited_Nov2020.xlsx', sep=''), sheet='Compiled Data')
 # poach2=readxl::read_xlsx(paste(wd,'/', 'CB_oyster_nutrient_data_edited.xlsx', sep=''), sheet='compiled')
 # create better version with all vars
-PCBVA=readxl::read_xlsx(paste(wd,'/', 'CB_oyster_nutrient_data_edited.xlsx', sep=''), sheet='Original Data Virginia RM')
+PCBVA=readxl::read_xlsx(paste(wd,'Nitrogen data/CB_oyster_nutrient_data_edited.xlsx', sep=''), sheet='Original Data Virginia RM')
 PCBVA=PCBVA[-1,]
-PCBMD=readxl::read_xlsx(paste(wd,'/', 'CB_oyster_nutrient_data_edited.xlsx', sep=''), sheet='Original Data Maryland RM')
+PCBMD=readxl::read_xlsx(paste(wd,'Nitrogen data/CB_oyster_nutrient_data_edited.xlsx', sep=''), sheet='Original Data Maryland RM')
 PCBMD=PCBMD[-1,]
 colnames(PCBVA)[!(colnames(PCBVA) %in% colnames(PCBMD))]
 PCBVA=subset(PCBVA, select=-c(`bad_Shell_TC_g_C_per_ g_dw`, `bad_Shell_TN_g_N_per_g_dw`))
 PCB=rbind(PCBVA, PCBMD)
 PCB=subset(PCB, select=-c(`Shell_TP_g_P_per_g_dw`, `Shell_TP_Percent`))
 ## add shell P, dates are from first sampling date only, merge on sampled ID 
-pcbshellPO4=readxl::read_xlsx("C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/Nitrogen data/Poach/Daily Shell Phosphate Tests_Dec_2020b.xlsx", sheet='Data_Summary')
+pcbshellPO4=readxl::read_xlsx(paste(wd,"Nitrogen data/Poach/Daily Shell Phosphate Tests_Dec_2020b.xlsx",sep=''), 
+                                    sheet='Data_Summary')
 pcbshellPO4=pcbshellPO4[,c(1,5,6)]
 colnames(pcbshellPO4)[1]="Number_ID"
 pcbshellPO4$Number_ID=as.character(pcbshellPO4$Number_ID)
@@ -81,7 +84,7 @@ Sebtest=Sebastiano[complete.cases(Sebastiano$`Site mean`),]
 Seb2=Seb[complete.cases(Seb$`Cage Mean (dry weight)`),]
 
 ### Janine Barr DE, NJ, NY data ###
-Janine_RM="C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/Oyster morphometrics/Janine_s data/Rutgers_RM.xlsx"
+Janine_RM=paste(wd,"Oyster morphometrics/Janine_s data/Rutgers_RM.xlsx", sep='')
 Rutgers_RM <- sapply(readxl::excel_sheets(Janine_RM), simplify = F, USE.NAMES = T,
                      function(X) readxl::read_excel(Janine, sheet = X))
 test=Rutgers_RM$`BarnBay-Sep 2020`[11:29,]
