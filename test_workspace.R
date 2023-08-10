@@ -1,6 +1,6 @@
 
-names=data.frame(matrix(NA, nrow = ncol(CB.2023), ncol=1)); colnames(names)[1]='cornwell'
-names$cornwell=colnames(CB.2023)
+names=data.frame(matrix(NA, nrow = ncol(CB), ncol=1)); colnames(names)[1]='cornwell'
+names$cornwell=colnames(CB)
 
 names$poach=NA
 names$poach[1:ncol(poach)]=colnames(poach)
@@ -9,7 +9,7 @@ names$reitsma=NA
 names$reitsma[1:ncol(reitsma)]=colnames(reitsma)
 
 names$grizzle=NA
-names$grizzle[1:6]=colnames(grizzle.all)
+names$grizzle[1:ncol(grizzle.all)]=colnames(grizzle.all)
 
 names$bayer=NA
 names$bayer[1:ncol(bayer)]=colnames(bayer)
@@ -25,6 +25,14 @@ names$Kiffney[1:ncol(Kiffney)]=colnames(Kiffney)
 
 names$Darrow=NA
 names$Darrow[1:ncol(Darrow)]=colnames(Darrow)
+
+names$Ayvazian=NA
+names$Ayvazian[1:ncol(Ayvazian)]=colnames(Ayvazian)
+
+date='20230810'
+write.csv(names, file=paste(wd, 'Join/', date,'_data_names.csv', sep=''))
+
+
 # data verification
 test=identify_outliers(CB.2023, variabe=Tissue_N_Percent)
 # t2=PCB$Number_ID %in% test$Number_ID 
@@ -527,6 +535,24 @@ testsd=PCB %>% select(Tissue_N_Percent, Tissue_C_Percent, Tissue_TP_Percent, She
 write.csv(testsd, file='sd.csv')
 
 
+### 20230807 plot all values SH:DW for Julie
+plot(Seb2$`Cage Mean (dry weight)`~Seb2$MeanSH, type='n', xlab='Shell Height (mm)', ylab='Dry Weight (g)', las=1, 
+     ylim=c(0,7), xlim=c(0,150))
+points(CB$Tissue_Dry_Weight_g ~ CB$Total_Shell_Height_Length_mm,  pch=16,col='gray')
+points(grizzle.all$`Soft Tissue DW (g)`~grizzle.all$`Shell Height (mm)`, pch=16,col='black')
+points(reitsma$`Dry Tiss Mass (g)`~reitsma$`Shell Length (mm)`, pch=16, col='red')
+points(poach$`Tissue_Dry_Weight_g` ~ poach$`Total_Shell_Height_Length_mm`, pch=16, col='blue')
+points(Seb2$`Cage Mean (dry weight)`~Seb2$MeanSH, pch=16, col='orange')
+points(bayer2$`dry tissue weight (g)` ~ bayer2$SH, pch=16, col='brown')
+points(Barr$`Dry Tissue Weight (g)` ~Barr$`Shell Height (mm)`, pch=16, col='yellow')
+points(Ayvazian$`Tissue Dry Weight (g)` ~ Ayvazian$`Shell Height  (mm)` , pch=16, col='purple')
+points(Kiffney$DryTissueWeight_g ~ Kiffney$ShellHeight_mm, pch=16, col='green')
+points(Darrow$`Tissue Dry Wt (g)`~Darrow$`Length (mm)`, pch=16, col='gray50')
+legend('topleft', 
+       bty='n', 
+       horiz=F, 
+       legend = c('CB-C','NH', 'MA', 'CB-P', 'NY', 'CT', 'NJ-DE', 'RI', 'ME', 'NC'), 
+       text.col=c('gray','black', 'red', 'blue', 'orange', 'brown', 'yellow', 'purple', 'green', 'gray50'))
 
 
 

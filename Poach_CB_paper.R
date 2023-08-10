@@ -767,7 +767,11 @@ WQ=read.csv(paste(wd, 'WaterQualityWaterQualityStation.csv', sep=''))
 ## most recent, 2015-2017 with secchi
 WQ=read.csv("C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/Nitrogen data/Poach/CBP.csv")
 WQ$SampleDate=mdy(WQ$SampleDate)
-WQ2=WQ[order(WQ$Station, WQ$SampleDate),] %>% filter(Layer=="S " | Layer=="B ")
+## remove replicates (chl)
+WQ2=WQ[order(WQ$Station, WQ$SampleDate),] %>% 
+  filter(Layer=="S " | Layer=="B ") %>% 
+  group_by(SampleDate, Layer, Parameter, Station) %>%
+  summarise(across(everything(), mean))
 ## limit time 2015-2017
 # WQf=WQ2 %>% filter(year(SampleDate)<2018, year(SampleDate)>2014)
 ## choose to plot: 
@@ -796,7 +800,7 @@ WQ2 %>% filter(Parameter==param, year(SampleDate)<2018, year(SampleDate)>2014) %
   ) +
   labs(y=plab, x='') +
   scale_color_manual(labels = c("MD ET4.2", "VA LE3.4"), values = c("black", "red")) +
-  # scale_y_break(c(45, 85)) +
+  # scale_y_break(c(45, 80)) +
   geom_line(aes(color=Station, linetype=Layer)) + 
   geom_point(aes(color=Station, shape=Layer)) #+
   # geom_hline(yintercept=1)

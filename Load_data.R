@@ -9,19 +9,23 @@ wd="C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem
 
 
 ### Cornwell CB data ###
-CB.2023=readxl::read_xlsx(paste(wd,"Oyster morphometrics/Data_compiled_MASTER_updated on11-15-17_2.xlsx",sep=''),
-                          sheet='Compiled_With_Formulas', skip=0, col_names = T)
-CB.2023$Tissue_Dry_Weight_g[which(CB.2023$Tissue_Dry_Weight_g<=0)]=NA
-CB.tissue=readxl::read_xlsx(paste(wd,"Oyster morphometrics/Data_compiled_MASTER_updated on11-15-17_2.xlsx", sep=''),
-                            sheet='Used_Tissue Analysis', skip=0, col_names = T)
-CB.shell=readxl::read_xlsx(paste(wd,"Oyster morphometrics/Data_compiled_MASTER_updated on11-15-17_2.xlsx", sep=''),
-                           sheet='Used_Shell Analysis', skip=0, col_names = T)
+# CB.2023=readxl::read_xlsx(paste(wd,"Oyster morphometrics/Data_compiled_MASTER_updated on11-15-17_2.xlsx",sep=''),
+#                           sheet='Compiled_With_Formulas', skip=0, col_names = T)
+# CB.2023$Tissue_Dry_Weight_g[which(CB.2023$Tissue_Dry_Weight_g<=0)]=NA
+# CB.tissue=readxl::read_xlsx(paste(wd,"Oyster morphometrics/Data_compiled_MASTER_updated on11-15-17_2.xlsx", sep=''),
+#                             sheet='Used_Tissue Analysis', skip=0, col_names = T)
+# CB.shell=readxl::read_xlsx(paste(wd,"Oyster morphometrics/Data_compiled_MASTER_updated on11-15-17_2.xlsx", sep=''),
+#                            sheet='Used_Shell Analysis', skip=0, col_names = T)
 ## original data from Cromwell 2017 BMP
-CB=readxl::read_xlsx(paste(wd,"Oyster morphometrics/CB-oyster expert panel-compiled data 9.xlsx", sep=''),
-                     sheet='All_Shell Height_Tissue_DryWT', skip=0, col_names = T)
-## from Julie Reichert, contains data from 2022 update to BMP
-CB.update=read_xlsx(paste(wd,"Oyster morphometrics/CBay/Tissue_Re-eval_9-6-17/Tissue_Re-eval_Gear_Ploidy_9-11-17.xlsx", sep=''), 
+# CB=readxl::read_xlsx(paste(wd,"Oyster morphometrics/CBay/CB-oyster expert panel-compiled data 9.xlsx", sep=''),
+#                      sheet='All_Shell Height_Tissue_DryWT', skip=0, col_names = T)
+# CBnocoast=readxl::read_xlsx(paste(wd,"Oyster morphometrics/CBay/CB-oyster expert panel-compiled data 9.xlsx", sep=''),
+#                      sheet='SHeight_Tissue_DryWT_NoCoastal', skip=0, col_names = T)
+
+## from Julie Reichert, contains data from 2022 update to BMP --> USE THIS ONE 20230807 RM/JR
+CB=read_xlsx(paste(wd,"Oyster morphometrics/CBay/Tissue_Re-eval_9-6-17/Tissue_Re-eval_Gear_Ploidy_9-11-17.xlsx", sep=''), 
                     sheet='Tissue_Re-eval')
+
 
 ### Poach CB data ###
 # poach=readxl::read_xlsx(paste(wd,'/', 'CB_oyster_nutrient_data_edited_Nov2020.xlsx', sep=''), sheet='Compiled Data')
@@ -57,13 +61,13 @@ reitsma.nms=readxl::read_xlsx(paste(wd,'/', 'Reitsma Shellfish N Sample data.xls
 reitsma=readxl::read_xlsx(paste(wd,'/', 'Reitsma Shellfish N Sample data.xlsx', sep=''), skip=4)
 
 ### Grizzle data from NH
-grizzle=readxl::read_xlsx(paste(wd,'/','Grizzle_2011-data.xlsx', sep=''), sheet='post')#deployment
-grizzle2=readxl::read_xlsx(paste(wd,'/','Grizzle_2011-data.xlsx', sep=''), sheet='pre') #initial values
-grizzle.all=readxl::read_xlsx(paste(wd,'/','Grizzle_2011-data.xlsx', sep=''), sheet='all') #initial values
-## correct for mislabeling of larger oysters mg->g (small oysters appear OK)
-grizzle.all$DW=NA
-grizzle.all$DW[grizzle.all$`Shell Height (mm)`>20]=grizzle.all$`Soft Tissue DW (g)`[grizzle.all$`Shell Height (mm)`>20]*10
-grizzle.all$DW[grizzle.all$`Shell Height (mm)`<20]=grizzle.all$`Soft Tissue DW (g)`[grizzle.all$`Shell Height (mm)`<20]
+grizzle=readxl::read_xlsx(paste(wd,'Nitrogen data/Grizzle_2011-data.xlsx', sep=''), sheet='post')#deployment
+grizzle2=readxl::read_xlsx(paste(wd,'Nitrogeen data/Grizzle_2011-data.xlsx', sep=''), sheet='pre') #initial values
+grizzle.all=readxl::read_xlsx(paste(wd,'Nitrogen data/Grizzle_2011-data.xlsx', sep=''), sheet='all') #initial values
+## correct for mislabeling of larger oysters mg->g (small oysters appear OK) No longer doing this, SMALL weights for many...
+# grizzle.all$DW=NA
+# grizzle.all$DW[grizzle.all$`Shell Height (mm)`>20]=grizzle.all$`Soft Tissue DW (g)`[grizzle.all$`Shell Height (mm)`>20]*10
+# grizzle.all$DW[grizzle.all$`Shell Height (mm)`<20]=grizzle.all$`Soft Tissue DW (g)`[grizzle.all$`Shell Height (mm)`<20]
 
 ### Bayer CT data ###
 bayer=readxl::read_xlsx(paste(wd,'/','RM.xlsx', sep=''), sheet='Bayer')
@@ -161,3 +165,5 @@ Kiffney2=read.csv(paste(wd,'Oyster morphometrics/Kiffney/tissuePloidy2022.csv', 
 ## NC data from Beth Darrow
 Darrow=read_xlsx(paste(wd,"Oyster morphometrics/NC/NCOysterSizeData_DarrowKInsella_forJulieRose.xlsx", sep=''), sheet='RM_morpho')
 
+### RI data from Suzy Ayvazian
+Ayvazian=read_xlsx(paste(wd,"Oyster morphometrics/RI/Ninigret oyster dry weights_height.xlsx", sep=''), sheet='Ninigret Dry weights')
