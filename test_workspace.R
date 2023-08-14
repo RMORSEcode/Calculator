@@ -32,6 +32,113 @@ names$Ayvazian[1:ncol(Ayvazian)]=colnames(Ayvazian)
 date='20230810'
 write.csv(names, file=paste(wd, 'Join/', date,'_data_names.csv', sep=''))
 
+print(sapply(CB, class))
+
+xx=(sapply(CB, is.numeric))
+for(i in 1:ncol(CB)){
+  if(colnames(CB)[i] %in% colnames(CB)[xx]){
+    print(paste(i, 'of', ncol(CB), 'is numeric', sep=' '))
+    next
+  }
+  print(paste(i, 'of', ncol(CB), sep=' '))
+  print(sapply(CB[,i], class))
+  print(unique(CB[,i]))
+}
+# newdf=CB %>% select(-c(Original_Order, Number_ID, Analysis_ID, Yates_Bar_Name, Location_Index_Raw_Data, 
+                       # Near_Waterbody__General_Location, Waterbody_Type,.,Ross_Project:Quantile_Grouping))
+# to match PCB
+newdf=CB %>% select(-c(Original_Order, Analysis_ID, Yates_Bar_Name, .,Ross_Project:Quantile_Grouping))
+colnames(newdf)[5]="Location_Index"
+newdf$Number_ID=as.numeric(newdf$Number_ID)
+
+for(i in 1:ncol(newdf)){
+  if(colnames(newdf)[i] %in% colnames(newdf)[xx]){
+    print(paste(i, 'of', ncol(newdf), 'is numeric', sep=' '))
+    next
+  }
+  print(paste(i, 'of', ncol(newdf), sep=' '))
+  print(sapply(newdf[,i], class))
+  print(unique(newdf[,i]))
+}
+### add Poach data PCB
+colnames(newdf)[!(colnames(newdf) %in% colnames(PCB))]
+colnames(PCB)[!(colnames(PCB) %in% colnames(newdf))]
+colnames(PCB)[1]="Representative_Aquaculture_Oyster_Practice"
+PCB2=select(PCB, -is.outlier)
+newdf2=bind_rows(newdf, PCB2)
+colnames(newdf)[!(colnames(newdf) %in% colnames(r2))]
+
+
+## now fix names and add Reitsma (C virginica only)
+# drop derived columns
+r2=reitsma %>% select(-c(Analysis, GroupID, Species, OysterGrp,`off/on bottom`, ))
+colnames(newdf)[!(colnames(newdf) %in% colnames(r2))]
+#fix column names
+colnames(r2)[1]="Number_ID"
+colnames(r2)[2]="Season_Oysters_Removed"
+colnames(r2)[3]="Date_Oysters_Removed"
+colnames(r2)[4]="Near_Waterbody__General_Location"
+colnames(r2)[5]="Waterbody_Name"
+colnames(r2)[7]="Hatchery-produced_or_Wild"
+colnames(r2)[8]="Volume_ml" #"Volume (ml)" 
+r2$Ploidy="Diploid"
+r2$Ploidy[reitsma$`off/on bottom`=='off-triploid']="Triploid"
+r2$Representative_Aquaculture_Oyster_Practice=NA
+r2$Representative_Aquaculture_Oyster_Practice[reitsma$OysterGrp=="W"]="On-Bottom without Gear" 
+r2$Representative_Aquaculture_Oyster_Practice[reitsma$OysterGrp=="Con"]="On-Bottom without Gear"
+r2$Representative_Aquaculture_Oyster_Practice[reitsma$OysterGrp=="Coff"]="Off-Bottom with Gear"
+r2$Representative_Aquaculture_Oyster_Practice[reitsma$OysterGrp=="Coff-T"]="Off-Bottom with Gear"
+colnames(r2)[9]="Total_Shell_Height_Length_mm" #"Shell Length (mm)"
+colnames(r2)[10]="Total_Shell_Width_mm" #"Shell Width (mm)"
+colnames(r2)[11]="Total_Shell_Depth_mm" #[11] "Shell Height (mm)"
+colnames(r2)[12]="Shell&Tissue_Total_Wet_Weight_g" #"Whole Weight (g)"
+colnames(r2)[13]="Shell_Dry_Weight_g" #Dry Shell Mass (g)"
+colnames(r2)[14]="Tissue_Dry_Weight_g" #"Dry Tiss Mass (g)"
+colnames(r2)[15]="Condition_Index" #"Condition Index"    
+colnames(r2)[18]="Tissue_N_Percent" #Meat %N"
+colnames(r2)[19]="Tissue_C_Percent"#"Meat % C"
+colnames(r2)[22]="Shell_N_Percent"#"Shell %N" 
+colnames(r2)[23]="Shell_C_Percent"#"Shell % C" 
+#[16] "Shell/Length (g/mm)"
+#"DryT/Length (g/mm)"
+# #"Tissue N (g)"       
+# [21] "Tissue C (g)"
+# "Shell N (g)"
+# "Shell C (g)"      
+#[26] "gN/animal"   
+#"gC/animal"   
+#"gN/gAnimal"     
+#"%N/animal"    
+#"gC/gAnimal"         
+#[31] "%C/animal"
+colnames(r2)[!(colnames(r2) %in% colnames(newdf))]
+r3=r2 %>% select(-c(`Shell/Length (g/mm)`, `DryT/Length (g/mm)`,`Tissue N (g)`,
+                    `Tissue C (g)`,`Shell N (g)`:`%C/animal`))#, `Shell C (g)`))
+colnames(r3)[!(colnames(r3) %in% colnames(newdf))]
+### now add in missing cols that will not be NA:
+colnames(newdf)[!(colnames(newdf) %in% colnames(r3))]
+# [1] "Raw_Data_File"                         "Data_Source"                          
+# [3] "Location_Index"                        "State"                                
+# [5] "Waterbody_Type"                        "Site_within_Study"                    
+# [7] "Oyster_Growth_Location_Type"           "Subtidal_Intertidal_WaterColumn_Other"
+# [9] "Oyster_Stock"                          "Date_Oysters_Deployed"                
+# [11] "Month_Oysters_Removed"                 "Year_Oysters_Removed"                 
+# [13] "Tissue_AFDW_g"                         "Tissue_CN_molar"                      
+# [15] "Tissue_TC_g_C_per_ g_dw"               "Tissue_TN_g_N_per_g_dw"               
+# [17] "Tissue_TP_Percent"                     "Tissue_TP_g_P_per_g_dw"               
+# [19] "Shell_CN_molar"                        "Shell_TC_g_C_per_ g_dw"               
+# [21] "Shell_TN_g_N_per_g_dw"                 "Shell_TP_Percent"                     
+# [23] "Shell_TP_g_P_per_g_dw"                 "Total_Shell_Height_Length_Inches"     
+# [25] "Oyster_Size_Class"                     "Habitat_Group"                        
+r3$Raw_Data_File="Reitsma Shellfish N Sample data.xlsx"
+r3$Data_Source='Reitsma et al. 2017'
+r3$State="Massachusetts"
+newdf2=bind_rows(newdf2, r3)
+
+ 
+
+
+
 
 # data verification
 test=identify_outliers(CB.2023, variabe=Tissue_N_Percent)

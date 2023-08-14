@@ -818,12 +818,21 @@ aplot::plot_list(p1, p2, p3, p4, p5, p6, nrow=3)
 ggsave(filename = 'Fig_2.tiff', plot=last_plot(), path=wd, device='tiff', width = 11, height=8.5, units="in", dpi=300, bg='white')
 
 
-test=WQ2 %>% filter(Parameter==param, year(SampleDate)<2018, year(SampleDate)>2014, Layer=='B ') #%>%
+test=WQ2 %>% filter(Parameter==param, year(SampleDate)<2018, year(SampleDate)>2014) %>%
   group_by(Station, Layer, )%>% 
   summarize(min = min(MeasureValue),
             median = median(MeasureValue),
             mean = mean(MeasureValue),
             max = max(MeasureValue))
+t=WQ2 %>% filter(Parameter==param, year(SampleDate)<2018, year(SampleDate)>2014)
+tva=t[which(t$Station=='LE3.4'),]
+tmd=t[which(t$Station=='ET4.2'),]
+range(tmd$MeasureValue[tmd$Layer=='B '],na.rm=T)
+
+table(tmd$MeasureValue[tmd$Layer=='B ']<14)
+table(tmd$MeasureValue[tmd$Layer=='S ']<14)
+table(tva$MeasureValue[tva$Layer=='B ']<14)
+table(tva$MeasureValue[tva$Layer=='S ']<14)
 
 # WQ2 %>% filter(Parameter=="WTEMP") %>%
 #   ggplot(mapping=aes(x=SampleDate, y=MeasureValue)) +
