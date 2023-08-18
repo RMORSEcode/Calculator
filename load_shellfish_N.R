@@ -30,9 +30,9 @@ PCB=left_join(PCB, pcbshellPO4, by="Number_ID", keep=F)
 bayer=readxl::read_xlsx(paste(wd,'/','RM.xlsx', sep=''), sheet='Bayer')
 higgins=readxl::read_xlsx(paste(wd,'/','Higgins_data.xlsx', sep=''), sheet='Sheet1')
 higgins=higgins %>% filter(Tissue_N_Percent <15) #drop bad sample
-grizzle=readxl::read_xlsx(paste(wd,'/','Grizzle_2011-data.xlsx', sep=''), sheet='post')#deployment
-grizzle2=readxl::read_xlsx(paste(wd,'/','Grizzle_2011-data.xlsx', sep=''), sheet='pre') #initial values
-grizzle.all=readxl::read_xlsx(paste(wd,'/','Grizzle_2011-data.xlsx', sep=''), sheet='all') #initial values
+grizzle.dep=readxl::read_xlsx(paste(wd,'/','Grizzle_2011-data.xlsx', sep=''), sheet='post')#deployment
+grizzle.init=readxl::read_xlsx(paste(wd,'/','Grizzle_2011-data.xlsx', sep=''), sheet='pre') #initial values
+grizzle=readxl::read_xlsx(paste(wd,'/','Grizzle_2011-data.xlsx', sep=''), sheet='all') #initial values
 ## correct for mislabeling of larger oysters mg->g (small oysters appear OK)
 grizzle.all$DW=NA
 grizzle.all$DW[grizzle.all$`Shell Height (mm)`>20]=grizzle.all$`Soft Tissue DW (g)`[grizzle.all$`Shell Height (mm)`>20]*10

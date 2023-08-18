@@ -65,8 +65,11 @@ colnames(newdf)[!(colnames(newdf) %in% colnames(PCB))]
 colnames(PCB)[!(colnames(PCB) %in% colnames(newdf))]
 colnames(PCB)[1]="Representative_Aquaculture_Oyster_Practice"
 PCB2=select(PCB, -is.outlier)
+## add missing cols
+PCB2$Total_Shell_Height_Length_Inches=PCB2$Total_Shell_Height_Length_mm*0.0393701
+PCB2$Raw_Data_File='CB_oyster_nutrient_data_edited.xlsx'
+PCB2$Data_Source="Poach et al. in prep 2023"
 newdf2=bind_rows(newdf, PCB2)
-colnames(newdf)[!(colnames(newdf) %in% colnames(r2))]
 
 
 ## now fix names and add Reitsma (C virginica only)
@@ -88,6 +91,11 @@ r2$Representative_Aquaculture_Oyster_Practice[reitsma$OysterGrp=="W"]="On-Bottom
 r2$Representative_Aquaculture_Oyster_Practice[reitsma$OysterGrp=="Con"]="On-Bottom without Gear"
 r2$Representative_Aquaculture_Oyster_Practice[reitsma$OysterGrp=="Coff"]="Off-Bottom with Gear"
 r2$Representative_Aquaculture_Oyster_Practice[reitsma$OysterGrp=="Coff-T"]="Off-Bottom with Gear"
+r2$Oyster_Growth_Location_Type=NA
+r2$Oyster_Growth_Location_Type[reitsma$OysterGrp=="Coff"]='Near-bottom cages'
+r2$Oyster_Growth_Location_Type[reitsma$OysterGrp=="Coff-T"]='Near-bottom cages'
+r2$Oyster_Growth_Location_Type[reitsma$OysterGrp=="W"]='Reef'
+r2$Oyster_Growth_Location_Type[reitsma$OysterGrp=="Con"]='Reef'
 colnames(r2)[9]="Total_Shell_Height_Length_mm" #"Shell Length (mm)"
 colnames(r2)[10]="Total_Shell_Width_mm" #"Shell Width (mm)"
 colnames(r2)[11]="Total_Shell_Depth_mm" #[11] "Shell Height (mm)"
@@ -117,27 +125,69 @@ r3=r2 %>% select(-c(`Shell/Length (g/mm)`, `DryT/Length (g/mm)`,`Tissue N (g)`,
 colnames(r3)[!(colnames(r3) %in% colnames(newdf))]
 ### now add in missing cols that will not be NA:
 colnames(newdf)[!(colnames(newdf) %in% colnames(r3))]
-# [1] "Raw_Data_File"                         "Data_Source"                          
-# [3] "Location_Index"                        "State"                                
-# [5] "Waterbody_Type"                        "Site_within_Study"                    
-# [7] "Oyster_Growth_Location_Type"           "Subtidal_Intertidal_WaterColumn_Other"
-# [9] "Oyster_Stock"                          "Date_Oysters_Deployed"                
-# [11] "Month_Oysters_Removed"                 "Year_Oysters_Removed"                 
-# [13] "Tissue_AFDW_g"                         "Tissue_CN_molar"                      
-# [15] "Tissue_TC_g_C_per_ g_dw"               "Tissue_TN_g_N_per_g_dw"               
-# [17] "Tissue_TP_Percent"                     "Tissue_TP_g_P_per_g_dw"               
-# [19] "Shell_CN_molar"                        "Shell_TC_g_C_per_ g_dw"               
-# [21] "Shell_TN_g_N_per_g_dw"                 "Shell_TP_Percent"                     
-# [23] "Shell_TP_g_P_per_g_dw"                 "Total_Shell_Height_Length_Inches"     
-# [25] "Oyster_Size_Class"                     "Habitat_Group"                        
 r3$Raw_Data_File="Reitsma Shellfish N Sample data.xlsx"
 r3$Data_Source='Reitsma et al. 2017'
 r3$State="Massachusetts"
-newdf2=bind_rows(newdf2, r3)
+r3$Year_Oysters_Removed=year(r3$Date_Oysters_Removed)
+r3$Month_Oysters_Removed=month(r3$Date_Oysters_Removed)
+r3$Total_Shell_Height_Length_Inches=r3$Total_Shell_Height_Length_mm*0.0393701
+r3$Oyster_Size_Class=NA
+r3$Oyster_Size_Class=ifelse(r3$Total_Shell_Height_Length_Inches < 2.0, "< 2.0", NA)
+r3$Oyster_Size_Class[which(r3$Total_Shell_Height_Length_Inches>=2.0 & r3$Total_Shell_Height_Length_Inches<=2.49)]="2.0 - 2.49"
+r3$Oyster_Size_Class[which(r3$Total_Shell_Height_Length_Inches>2.49 & r3$Total_Shell_Height_Length_Inches<=3.49)]="2.5 - 3.49"
+r3$Oyster_Size_Class[which(r3$Total_Shell_Height_Length_Inches>3.49 & r3$Total_Shell_Height_Length_Inches<=4.49)]="3.5 - 4.49"
+r3$Oyster_Size_Class[which(r3$Total_Shell_Height_Length_Inches>4.49 & r3$Total_Shell_Height_Length_Inches<=5.49)]="4.5 - 5.49"
+r3$Oyster_Size_Class[which(r3$Total_Shell_Height_Length_Inches>5.49)]="≥ 5.5"
+table(r3$Oyster_Size_Class)
+newdf3=bind_rows(newdf2, r3)
 
- 
+### Fix names for Grizzle and Ward 2011
+colnames(grizzle)
+grz=grizzle %>% select(-c(Replicate, N, `Size Class`))
+colnames(grz)
+#"Study Site"         
+#"Shell Height (mm)" 
+#"Soft Tissue DW (g)" 
+#"%N" 
+#"%C" 
+colnames(grz)=c('Site', 'Total_Shell_Height_Length_mm', 'Tissue_Dry_Weight_g','Tissue_N_Percent', 'Tissue_C_Percent')
+grz$Oyster_Size_Class=ifelse(grz$`Total_Shell_Height_Length_mm`*0.0393701 < 2.0, "< 2.0", NA)
+grz$Oyster_Size_Class[which(grz$`Total_Shell_Height_Length_mm`*0.0393701>=2.0 & grz$`Total_Shell_Height_Length_mm`*0.0393701<=2.49)]="2.0 - 2.49"
+grz$Oyster_Size_Class[which(grz$`Total_Shell_Height_Length_mm`*0.0393701>2.49 & grz$`Total_Shell_Height_Length_mm`*0.0393701<=3.49)]="2.5 - 3.49"
+table(grz$Oyster_Size_Class)
+grz$Raw_Data_File="Grizzle_2011-data.xlsx"
+grz$Data_Source='Grizzle and Ward 2011'
+grz$State="New Hampshire"
+grz$Representative_Aquaculture_Oyster_Practice='Off-Bottom with Gear'
+# grz$Gear_Class="Bottom"
+# grz$Gear_type="off_bottom_cage"
+grz$Oyster_Growth_Location_Type='Near-bottom cages'
+grz$Date_Oysters_Deployed="08/09/10"#as.Date("08/09/10",format = "%m/%d/%y")
+grz$Date_Oysters_Removed=as.Date("11/04/10",format = "%m/%d/%y")
+grz$Month_Oysters_Removed=month(grz$Date_Oysters_Removed)
+grz$Year_Oysters_Removed=year(grz$Date_Oysters_Removed)
+grz$Waterbody_Name=NA
+grz$Waterbody_Name[grz$Site=='SQ']='Great Bay'
+grz$Waterbody_Name[grz$Site=='NI']='Great Bay'
+grz$Waterbody_Name[grz$Site=='LBO']='Little Bay'
+grz$Waterbody_Name[grz$Site=='GSS']='Little Bay'
+grz$Waterbody_Name[grz$Site=='BMY']='Little Bay'
+grz$Waterbody_Name[grz$Site=='AP']='Little Bay'
+grz$Location_Index=NA
+grz$Location_Index[grz$Site=='SQ']='Squamscott River'
+grz$Location_Index[grz$Site=='NI']='Nannie Island'
+grz$Location_Index[grz$Site=='LBO']='Little Bay Oyster Company Fox Point'
+grz$Location_Index[grz$Site=='GSS']='Granite State Shellfish Oyster River'
+grz$Location_Index[grz$Site=='BMY']='Bellamy River'
+grz$Location_Index[grz$Site=='AP']='Adams Point'
+grz$Near_Waterbody__General_Location="Portsmouth"
+grz$Ploidy="Diploid"
+grz$Total_Shell_Height_Length_Inches=grz$Total_Shell_Height_Length_mm*0.0393701
+grz$`Hatchery-produced_or_Wild`="?"
+newdf4=bind_rows(newdf3, grz)
 
-
+### Now add bayer (CT)
+colnames(bayer2)
 
 
 # data verification
