@@ -95,76 +95,32 @@ Seb2=Seb[complete.cases(Seb$`Cage Mean (dry weight)`),]
 
 ### updated data from Levinton (2008-2011) and Sebastiano et al 2015.
 #load Sebastiano update for Jamaica Bay E, W, C and Great South Bay E, W, C
-# "C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/Oyster morphometrics/Sebastiano data/JB_measurement_data.xls"
-# sebJBE=readxl::read_xls(paste(wd,'Oyster morphometrics/Sebastiano data/JB_measurement_data.xls', sep=''), sheet='JBE', skip = 2)
-# colnames(sebJBE)=c('Date', 'Cage', 'Bag', 'Oyster_ID', 'SH_mm', 'SL_mm', 'SW_mm', 'dead', 'alive', 'dead SH_mm', 'mean SH_mm')
-# sebJBW=readxl::read_xls(paste(wd,'Oyster morphometrics/Sebastiano data/JB_measurement_data.xls', sep=''), sheet='JBW', skip = 2)
-# colnames(sebJBW)=c('Date', 'Cage', 'Bag', 'Oyster_ID', 'SH_mm', 'SL_mm', 'SW_mm', 'dead', 'alive', 'dead SH_mm', 'mean SH_mm')
-# sebJBC=readxl::read_xls(paste(wd,'Oyster morphometrics/Sebastiano data/JB_measurement_data.xls', sep=''), sheet='JBC', skip = 2)
-# colnames(sebJBC)=c('Date', 'Cage', 'Bag', 'Oyster_ID', 'SH_mm', 'SL_mm', 'SW_mm', 'dead', 'alive', 'dead SH_mm', 'mean SH_mm')
-# sebSI=readxl::read_xls(paste(wd,'Oyster morphometrics/Sebastiano data/JB_measurement_data.xls', sep=''), sheet='SI', skip = 2)
-# colnames(sebSI)=c('Date', 'Cage', 'Bag', 'Oyster_ID', 'SH_mm', 'SL_mm', 'SW_mm', 'dead', 'alive', 'dead SH_mm', 'mean SH_mm')
-## take mean of A and B replicates for SH, SL, SW
-# sebJBE=sebJBE %>% group_by(Date, Cage, Oyster_ID) %>% select(SH_mm:SW_mm) %>% summarise_all(., mean, na.rm=T)
-# sebJBW=sebJBW %>% group_by(Date, Cage, Oyster_ID) %>% select(SH_mm:SW_mm) %>% summarise_all(., mean, na.rm=T)
-# sebJBC=sebJBC %>% group_by(Date, Cage, Oyster_ID) %>% select(SH_mm:SW_mm) %>% summarise_all(., mean, na.rm=T)
-# sebSI=sebSI %>% group_by(Date, Cage, Oyster_ID) %>% select(SH_mm:SW_mm) %>% summarise_all(., mean, na.rm=T)
-# sebJBE$Site='JBE'
-# sebJBW$Site='JBW'
-# sebJBC$Site='JBC'
-# sebSI$Site='SI'
-# 
-# sebJBEw=readxl::read_xls(paste(wd,"Oyster morphometrics/Sebastiano data/JB_dry weight_data.xls",sep=''), sheet='JBE', skip = 3)
-# colnames(sebJBEw)=c('Date', 'Tray_wt_g', 'tray_plus_dry_tissue_g', 'x', 'Dry_soft_tissue_g', 'x2')
-# sebJBEw=sebJBEw %>% select(-(c(x, x2)))
-# table(sebJBEw$Date)
-# sebJBEw$Oyster_ID=rep(seq(1:40),12)
-# sebJBEw$Site='JBE'
-# sebJBWw=readxl::read_xls(paste(wd,"Oyster morphometrics/Sebastiano data/JB_dry weight_data.xls",sep=''), sheet='JBW', skip = 3)
-# colnames(sebJBWw)=c('Date', 'Tray_wt_g', 'tray_plus_dry_tissue_g', 'x', 'Dry_soft_tissue_g', 'x2', 'x3')
-# sebJBWw=sebJBWw %>% select(-(c(x, x2, x3)))
-# sebJBWw$Site='JBW'
-# table(sebJBWw$Date)
-# sebJBWw$Oyster_ID=rep(seq(1:40),11)
-# sebJBCw=readxl::read_xls(paste(wd,"Oyster morphometrics/Sebastiano data/JB_dry weight_data.xls",sep=''), sheet='JBC', skip = 3)
-# colnames(sebJBCw)=c('Date', 'Tray_wt_g', 'tray_plus_dry_tissue_g', 'x', 'Dry_soft_tissue_g', 'x2')
-# sebJBCw=sebJBCw %>% select(-(c(x, x2)))
-# sebJBCw$Site='JBC'
-# table(sebJBCw$Date)
-# sebJBCw$Oyster_ID=rep(seq(1:40),12)
-# 
-# sebSIw=readxl::read_xls(paste(wd,"Oyster morphometrics/Sebastiano data/JB_dry weight_data.xls",sep=''), sheet='SI', skip = 3)
-# colnames(sebSIw)=c('Date', 'Tray_wt_g', 'tray_plus_dry_tissue_g', 'x', 'Dry_soft_tissue_g', 'x2')
-# sebSIw=sebSIw %>% select(-(c(x, x2)))
-# sebSIw$Site='SI'
-# table(sebSIw$Date)
-# sebSIw$Oyster_ID=rep(seq(1:40),12)
-# 
-# sebJBEx=left_join(sebJBE, sebJBEw, by=c("Date", "Oyster_ID"))
-# sebJBWx=left_join(sebJBW, sebJBWw, by=c("Date", "Oyster_ID"))
-# sebJBCx=left_join(sebJBC, sebJBCw, by=c("Date", "Oyster_ID"))
-# sebSIx=left_join(sebSI, sebSIw, by=c("Date", "Oyster_ID"))
-
 # now fix N and C, and left join
 sebJBEcn=readxl::read_xlsx(paste(wd,"Nitrogen data/JB CN tissue.xlsx",sep=''), sheet='JBE')
 colnames(sebJBEcn)=c('Date', 'Cage', 'Bag', 'Sample_num', 'percent_N', 'percent_C')
 sebJBEcn=sebJBEcn %>% select(1:6)
-sebJBEcn$Site='JBE'
+# sebJBEcn$Site='JBE'
 table(sebJBEcn$Date)
-# sebJBEcn$Oyster_ID=rep(seq(1:40),2)
 sebJBWcn=readxl::read_xlsx(paste(wd,"Nitrogen data/JB CN tissue.xlsx",sep=''), sheet='JBW')
 colnames(sebJBWcn)=c('Date', 'Cage', 'Bag', 'Sample_num', 'percent_N', 'percent_C')
 sebJBWcn=sebJBWcn %>% select(1:6)
-sebJBWcn$Site='JBW'
+# sebJBWcn$Site='JBW'
 table(sebJBWcn$Date)
-# sebJBWcn$Oyster_ID=rep(seq(1:40),2)
 sebJBCcn=readxl::read_xlsx(paste(wd,"Nitrogen data/JB CN tissue.xlsx",sep=''), sheet='JBC')
 colnames(sebJBCcn)=c('Date', 'Cage', 'Bag', 'Sample_num', 'percent_N', 'percent_C')
 sebJBCcn=sebJBCcn %>% select(1:6)
-sebJBCcn$Site='JBC'
+# sebJBCcn$Site='JBC'
 table(sebJBCcn$Date)
-# sebJBCcn$Oyster_ID=rep(seq(1:40),2)
-
+## shell N anc C (none for JBE)
+sebJBEshellcn=readxl::read_xlsx(paste(wd,"Nitrogen data/JB CN shell.xlsx",sep=''), sheet='JBE')
+colnames(sebJBEshellcn)=c('Height_mm', 'Length_mm', 'Width_mm', 'Weight_g')
+sebJBEshellcn$Site='JBE'
+sebJBWshellcn=readxl::read_xlsx(paste(wd,"Nitrogen data/JB CN shell.xlsx",sep=''), sheet='JBW')
+colnames(sebJBWshellcn)=c('Height_mm', 'Length_mm', 'Width_mm', 'shell_weight_g', 'shell_percent_N', 'shell_percent_C')
+sebJBWshellcn$Site='JBW'
+sebJBCshellcn=readxl::read_xlsx(paste(wd,"Nitrogen data/JB CN shell.xlsx",sep=''), sheet='JBC')
+colnames(sebJBCshellcn)=c('Height_mm', 'Length_mm', 'Width_mm', 'shell_weight_g', 'shell_percent_N', 'shell_percent_C')
+sebJBCshellcn$Site='JBC'
 sebJBE=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/JB_condition index_data.xls",sep=''), sheet='JBE', skip = 2)
 colnames(sebJBE)=c('Date_collected', 'Date_processed', 'Cage', 'Bag', 'Oyster_ID', 'Live_whole_wt_g', 'Shell_height_mm',
                    'Shell_length_mm', 'Shell_width_mm', 'Wet_shell_wt_g', 'Tissue_tray_wt_g', 'Sex', 'Gonad_ranking', 'Tray_plus_dry_tissue_wt_g',
@@ -173,21 +129,76 @@ sebJBW=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/JB_condition 
 colnames(sebJBW)=c('Date_collected', 'Date_processed', 'Cage', 'Bag', 'Oyster_ID', 'Live_whole_wt_g', 'Shell_height_mm',
                    'Shell_length_mm', 'Shell_width_mm', 'Wet_shell_wt_g', 'Tissue_tray_wt_g', 'Sex', 'Gonad_ranking', 'Tray_plus_dry_tissue_wt_g',
                    'Condition_index', 'Comments')
-
 sebJBC=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/JB_condition index_data.xls",sep=''), sheet='JBC', skip = 2)
 colnames(sebJBC)=c('Date_collected', 'Date_processed', 'Cage', 'Bag', 'Oyster_ID', 'Live_whole_wt_g', 'Shell_height_mm',
                    'Shell_length_mm', 'Shell_width_mm', 'Wet_shell_wt_g', 'Tissue_tray_wt_g', 'Sex', 'Gonad_ranking', 'Tray_plus_dry_tissue_wt_g',
                    'Condition_index', 'Comments')
-
+sebJBC=sebJBC %>% select(1:16)
 # NOW load JB and GSB condition index files and left_join, then bind_rows, add to main file
 sebJBE.f=left_join(sebJBE, sebJBEcn, by=c("Date_collected"="Date", "Cage", "Bag","Oyster_ID"="Sample_num"))
+sebJBE.f$Site='JBE'
 sebJBW.f=left_join(sebJBW, sebJBWcn, by=c("Date_collected"="Date", "Cage", "Bag","Oyster_ID"="Sample_num"))
+sebJBW.f$Site='JBW'
 sebJBC.f=left_join(sebJBC, sebJBCcn, by=c("Date_collected"="Date", "Cage", "Bag","Oyster_ID"="Sample_num"))
+sebJBC.f$Site='JBC'
+
+sebJB=bind_rows(sebJBE.f, sebJBC.f)
+sebJB=bind_rows(sebJB, sebJBW.f)
+
 
 #now do for GSB
-"Oyster morphometrics/Levinton NY/GSB_condition index_data.xls"
-# bind_rows(newdf, PCB2)
-# 
+sebGSBEcn=readxl::read_xlsx(paste(wd,"Oyster morphometrics/Sebastiano data/GSB CN tissue.xlsx",sep=''), sheet='GSBE')
+colnames(sebGSBEcn)=c('Date', 'Cage', 'Bag', 'Sample_num', 'percent_N', 'percent_C')
+sebGSBEcn=sebGSBEcn %>% select(1:6)
+# sebGSBEcn$Site='GSBE'
+table(sebGSBEcn$Date)
+sebGSBWcn=readxl::read_xlsx(paste(wd,"Oyster morphometrics/Sebastiano data/GSB CN tissue.xlsx",sep=''), sheet='GSBW')
+colnames(sebGSBWcn)=c('Date', 'Cage', 'Bag', 'Sample_num', 'percent_N', 'percent_C')
+sebGSBWcn=sebGSBWcn %>% select(1:6)
+# sebGSBWcn$Site='GSBW'
+table(sebGSBWcn$Date)
+sebGSBCcn=readxl::read_xlsx(paste(wd,"Oyster morphometrics/Sebastiano data/GSB CN tissue.xlsx",sep=''), sheet='GSBC')
+colnames(sebGSBCcn)=c('Date', 'Cage', 'Bag', 'Sample_num', 'percent_N', 'percent_C')
+sebGSBCcn=sebGSBCcn %>% select(1:6)
+# sebGSBCcn$Site='GSBC'
+table(sebGSBCcn$Date)
+sebGSBE=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/GSB_condition index_data.xls",sep=''), sheet='GSBE', skip = 2)
+colnames(sebGSBE)=c('Date_collected', 'Date_processed', 'Cage', 'Bag', 'Oyster_ID', 'Live_whole_wt_g', 'Shell_height_mm',
+                   'Shell_length_mm', 'Shell_width_mm', 'Wet_shell_wt_g', 'Tissue_tray_wt_g', 'Sex', 'Gonad_ranking', 'Tray_plus_dry_tissue_wt_g',
+                   'Condition_index', 'Comments')
+sebGSBE=sebGSBE %>% select(1:16)
+sebGSBC=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/GSB_condition index_data.xls",sep=''), sheet='GSBC', skip = 2)
+colnames(sebGSBC)=c('Date_collected', 'Date_processed', 'Cage', 'Bag', 'Oyster_ID', 'Live_whole_wt_g', 'Shell_height_mm',
+                    'Shell_length_mm', 'Shell_width_mm', 'Wet_shell_wt_g', 'Tissue_tray_wt_g', 'Sex', 'Gonad_ranking', 'Tray_plus_dry_tissue_wt_g',
+                    'Condition_index', 'Comments')
+sebGSBC=sebGSBC %>% select(1:16)
+sebGSBW=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/GSB_condition index_data.xls",sep=''), sheet='GSBW', skip = 2)
+colnames(sebGSBW)=c('Date_collected', 'Date_processed', 'Cage', 'Bag', 'Oyster_ID', 'Live_whole_wt_g', 'Shell_height_mm',
+                    'Shell_length_mm', 'Shell_width_mm', 'Wet_shell_wt_g', 'Tissue_tray_wt_g', 'Sex', 'Gonad_ranking', 'Tray_plus_dry_tissue_wt_g',
+                    'Condition_index', 'Comments')
+
+# NOW load JB and GSB condition index files and left_join, then bind_rows, add to main file
+sebGSBE.f=left_join(sebGSBE, sebGSBEcn, by=c("Date_collected"="Date", "Cage", "Bag","Oyster_ID"="Sample_num"))
+sebGSBE.f$Site='GSBE'
+sebGSBW.f=left_join(sebGSBW, sebGSBWcn, by=c("Date_collected"="Date", "Cage", "Bag","Oyster_ID"="Sample_num"))
+sebGSBW.f$Site='GSBW'
+sebGSBC.f=left_join(sebGSBC, sebGSBCcn, by=c("Date_collected"="Date", "Cage", "Bag","Oyster_ID"="Sample_num"))
+sebGSBC.f$Site='GSBC'
+sebGSB=bind_rows(sebGSBE.f, sebGSBC.f)
+sebGSB=bind_rows(sebGSB, sebGSBW.f)
+## shell N anc C (none for JBE)
+sebGSBEshellcn=readxl::read_xlsx(paste(wd,"Nitrogen data/GSB CN shell.xlsx",sep=''), sheet='GSBE')
+colnames(sebGSBEshellcn)=c('Height_mm', 'Length_mm', 'Width_mm', 'Weight_g')
+sebGSBEshellcn$Site='GSBE'
+sebGSBWshellcn=readxl::read_xlsx(paste(wd,"Nitrogen data/GSB CN shell.xlsx",sep=''), sheet='GSBW')
+colnames(sebGSBWshellcn)=c('Height_mm', 'Length_mm', 'Width_mm', 'shell_weight_g', 'shell_percent_N', 'shell_percent_C')
+sebGSBWshellcn$Site='GSBW'
+sebGSBCshellcn=readxl::read_xlsx(paste(wd,"Nitrogen data/GSB CN shell.xlsx",sep=''), sheet='GSBC')
+colnames(sebGSBCshellcn)=c('Height_mm', 'Length_mm', 'Width_mm', 'shell_weight_g', 'shell_percent_N', 'shell_percent_C')
+sebGSBCshellcn$Site='GSBC'
+
+Seb.f=bind_rows(sebJB, sebGSB)
+
 
 ### Levinton data from NY (new source)
 levP40=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/oyster_Condition Index_data.xls",sep=''), sheet='Pier 40 (P40)', skip = 2)
