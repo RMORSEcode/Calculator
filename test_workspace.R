@@ -713,4 +713,6 @@ legend('topleft',
 
 
 
-
+plot(Seb.f$Dry_tissue_wt_g ~ Seb.f$Shell_height_mm, type='p', xlab='SH (mm)', ylab='DW (g)', las=1, 
+     ylim=c(0,7), xlim=c(0,150), main='All')
+Seb.f %>% ggplot(aes(y=Dry_tissue_wt_g, x=Shell_height_mm, color=Site)) + geom_point()

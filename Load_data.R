@@ -80,18 +80,17 @@ bayer2$SH[which(is.na(bayer$`Length (mm)`))]=bayer$`IJ Length (mm)`[which(is.na(
 bayer2$SW=bayer$`width (mm)`
 bayer2$SW[which(is.na(bayer$`width (mm)`))]=bayer$`IJ width (mm)`[which(is.na(bayer$`width (mm)`))]
 
-### Sebastiano data from NY ###
-Sebastiano=readxl::read_xlsx(paste(wd,'/','RM.xlsx', sep=''), sheet='SebMeanSH')
-Sebastiano2=readxl::read_xlsx(paste(wd,'/','RM.xlsx', sep=''), sheet='SebDW')
-Seb.1=Sebastiano %>% group_by(Site, Date, Cage) %>%
-  mutate(MeanSH=mean(`Bag Mean (height)`)) %>% 
-  select(-Bag, -`Bag Mean (height)`, -`Site mean`) %>%
-  distinct(.)
-Seb=Seb.1 %>% left_join(Sebastiano2, by=c('Date', 'Site'))
-Sebtest=Sebastiano[complete.cases(Sebastiano$`Site mean`),]
-# Seb=Sebtest %>% left_join(Sebastiano2, by=c('Date', 'Site'))
-Seb2=Seb[complete.cases(Seb$`Cage Mean (dry weight)`),]
-
+### Sebastiano data from NY ### THIS HAS BEEN REPLACED WITH MORE EXTENSIVE DATA BELOW RM 20230822
+# Sebastiano=readxl::read_xlsx(paste(wd,'/','RM.xlsx', sep=''), sheet='SebMeanSH')
+# Sebastiano2=readxl::read_xlsx(paste(wd,'/','RM.xlsx', sep=''), sheet='SebDW')
+# Seb.1=Sebastiano %>% group_by(Site, Date, Cage) %>%
+#   mutate(MeanSH=mean(`Bag Mean (height)`)) %>% 
+#   select(-Bag, -`Bag Mean (height)`, -`Site mean`) %>%
+#   distinct(.)
+# Seb=Seb.1 %>% left_join(Sebastiano2, by=c('Date', 'Site'))
+# Sebtest=Sebastiano[complete.cases(Sebastiano$`Site mean`),]
+# ## Seb=Sebtest %>% left_join(Sebastiano2, by=c('Date', 'Site'))
+# Seb2=Seb[complete.cases(Seb$`Cage Mean (dry weight)`),]
 
 ### updated data from Levinton (2008-2011) and Sebastiano et al 2015.
 #load Sebastiano update for Jamaica Bay E, W, C and Great South Bay E, W, C
@@ -141,12 +140,11 @@ sebJBW.f=left_join(sebJBW, sebJBWcn, by=c("Date_collected"="Date", "Cage", "Bag"
 sebJBW.f$Site='JBW'
 sebJBC.f=left_join(sebJBC, sebJBCcn, by=c("Date_collected"="Date", "Cage", "Bag","Oyster_ID"="Sample_num"))
 sebJBC.f$Site='JBC'
-
+### Combine Jamaica Bay sites
 sebJB=bind_rows(sebJBE.f, sebJBC.f)
 sebJB=bind_rows(sebJB, sebJBW.f)
 
-
-#now do for GSB
+### Now do for Great South Bay sites
 sebGSBEcn=readxl::read_xlsx(paste(wd,"Oyster morphometrics/Sebastiano data/GSB CN tissue.xlsx",sep=''), sheet='GSBE')
 colnames(sebGSBEcn)=c('Date', 'Cage', 'Bag', 'Sample_num', 'percent_N', 'percent_C')
 sebGSBEcn=sebGSBEcn %>% select(1:6)
@@ -177,7 +175,7 @@ colnames(sebGSBW)=c('Date_collected', 'Date_processed', 'Cage', 'Bag', 'Oyster_I
                     'Shell_length_mm', 'Shell_width_mm', 'Wet_shell_wt_g', 'Tissue_tray_wt_g', 'Sex', 'Gonad_ranking', 'Tray_plus_dry_tissue_wt_g',
                     'Condition_index', 'Comments')
 
-# NOW load JB and GSB condition index files and left_join, then bind_rows, add to main file
+# NOW left_join, then bind_rows, add to main file
 sebGSBE.f=left_join(sebGSBE, sebGSBEcn, by=c("Date_collected"="Date", "Cage", "Bag","Oyster_ID"="Sample_num"))
 sebGSBE.f$Site='GSBE'
 sebGSBW.f=left_join(sebGSBW, sebGSBWcn, by=c("Date_collected"="Date", "Cage", "Bag","Oyster_ID"="Sample_num"))
@@ -196,13 +194,102 @@ sebGSBWshellcn$Site='GSBW'
 sebGSBCshellcn=readxl::read_xlsx(paste(wd,"Nitrogen data/GSB CN shell.xlsx",sep=''), sheet='GSBC')
 colnames(sebGSBCshellcn)=c('Height_mm', 'Length_mm', 'Width_mm', 'shell_weight_g', 'shell_percent_N', 'shell_percent_C')
 sebGSBCshellcn$Site='GSBC'
-
+### combine sites and calculate dry weight for final data to use in SH_DW.R, build_main_file.R ###
 Seb.f=bind_rows(sebJB, sebGSB)
-
+Seb.f$Dry_tissue_wt_g=Seb.f$Tray_plus_dry_tissue_wt_g-Seb.f$Tissue_tray_wt_g
 
 ### Levinton data from NY (new source)
-levP40=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/oyster_Condition Index_data.xls",sep=''), sheet='Pier 40 (P40)', skip = 2)
-
+levP40=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/oyster_Condition Index_data.xls",sep=''), 
+                        sheet='Pier 40 (P40)', skip = 3,
+                        col_types = c("text","numeric","text","numeric","date","date",
+                                      "numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric",
+                                      "text","numeric","numeric","numeric","text","skip"))
+colnames(levP40)=c("Site", "Cage", "Bag","Oyster_ID", "Date_collected", "Date_analyzed", "Whole_weight_g","Shell_height_mm",
+                   "Shell_length_mm", "Shell_Width_mm", "Wet_shell_weight_g", "Dry_shell_weight_g", "Tray_weight_g",
+                   "Tray_plus_dry_soft_tissue_g", "Shell_tray_wt_g", "Sex", "Gonad_ranking", "Wet_shell_CI", 
+                   "Dry_shell_CI", "Comments")
+levJB=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/oyster_Condition Index_data.xls",sep=''), 
+                        sheet='Jamaica Bay (JB)', skip = 3,
+                        col_types = c("text","numeric","text","numeric","date","date",
+                                      "numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric",
+                                      "text","numeric","numeric","numeric","text","skip"))
+colnames(levJB)=c("Site", "Cage", "Bag","Oyster_ID", "Date_collected", "Date_analyzed", "Whole_weight_g","Shell_height_mm",
+                   "Shell_length_mm", "Shell_Width_mm", "Wet_shell_weight_g", "Dry_shell_weight_g", "Tray_weight_g",
+                   "Tray_plus_dry_soft_tissue_g", "Shell_tray_wt_g", "Sex", "Gonad_ranking", "Wet_shell_CI", 
+                   "Dry_shell_CI", "Comments")
+levSI=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/oyster_Condition Index_data.xls",sep=''), 
+                        sheet='Shelter Island (SI)', skip = 3,
+                        col_types = c("text","numeric","text","numeric","date","date",
+                                      "numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric",
+                                      "text","numeric","numeric","numeric","text","skip"))
+colnames(levSI)=c("Site", "Cage", "Bag","Oyster_ID", "Date_collected", "Date_analyzed", "Whole_weight_g","Shell_height_mm",
+                   "Shell_length_mm", "Shell_Width_mm", "Wet_shell_weight_g", "Dry_shell_weight_g", "Tray_weight_g",
+                   "Tray_plus_dry_soft_tissue_g", "Shell_tray_wt_g", "Sex", "Gonad_ranking", "Wet_shell_CI", 
+                   "Dry_shell_CI", "Comments")
+levRB=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/oyster_Condition Index_data.xls",sep=''), 
+                        sheet='Raritan Bay (RB)', skip = 3,
+                        col_types = c("text","numeric","text","numeric","date","date",
+                                      "numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric",
+                                      "text","numeric","numeric","numeric","text","skip"))
+colnames(levRB)=c("Site", "Cage", "Bag","Oyster_ID", "Date_collected", "Date_analyzed", "Whole_weight_g","Shell_height_mm",
+                   "Shell_length_mm", "Shell_Width_mm", "Wet_shell_weight_g", "Dry_shell_weight_g", "Tray_weight_g",
+                   "Tray_plus_dry_soft_tissue_g", "Shell_tray_wt_g", "Sex", "Gonad_ranking", "Wet_shell_CI", 
+                   "Dry_shell_CI", "Comments")
+levI=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/oyster_Condition Index_data.xls",sep=''), 
+                        sheet='Irvington (I)', skip = 3,
+                        col_types = c("text","numeric","text","numeric","date","date",
+                                      "numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric",
+                                      "text","numeric","numeric","numeric","text","skip"))
+colnames(levI)=c("Site", "Cage", "Bag","Oyster_ID", "Date_collected", "Date_analyzed", "Whole_weight_g","Shell_height_mm",
+                   "Shell_length_mm", "Shell_Width_mm", "Wet_shell_weight_g", "Dry_shell_weight_g", "Tray_weight_g",
+                   "Tray_plus_dry_soft_tissue_g", "Shell_tray_wt_g", "Sex", "Gonad_ranking", "Wet_shell_CI", 
+                   "Dry_shell_CI", "Comments")
+levPT=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/oyster_Condition Index_data.xls",sep=''), 
+                        sheet='Piermont (PT)', skip = 3,
+                        col_types = c("text","numeric","text","numeric","date","date",
+                                      "numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric",
+                                      "text","numeric","numeric","numeric","text","skip"))
+colnames(levPT)=c("Site", "Cage", "Bag","Oyster_ID", "Date_collected", "Date_analyzed", "Whole_weight_g","Shell_height_mm",
+                   "Shell_length_mm", "Shell_Width_mm", "Wet_shell_weight_g", "Dry_shell_weight_g", "Tray_weight_g",
+                   "Tray_plus_dry_soft_tissue_g", "Shell_tray_wt_g", "Sex", "Gonad_ranking", "Wet_shell_CI", 
+                   "Dry_shell_CI", "Comments")
+levWI=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/oyster_Condition Index_data.xls",sep=''), 
+                        sheet='Washington Irving (WI)', skip = 3,
+                        col_types = c("text","numeric","text","numeric","date","date",
+                                      "numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric",
+                                      "text","numeric","numeric","numeric","text","skip"))
+colnames(levWI)=c("Site", "Cage", "Bag","Oyster_ID", "Date_collected", "Date_analyzed", "Whole_weight_g","Shell_height_mm",
+                   "Shell_length_mm", "Shell_Width_mm", "Wet_shell_weight_g", "Dry_shell_weight_g", "Tray_weight_g",
+                   "Tray_plus_dry_soft_tissue_g", "Shell_tray_wt_g", "Sex", "Gonad_ranking", "Wet_shell_CI", 
+                   "Dry_shell_CI", "Comments")
+levPM=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/oyster_Condition Index_data.xls",sep=''), 
+                        sheet='Philipse Manor (PM)', skip = 3,
+                        col_types = c("text","numeric","text","numeric","date","date",
+                                      "numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric",
+                                      "text","numeric","numeric","numeric","text","skip"))
+colnames(levPM)=c("Site", "Cage", "Bag","Oyster_ID", "Date_collected", "Date_analyzed", "Whole_weight_g","Shell_height_mm",
+                   "Shell_length_mm", "Shell_Width_mm", "Wet_shell_weight_g", "Dry_shell_weight_g", "Tray_weight_g",
+                   "Tray_plus_dry_soft_tissue_g", "Shell_tray_wt_g", "Sex", "Gonad_ranking", "Wet_shell_CI", 
+                   "Dry_shell_CI", "Comments")
+levWE=readxl::read_xls(paste(wd,"Oyster morphometrics/Levinton NY/oyster_Condition Index_data.xls",sep=''), 
+                        sheet='Westerly (WE)', skip = 3,
+                        col_types = c("text","numeric","text","numeric","date","date",
+                                      "numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric",
+                                      "text","numeric","numeric","numeric","text","skip"))
+colnames(levWE)=c("Site", "Cage", "Bag","Oyster_ID", "Date_collected", "Date_analyzed", "Whole_weight_g","Shell_height_mm",
+                   "Shell_length_mm", "Shell_Width_mm", "Wet_shell_weight_g", "Dry_shell_weight_g", "Tray_weight_g",
+                   "Tray_plus_dry_soft_tissue_g", "Shell_tray_wt_g", "Sex", "Gonad_ranking", "Wet_shell_CI", 
+                   "Dry_shell_CI", "Comments")
+# Now combine sites for final data
+Lev=bind_rows(levP40, levJB)
+Lev=bind_rows(Lev, levSI)
+Lev=bind_rows(Lev, levRB)
+Lev=bind_rows(Lev, levI)
+Lev=bind_rows(Lev, levPT)
+Lev=bind_rows(Lev, levWI)
+Lev=bind_rows(Lev, levPM)
+Lev=bind_rows(Lev, levWE)
+Lev$Dry_tissue_wt_g=Lev$Tray_plus_dry_soft_tissue_g - Lev$Tray_weight_g
 
 ### Janine Barr DE, NJ, NY data ###
 Janine_RM=paste(wd,"Oyster morphometrics/Janine_s data/Rutgers_RM.xlsx", sep='')

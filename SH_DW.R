@@ -160,104 +160,18 @@ ggplot(Kiffney2, aes(x=`ShellHeight_mm`, y=`Net_dry_wt_mg`)) +  labs(y='DW (mg)'
   geom_point(aes(color=`Ploidy`))
 
 
-# ## CBP data for Chester River and Rappahannock River near farms for Poach data
-# # WQ=read.csv("C:/Users/ryan.morse/Downloads/WaterQualityWaterQualityStation.csv")
-# wd="C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/"
-# WQ=read.csv(paste(wd, 'WaterQualityWaterQualityStation.csv', sep=''))
-#   
-# WQ$SampleDate=mdy(WQ$SampleDate)
-# WQ2=WQ[order(WQ$Station, WQ$SampleDate),] %>% filter(Layer=="S " | Layer=="B ")
-# WQ3=WQ2 %>% filter(Station=="LE3.4", Parameter=="SALINITY", Layer=="S ")
-# plot(WQ3$MeasureValue~ WQ3$SampleDate, type='l', ylab='Salinity', xlab='Date', main='CBP LE3.4 Rapp', las=1)
-# WQ3=WQ2 %>% filter(Station=="LE3.4", Parameter=="SALINITY", Layer=="B ")
-# lines(WQ3$MeasureValue~ WQ3$SampleDate, col='red')
-# legend('bottomleft', bty='n', lty=c(1,1), col=c('black', 'red'), legend=c('S', 'B'))
-# 
-# WQ3=WQ2 %>% filter(Station=="ET4.2", Parameter=="SALINITY", Layer=="S ")
-# plot(WQ3$MeasureValue~ WQ3$SampleDate, type='l', ylab='Salinity', xlab='Date', las=1, main='CBP ET4.2 Chester')
-# WQ3=WQ2 %>% filter(Station=="ET4.2", Parameter=="SALINITY", Layer=="B ")
-# lines(WQ3$MeasureValue~ WQ3$SampleDate, col='red')
-# legend('bottomleft', bty='n', lty=c(1,1), col=c('black', 'red'), legend=c('S', 'B'))
-# ## plot both stations S
-# WQ3=WQ2 %>% filter(Station=="LE3.4", Parameter=="SALINITY", Layer=="S ")
-# plot(WQ3$MeasureValue~ WQ3$SampleDate, type='l', col='blue', ylab='Salinity', xlab='Date', ylim=c(4,20),las=1)
-# WQ3=WQ2 %>% filter(Station=="LE3.4", Parameter=="SALINITY", Layer=="B ")
-# lines(WQ3$MeasureValue~ WQ3$SampleDate, col='blue', lty=3)
-# WQ3=WQ2 %>% filter(Station=="ET4.2", Parameter=="SALINITY", Layer=="S ")
-# lines(WQ3$MeasureValue~ WQ3$SampleDate, col='red', lty=1)
-# WQ3=WQ2 %>% filter(Station=="ET4.2", Parameter=="SALINITY", Layer=="B ")
-# lines(WQ3$MeasureValue~ WQ3$SampleDate, col='red', lty=3)
-# abline(h=14, lty=2)
-# legend('bottomleft', bty='n', lty=c(1,3), legend=c('S', 'B'))
-# legend('bottomright', bty='n', text.col=c('blue', 'red'), legend=c('Rapp', 'Chest'))
-# 
-# 
-# WQ3=WQ2 %>% filter(Station=="LE3.4", Parameter=="WTEMP", Layer=="S ")
-# plot(WQ3$MeasureValue~ WQ3$SampleDate, type='l', col='blue', ylab='WTEMP', xlab='Date', ylim=c(0,30),las=1)
-# WQ3=WQ2 %>% filter(Station=="LE3.4", Parameter=="WTEMP", Layer=="B ")
-# lines(WQ3$MeasureValue~ WQ3$SampleDate, col='blue', lty=3)
-# WQ3=WQ2 %>% filter(Station=="ET4.2", Parameter=="WTEMP", Layer=="S ")
-# lines(WQ3$MeasureValue~ WQ3$SampleDate, col='red', lty=1)
-# WQ3=WQ2 %>% filter(Station=="ET4.2", Parameter=="WTEMP", Layer=="B ")
-# lines(WQ3$MeasureValue~ WQ3$SampleDate, col='red', lty=3)
-# # abline(h=14, lty=2)
-# legend('bottomleft', bty='n', lty=c(1,3), legend=c('S', 'B'))
-# legend('bottomright', bty='n', text.col=c('blue', 'red'), legend=c('Rapp', 'Chest'))
-# 
-# ## limit time 2015-2017
-# WQf=WQ2 %>% filter(year(SampleDate)<2018, year(SampleDate)>2014)
-# ## choose to plot:
-# k <- "mu"
-# param="SALINITY"; plab="Salinity"; pt="S.tiff"
-# param="WTEMP"; plab="Water temperature (C)"; pt="T.tiff"
-# param="CHLA"; plab=expression(paste("Chlorophyll a (", mu, "g/L)", sep='')); pt='Chl.tiff'
-# param="DIN"; plab="DIN (mg/L)"; pt="DIN.tiff"
-# param="DO"; plab="Dissolved oxygen (mg/L)"; pt="DO.tiff"
-# WQ2 %>% filter(Parameter==param, year(SampleDate)<2018, year(SampleDate)>2014) %>%
-#   ggplot(mapping=aes(x=SampleDate, y=MeasureValue)) + 
-#   theme_bw() +
-#   theme(
-#     panel.border = element_blank(), 
-#     panel.grid.major = element_blank(),
-#     panel.grid.minor = element_blank(), 
-#     axis.line = element_line(colour = "black")
-#   ) +
-#   labs(y=plab, x='Date') +
-#        geom_line(aes(color=Station, linetype=Layer)) + 
-#                    geom_point(aes(color=Station, shape=Layer))
-# ggsave(filename = pt, plot=last_plot(), path=wd, device='tiff', width = 4, height=3, units="in", dpi=300, bg='white')
-# 
-# 
-# WQ2 %>% filter(Parameter=="WTEMP") %>%
-#   ggplot(mapping=aes(x=SampleDate, y=MeasureValue)) +
-#   geom_line(aes(color=Station, linetype=Layer))
-# 
-# WQ2 %>% filter(Parameter=="SALINITY") %>%
-#   ggplot(mapping=aes(x=SampleDate, y=MeasureValue)) +
-#   geom_line(aes(color=Station, linetype=Layer))
-# 
-# WQ2 %>% filter(Parameter=="CHLA") %>%
-#   ggplot(mapping=aes(x=SampleDate, y=MeasureValue)) +
-#   geom_line(aes(color=Station, linetype=Layer))
-# 
-# WQ2 %>% filter(Parameter=="DIN") %>%
-#   ggplot(mapping=aes(x=SampleDate, y=MeasureValue)) +
-#   geom_line(aes(color=Station, linetype=Layer))
-# 
-# WQ2 %>% filter(Parameter=="DO") %>%
-#   ggplot(mapping=aes(x=SampleDate, y=MeasureValue)) +
-#   geom_line(aes(color=Station, linetype=Layer))
-# 
-# 
-# WQ3=WQ2 %>% filter(Station=="LE3.4", Parameter=="WTEMP", Layer=="B ")
-# lines(WQ3$MeasureValue~ WQ3$SampleDate, col='blue', lty=3)
-# WQ3=WQ2 %>% filter(Station=="ET4.2", Parameter=="WTEMP", Layer=="S ")
-# lines(WQ3$MeasureValue~ WQ3$SampleDate, col='red', lty=1)
-# WQ3=WQ2 %>% filter(Station=="ET4.2", Parameter=="WTEMP", Layer=="B ")
-# lines(WQ3$MeasureValue~ WQ3$SampleDate, col='red', lty=3)
-# abline(h=14, lty=2)
-# legend('bottomleft', bty='n', lty=c(1,3), legend=c('S', 'B'))
-# legend('bottomright', bty='n', text.col=c('blue', 'red'), legend=c('Rapp', 'Chest'))
+### Sebastiano NY data (Load_data.R for Seb.f)
+plot(Seb.f$Dry_tissue_wt_g ~ Seb.f$Shell_height_mm, type='p', xlab='SH (mm)', ylab='DW (g)', las=1, 
+     ylim=c(0,7), xlim=c(0,150), main='All')
+lines(sxval, syval, col='purple') #NY (saved values from quantile regression, needs update with new data)
+Seb.f %>% ggplot(aes(y=Dry_tissue_wt_g, x=Shell_height_mm, color=Site)) + geom_point()
+
+plot(Lev$Dry_tissue_wt_g ~ Lev$Shell_height_mm, type='p', xlab='SH (mm)', ylab='DW (g)', las=1, 
+     ylim=c(0,7), xlim=c(0,150), main='All')
+Lev %>% ggplot(aes(y=Dry_tissue_wt_g, x=Shell_height_mm, color=Site)) + geom_point()
+
+
+
 
 poachdiploid=poach %>% filter(Ploidy=='Diploid')
 poachtriploid=poach %>% filter(Ploidy=='Triploid')

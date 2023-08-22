@@ -5,38 +5,31 @@
 library(lubridate)
 library(tidyverse)
 
-
 names=data.frame(matrix(NA, nrow = ncol(CB), ncol=1)); colnames(names)[1]='cornwell'
 names$cornwell=colnames(CB)
-
 names$poach=NA
 names$poach[1:ncol(poach)]=colnames(poach)
-
 names$reitsma=NA
 names$reitsma[1:ncol(reitsma)]=colnames(reitsma)
-
 names$grizzle=NA
 names$grizzle[1:ncol(grizzle.all)]=colnames(grizzle.all)
-
 names$bayer=NA
 names$bayer[1:ncol(bayer)]=colnames(bayer)
-
 names$seb2=NA
 names$seb2[1:ncol(Seb2)]=colnames(Seb2)
-
 names$Barr=NA
 names$Barr[1:ncol(Barr)]=colnames(Barr)
-
 names$Kiffney=NA
 names$Kiffney[1:ncol(Kiffney)]=colnames(Kiffney)
-
 names$Darrow=NA
 names$Darrow[1:ncol(Darrow)]=colnames(Darrow)
-
 names$Ayvazian=NA
 names$Ayvazian[1:ncol(Ayvazian)]=colnames(Ayvazian)
-
-date='20230810'
+names$Seb.f=NA
+names$Seb.f[1:ncol(Seb.f)]=colnames(Seb.f)
+names$Lev=NA
+names$Lev[1:ncol(Lev)]=colnames(Lev)
+date='20230822'
 write.csv(names, file=paste(wd, 'Join/', date,'_data_names.csv', sep=''))
 
 print(sapply(CB, class))
@@ -56,6 +49,7 @@ for(i in 1:ncol(CB)){
 # to match PCB
 newdf=CB %>% select(-c(Original_Order, Analysis_ID, Yates_Bar_Name, .,Ross_Project:Quantile_Grouping))
 colnames(newdf)[5]="Location_Index"
+colnames(newdf)[15]="Hatchery_produced_or_Wild"
 newdf$Number_ID=as.numeric(newdf$Number_ID)
 
 for(i in 1:ncol(newdf)){
@@ -107,9 +101,9 @@ PCB2$Data_Source="Poach et al. in prep 2023"
 # PCB2$Near_Waterbody__General_Location
 # PCB2$Waterbody_Name
 # PCB2$Site
-PCB2$Site_within_Study
+PCB2$Site_within_Study=NA
 # PCB2$Oyster_Growth_Location_Type
-PCB2$Subtidal_Intertidal_WaterColumn_Other
+PCB2$Subtidal_Intertidal_WaterColumn_Other="Subtidal"
 # PCB2$Ploidy
 PCB2$Oyster_Stock=NA
 PCB2$Oyster_Stock[PCB2$State=='Virginia']='Rappahannock Oyster Co.'
@@ -254,7 +248,7 @@ grz$Location_Index[grz$Site=='AP']='Adams Point'
 grz$Near_Waterbody__General_Location="Portsmouth"
 grz$Ploidy="Diploid"
 grz$Total_Shell_Height_Length_Inches=grz$Total_Shell_Height_Length_mm*0.0393701
-grz$`Hatchery-produced_or_Wild`="?"
+grz$Hatchery_produced_or_Wild="?"
 grz$Oyster_Stock='Little Bay Oyster Company'
 newdf4=bind_rows(newdf3, grz)
 
@@ -292,7 +286,7 @@ b2$Oyster_Growth_Location_Type="oyster reef (public grounds)"
 b2$Subtidal_Intertidal_WaterColumn_Other="Subtidal"
 b2$Ploidy="Diploid"
 # b2$Oyster_Stock
-b2$`Hatchery-produced_or_Wild`="Hatchery-produced"
+b2$Hatchery_produced_or_Wild="Hatchery-produced"
 # b2$Date_Oysters_Deployed
 b2$Month_Oysters_Removed=month(b2$Date_Oysters_Removed)
 b2$Year_Oysters_Removed=year(b2$Date_Oysters_Removed)
@@ -313,40 +307,125 @@ newdf5=bind_rows(newdf4, b2)
 
 
 ### Now add Sebastiano (NY)
-colnames(Seb2)
-
-[1] "Site"
-"Date"
-"Cage.x"
-"MeanSH"                
-[5] "Cage.y"
-"Cage Mean (dry weight)"
-
+# colnames(Seb.f)
+# [1] "Date_collected"            "Date_processed"            "Cage"                      "Bag"                      
+# [5] "Oyster_ID"                 "Live_whole_wt_g"           "Shell_height_mm"           "Shell_length_mm"          
+# [9] "Shell_width_mm"            "Wet_shell_wt_g"            "Tissue_tray_wt_g"          "Sex"                      
+# [13] "Gonad_ranking"             "Tray_plus_dry_tissue_wt_g" "Condition_index"           "Comments"                 
+# [17] "percent_N"                 "percent_C"                 "Site"                      "Dry_tissue_wt_g" 
+sbs=Seb.f %>% select(-c(Date_processed, Cage, Bag, Wet_shell_wt_g, Tissue_tray_wt_g, Tray_plus_dry_tissue_wt_g, Comments))
+colnames(sbs)
+# [1] "Date_collected"  "Oyster_ID"       "Live_whole_wt_g" "Shell_height_mm" "Shell_length_mm" "Shell_width_mm" 
+# [7] "percent_N"       "percent_C"       "Site"            "Dry_tissue_wt_g"
+colnames(sbs)[1]="Date_Oysters_Removed"
+colnames(sbs)[2]="Number_ID"
+colnames(sbs)[3]="Shell&Tissue_Total_Wet_Weight_g"
+colnames(sbs)[4]="Total_Shell_Height_Length_mm"
+colnames(sbs)[5]="Total_Shell_Width_mm"
+colnames(sbs)[6]="Total_Shell_Depth_mm"
+#"Sex"
+#"Gonad_ranking"
+colnames(sbs)[9]="Condition_Index"
+colnames(sbs)[10]="Tissue_N_Percent"
+colnames(sbs)[11]="Tissue_C_Percent"
+colnames(sbs)[12]="Site"
+colnames(sbs)[13]="Tissue_Dry_Weight_g"
 ### columns to add ###
-# xxx$Raw_Data_File
-# xxx$Representative_Aquaculture_Oyster_Practice
-# xxx$Data_Source
-# xxx$Location_Index
-# xxx$State
-# xxx$Near_Waterbody__General_Location
-# xxx$Waterbody_Name
-# xxx$Site
-# xxx$Site_within_Study
-# xxx$Oyster_Growth_Location_Type
-# xxx$Subtidal_Intertidal_WaterColumn_Other
-# xxx$Ploidy
-# xxx$Oyster_Stock
-# xxx$Hatchery-produced_or_Wild
-# xxx$Date_Oysters_Deployed
-# xxx$Date_Oysters_Removed
-# xxx$Month_Oysters_Removed
-# xxx$Year_Oysters_Removed
-# xxx$Season_Oysters_Removed
-# xxx$Total_Shell_Height_Length_Inches
-# xxx$Oyster_Size_Class
+sbs$Raw_Data_File="JB_or_GSB_condition index_data.xls"
+sbs$Representative_Aquaculture_Oyster_Practice="Off-Bottom with Gear"
+sbs$Data_Source="Sebastiano et al 2015"
+sbs$Location_Index=NA
+sbs$Location_Index[sbs$Site == "JBE" | sbs$Site == "JBC"| sbs$Site == "JBW"]="Jamaica Bay"
+sbs$Location_Index[sbs$Site == "GSBE" | sbs$Site == "GSBC"| sbs$Site == "GSBW"]="Great South Bay"
+sbs$State="New York"
+sbs$Near_Waterbody__General_Location="Long Island"
+sbs$Waterbody_Name="NY Coastal Bays"
+sbs$Site_within_Study=sbs$Site
+sbs$Oyster_Growth_Location_Type="Near-bottom cages"
+sbs$Subtidal_Intertidal_WaterColumn_Other="Subtidal"
+sbs$Ploidy="Diploid"
+sbs$Oyster_Stock=NA
+sbs$Hatchery_produced_or_Wild="Hatchery-produced"
+sbs$Date_Oysters_Deployed=NA
+sbs$Month_Oysters_Removed=month(sbs$Date_Oysters_Removed)
+sbs$Year_Oysters_Removed=year(sbs$Date_Oysters_Removed)
+sbs$Season_Oysters_Removed=NA
+sbs$Total_Shell_Height_Length_Inches=sbs$Total_Shell_Height_Length_mm*0.0393701
+sbs$Oyster_Size_Class=NA
+sbs$Oyster_Size_Class=ifelse(sbs$Total_Shell_Height_Length_Inches < 2.0, "< 2.0", NA)
+sbs$Oyster_Size_Class[which(sbs$Total_Shell_Height_Length_Inches>=2.0 & sbs$Total_Shell_Height_Length_Inches<=2.49)]="2.0 - 2.49"
+sbs$Oyster_Size_Class[which(sbs$Total_Shell_Height_Length_Inches>2.49 & sbs$Total_Shell_Height_Length_Inches<=3.49)]="2.5 - 3.49"
+sbs$Oyster_Size_Class[which(sbs$Total_Shell_Height_Length_Inches>3.49 & sbs$Total_Shell_Height_Length_Inches<=4.49)]="3.5 - 4.49"
+sbs$Oyster_Size_Class[which(sbs$Total_Shell_Height_Length_Inches>4.49 & sbs$Total_Shell_Height_Length_Inches<=5.49)]="4.5 - 5.49"
+sbs$Oyster_Size_Class[which(sbs$Total_Shell_Height_Length_Inches>5.49)]="≥ 5.5"
+newdf6=bind_rows(newdf5, sbs)
 
 
-
-
-
+### Now add Levinton (NY, NJ)
+Lv=Lev %>% select(-c(Date_analyzed, Cage, Bag, Wet_shell_weight_g, Tray_weight_g, Tray_plus_dry_soft_tissue_g, 
+                     Shell_tray_wt_g, Comments))
+colnames(Lv)
+# [1] "Site"               "Oyster_ID"          "Date_collected"     "Whole_weight_g"     "Shell_height_mm"   
+# [6] "Shell_length_mm"    "Shell_Width_mm"     "Dry_shell_weight_g" "Sex"                "Gonad_ranking"     
+# [11] "Wet_shell_CI"       "Dry_shell_CI"       "Dry_tissue_wt_g"   
+colnames(Lv)[2]="Number_ID"
+colnames(Lv)[3]="Date_Oysters_Removed"
+colnames(Lv)[4]="Shell&Tissue_Total_Wet_Weight_g"
+colnames(Lv)[5]="Total_Shell_Height_Length_mm"
+colnames(Lv)[6]="Total_Shell_Width_mm"
+colnames(Lv)[7]="Total_Shell_Depth_mm"
+colnames(Lv)[8]="Shell_Dry_Weight_g"
+# colnames(Lv)[9]="Sex"
+# colnames(Lv)[10]="Gonad_ranking"
+colnames(Lv)[11]="Condition_Index_wet_shell"
+colnames(Lv)[12]="Condition_Index_dry_shell"
+colnames(Lv)[13]="Tissue_Dry_Weight_g"
+# Original_Order
+Lv$Raw_Data_File="oyster_Condition Index_data.xls"
+Lv$Representative_Aquaculture_Oyster_Practice="Off-Bottom with Gear"
+Lv$Data_Source="Levinton J, et al. 2011 PLoS ONE 6(4)"
+# Lv$Analysis_ID
+Lv$Location_Index=Lv$Site
+Lv$State="New York"
+Lv$State[Lv$Site==RB]="New Jersey"
+# Lv$Waterbody_Type
+Lv$Near_Waterbody__General_Location="NY and NJ Coastal Bays"
+Lv$Waterbody_Name=NA
+Lv$Waterbody_Name[Lv$Site=="RB"]="Raritan Bay"
+Lv$Waterbody_Name[Lv$Site=="PF"]="Hudson River"
+Lv$Waterbody_Name[Lv$Site=="JB"]="Jamaica Bay"
+Lv$Waterbody_Name[Lv$Site=="SI"]="Shelter Island Sound"
+Lv$Waterbody_Name[Lv$Site=="I"]="Tappan Zee-Haverstraw Bay"
+Lv$Waterbody_Name[Lv$Site=="PT"]="Tappan Zee-Haverstraw Bay"
+Lv$Waterbody_Name[Lv$Site=="WI"]="Tappan Zee-Haverstraw Bay"
+Lv$Waterbody_Name[Lv$Site=="PM"]="Tappan Zee-Haverstraw Bay"
+Lv$Waterbody_Name[Lv$Site=="WE"]="Tappan Zee-Haverstraw Bay"
+Lv$Site_within_Study=NA
+Lv$Site_within_Study[Lv$Site=="PF"]="Pier 40"
+Lv$Site_within_Study[Lv$Site=="JB"]="Jamaica Bay"
+Lv$Site_within_Study[Lv$Site=="SI"]="Shelter Island"
+Lv$Site_within_Study[Lv$Site=="RB"]="Raritan Bay"
+Lv$Site_within_Study[Lv$Site=="I"]="Irvington"
+Lv$Site_within_Study[Lv$Site=="PT"]="Piermont"
+Lv$Site_within_Study[Lv$Site=="WI"]="Washington Irving Boat Club"
+Lv$Site_within_Study[Lv$Site=="PM"]="Philips Manor"
+Lv$Site_within_Study[Lv$Site=="WE"]="Westerly Marina Ossining"
+Lv$Oyster_Growth_Location_Type="Near-bottom cages"
+Lv$Subtidal_Intertidal_WaterColumn_Other="Subtidal"
+Lv$Ploidy="Diploid"
+Lv$Oyster_Stock="Fishers Island Oyster Farm"
+Lv$Hatchery_produced_or_Wild="Hatchery produced"
+Lv$Date_Oysters_Deployed=NA
+Lv$Month_Oysters_Removed=month(Lv$Date_Oysters_Removed)
+Lv$Year_Oysters_Removed=year(Lv$Date_Oysters_Removed)
+Lv$Season_Oysters_Removed=NA
+Lv$Total_Shell_Height_Length_Inches=Lv$Total_Shell_Height_Length_mm*0.0393701
+Lv$Oyster_Size_Class=NA
+Lv$Oyster_Size_Class=ifelse(Lv$Total_Shell_Height_Length_Inches < 2.0, "< 2.0", NA)
+Lv$Oyster_Size_Class[which(Lv$Total_Shell_Height_Length_Inches>=2.0 & Lv$Total_Shell_Height_Length_Inches<=2.49)]="2.0 - 2.49"
+Lv$Oyster_Size_Class[which(Lv$Total_Shell_Height_Length_Inches>2.49 & Lv$Total_Shell_Height_Length_Inches<=3.49)]="2.5 - 3.49"
+Lv$Oyster_Size_Class[which(Lv$Total_Shell_Height_Length_Inches>3.49 & Lv$Total_Shell_Height_Length_Inches<=4.49)]="3.5 - 4.49"
+Lv$Oyster_Size_Class[which(Lv$Total_Shell_Height_Length_Inches>4.49 & Lv$Total_Shell_Height_Length_Inches<=5.49)]="4.5 - 5.49"
+Lv$Oyster_Size_Class[which(Lv$Total_Shell_Height_Length_Inches>5.49)]="≥ 5.5"
+newdf7=bind_rows(newdf6, Lv)
 
