@@ -429,3 +429,322 @@ Lv$Oyster_Size_Class[which(Lv$Total_Shell_Height_Length_Inches>4.49 & Lv$Total_S
 Lv$Oyster_Size_Class[which(Lv$Total_Shell_Height_Length_Inches>5.49)]="≥ 5.5"
 newdf7=bind_rows(newdf6, Lv)
 
+### Janine Barr data from NY, NJ
+colnames(Barr)
+# [1] "Oyster"                   "Shell Height (mm)"        "Dry Tissue Weight (g)"    "Clearance Rate (L/h/g)"  
+# [5] "Filtration Rate (mg/h/g)" "Clearance Rate (L/h)"     "Filtration Rate (mg/h)"   "Sex"                     
+# [9] "date"      "Location"                 "Sublocation"              "State" 
+B2=Barr
+colnames(B2)[1]="Number_ID"
+B2$Number_ID=as.numeric(B2$Number_ID)
+colnames(B2)[2]="Total_Shell_Height_Length_mm"
+B2$Total_Shell_Height_Length_mm=as.numeric(B2$Total_Shell_Height_Length_mm)
+colnames(B2)[3]="Tissue_Dry_Weight_g"
+B2$Tissue_Dry_Weight_g=as.numeric(B2$Tissue_Dry_Weight_g)
+colnames(B2)[4]="Clearance_Rate_L_h_g"
+colnames(B2)[5]="Filtration_Rate_mg_h_g"
+colnames(B2)[6]="Clearance_Rate_L_h"
+colnames(B2)[7]="Filtration_Rate_mg_h"
+#[8]Sex
+colnames(B2)[9]="Date_Oysters_Removed"
+B2$Date_Oysters_Removed=as.Date(Barr$date,format = "%m/%d/%Y")
+colnames(B2)[10]="Near_Waterbody__General_Location"
+colnames(B2)[11]="Location_Index"
+## add data
+# Original_Order
+B2$Raw_Data_File="Rutgers_RM.xlsx"
+B2$Data_Source="Barr et al. submitted 2022"
+# B2$Number_ID
+# B2$Analysis_ID
+# B2$Location_Index
+# B2$State
+# B2$Waterbody_Type
+# B2$Near_Waterbody__General_Location
+B2$Waterbody_Name=B2$Near_Waterbody__General_Location
+B2$Site=B2$Location_Index
+B2$Representative_Aquaculture_Oyster_Practice=NA
+B2$Representative_Aquaculture_Oyster_Practice[B2$Near_Waterbody__General_Location=='Barnegat Bay']="Off-Bottom with Gear"
+B2$Representative_Aquaculture_Oyster_Practice[B2$Near_Waterbody__General_Location=='Delaware Bay']="Off-Bottom with Gear"
+B2$Representative_Aquaculture_Oyster_Practice[B2$Near_Waterbody__General_Location=='Rehobath Bay']="Off-Bottom with Gear"
+# B2$Site_within_Study
+B2$Oyster_Growth_Location_Type=NA
+B2$Oyster_Growth_Location_Type[B2$Near_Waterbody__General_Location=='Barnegat Bay']="Floating Rafts"
+B2$Oyster_Growth_Location_Type[B2$Near_Waterbody__General_Location=='Delaware Bay']="Near bottom cages"
+B2$Oyster_Growth_Location_Type[B2$Near_Waterbody__General_Location=='Rehobath Bay']="Floats in water column"
+B2$Subtidal_Intertidal_WaterColumn_Other="Subtidal"
+B2$Ploidy="Diploid"
+# B2$Oyster_Stock
+B2$Hatchery_produced_or_Wild="Hatchery produced"
+# B2$Date_Oysters_Deployed
+# B2$Date_Oysters_Removed
+B2$Month_Oysters_Removed=month(B2$Date_Oysters_Removed)
+B2$Year_Oysters_Removed=year(B2$Date_Oysters_Removed)
+# B2$Season_Oysters_Removed
+# B2$Total_Shell_Height_Length_mm
+# B2$Total_Shell_Width_mm
+# B2$Total_Shell_Depth_mm
+# B2$Shell&Tissue_Total_Wet_Weight_g
+# B2$Shell_Dry_Weight_g
+# B2$Tissue_Dry_Weight_g
+# B2$Tissue_AFDW_g
+# B2$Tissue_CN_molar
+# B2$Tissue_C_Percent
+# B2$Tissue_TC_g_C_per_g_dw
+# B2$Tissue_N_Percent
+# B2$Tissue_TN_g_N_per_g_dw
+# Tissue_TP_Percent
+# Tissue_TP_g_P_per_g_dw
+# Shell_CN_molar
+# Shell_C_Percent
+# Shell_TC_g_C_per_ g_dw
+# Shell_N_Percent
+# Shell_TN_g_N_per_g_dw
+# Shell_TP_Percent
+# Shell_TP_g_P_per_g_dw
+B2$Total_Shell_Height_Length_Inches=B2$Total_Shell_Height_Length_mm*0.0393701
+B2$Oyster_Size_Class=NA
+B2$Oyster_Size_Class=ifelse(B2$Total_Shell_Height_Length_Inches < 2.0, "< 2.0", NA)
+B2$Oyster_Size_Class[which(B2$Total_Shell_Height_Length_Inches>=2.0 & B2$Total_Shell_Height_Length_Inches<=2.49)]="2.0 - 2.49"
+B2$Oyster_Size_Class[which(B2$Total_Shell_Height_Length_Inches>2.49 & B2$Total_Shell_Height_Length_Inches<=3.49)]="2.5 - 3.49"
+B2$Oyster_Size_Class[which(B2$Total_Shell_Height_Length_Inches>3.49 & B2$Total_Shell_Height_Length_Inches<=4.49)]="3.5 - 4.49"
+B2$Oyster_Size_Class[which(B2$Total_Shell_Height_Length_Inches>4.49 & B2$Total_Shell_Height_Length_Inches<=5.49)]="4.5 - 5.49"
+B2$Oyster_Size_Class[which(B2$Total_Shell_Height_Length_Inches>5.49)]="≥ 5.5"
+B2$Clearance_Rate_L_h=as.numeric(B2$Clearance_Rate_L_h)
+B2$Filtration_Rate_mg_h_g =as.numeric(B2$Filtration_Rate_mg_h_g )
+B2$Clearance_Rate_L_h_g=as.numeric(B2$Clearance_Rate_L_h_g)
+B2$Filtration_Rate_mg_h=as.numeric(B2$Filtration_Rate_mg_h)
+newdf8=bind_rows(newdf7, B2)
+
+# colnames(Kiffney)
+K1=Kiffney %>% select(-c(Type.x, Type.y))
+# [1] "Site"              "ShellHeight_mm"    "WholeWetWeight_g"  "WetTissueWeight_g" "DryTissueWeight_g"
+# [6] "WetShellWeight_g"  "DryShellWeight_g" 
+colnames(K1)[1]="Location_Index"
+K1$Site=NA
+K1$Site[K1$Location_Index=="HIF"]="Hurricane Island Foundation"
+K1$Waterbody_Name[K1$Location_Index=="HIF"]="Penobscot Bay"
+K1$Site[K1$Location_Index=="SSF"]="Spartan Sea Farms"
+K1$Waterbody_Name[K1$Location_Index=="SSF"]="Casco Bay"
+K1$Site[K1$Location_Index=="DMC"]="Darling Marine Center"
+K1$Waterbody_Name[K1$Location_Index=="DMC"]="Damariscotta River"
+K1$Site[K1$Location_Index=="POC"]="Pemaquid Oyster Company"
+K1$Waterbody_Name[K1$Location_Index=="POC"]="Damariscotta River"
+K1Near_Waterbody__General_Location="Coastal Maine"
+colnames(K1)[2]="Total_Shell_Height_Length_mm"
+colnames(K1)[3]="Shell&Tissue_Total_Wet_Weight_g"
+colnames(K1)[4]="Tissue_Wet_Weight_g"
+colnames(K1)[5]="Tissue_Dry_Weight_g"
+colnames(K1)[6]="Shell_Wet_Weight_g"
+colnames(K1)[7]="Shell_Dry_Weight_g"
+K1$Raw_Data_File="tissue2021.csv + shell2021.csv"
+K1$Representative_Aquaculture_Oyster_Practice="Off-Bottom with Gear"
+K1$Data_Source="Tom Kiffney unpublished, in prep"
+K1$State="Maine"
+# K1$Site_within_Study
+K1$Oyster_Growth_Location_Type="Floating Rafts"
+K1$Subtidal_Intertidal_WaterColumn_Other="Other"
+K1$Ploidy="Diploid"
+# K1$Oyster_Stock
+K1$Hatchery_produced_or_Wild="Hatchery produced"
+# K1$Date_Oysters_Deployed=
+# K1$Date_Oysters_Removed
+# K1$Month_Oysters_Removed
+K1$Year_Oysters_Removed=2021
+# K1$Season_Oysters_Removed
+K1$Total_Shell_Height_Length_Inches=K1$Total_Shell_Height_Length_mm*0.0393701
+K1$Oyster_Size_Class=NA
+K1$Oyster_Size_Class=ifelse(K1$Total_Shell_Height_Length_Inches < 2.0, "< 2.0", NA)
+K1$Oyster_Size_Class[which(K1$Total_Shell_Height_Length_Inches>=2.0 & K1$Total_Shell_Height_Length_Inches<=2.49)]="2.0 - 2.49"
+K1$Oyster_Size_Class[which(K1$Total_Shell_Height_Length_Inches>2.49 & K1$Total_Shell_Height_Length_Inches<=3.49)]="2.5 - 3.49"
+K1$Oyster_Size_Class[which(K1$Total_Shell_Height_Length_Inches>3.49 & K1$Total_Shell_Height_Length_Inches<=4.49)]="3.5 - 4.49"
+K1$Oyster_Size_Class[which(K1$Total_Shell_Height_Length_Inches>4.49 & K1$Total_Shell_Height_Length_Inches<=5.49)]="4.5 - 5.49"
+K1$Oyster_Size_Class[which(K1$Total_Shell_Height_Length_Inches>5.49)]="≥ 5.5"
+newdf9=bind_rows(newdf8, K1)
+
+K2=Kiffney2
+colnames(K2)[1]="Location_Index"
+# colnames(K2)[2]="Ploidy"
+colnames(K2)[3]="Total_Shell_Height_Length_mm"
+colnames(K2)[4]="Tissue_Dry_Weight_g"
+K2$Raw_Data_File="tissuePloidy2022.csv"
+K2$Representative_Aquaculture_Oyster_Practice="Off-Bottom with Gear"
+K2$Data_Source="Tom Kiffney unpublished, in prep"
+K2$State="Maine"
+K2$Site=NA
+K2$Waterbody_Name=NA
+K2$Site[K2$Location_Index=="DMC"]="Darling Marine Center"
+K2$Waterbody_Name[K2$Location_Index=="DMC"]="Damariscotta River"
+K2$Site[K2$Location_Index=="POC"]="Pemaquid Oyster Company"
+K2$Waterbody_Name[K2$Location_Index=="POC"]="Damariscotta River"
+K2Near_Waterbody__General_Location="Coastal Maine"
+# K2$Site_within_Study=
+K2$Oyster_Growth_Location_Type="Floating Rafts"
+K2$Subtidal_Intertidal_WaterColumn_Other="Other"
+K2$ploidy="Diploid"
+K2$ploidy[K2$Ploidy=="3N"]="Triploid"
+K2$Ploidy=K2$ploidy; K2=K2 %>% select(-ploidy)
+# K2$Oyster_Stock
+K2$Hatchery_produced_or_Wild="Hatchery produced"
+# K2$Date_Oysters_Deployed
+# K2$Date_Oysters_Removed
+# K2$Month_Oysters_Removed
+K2$Year_Oysters_Removed=2021
+# K2$Season_Oysters_Removed
+K2$Total_Shell_Height_Length_Inches=K2$Total_Shell_Height_Length_mm*0.0393701
+K2$Oyster_Size_Class=NA
+K2$Oyster_Size_Class=ifelse(K2$Total_Shell_Height_Length_Inches < 2.0, "< 2.0", NA)
+K2$Oyster_Size_Class[which(K2$Total_Shell_Height_Length_Inches>=2.0 & K2$Total_Shell_Height_Length_Inches<=2.49)]="2.0 - 2.49"
+K2$Oyster_Size_Class[which(K2$Total_Shell_Height_Length_Inches>2.49 & K2$Total_Shell_Height_Length_Inches<=3.49)]="2.5 - 3.49"
+K2$Oyster_Size_Class[which(K2$Total_Shell_Height_Length_Inches>3.49 & K2$Total_Shell_Height_Length_Inches<=4.49)]="3.5 - 4.49"
+K2$Oyster_Size_Class[which(K2$Total_Shell_Height_Length_Inches>4.49 & K2$Total_Shell_Height_Length_Inches<=5.49)]="4.5 - 5.49"
+K2$Oyster_Size_Class[which(K2$Total_Shell_Height_Length_Inches>5.49)]="≥ 5.5"
+newdf10=bind_rows(newdf9, K2)
+
+
+
+colnames(Darr)
+# [1] "Date Collected"        "Site"                  "Bag #"                 "Oyster #"
+# [5] "Pan #"                 "Comments"              "Height (mm)"           "Length (mm)"          
+# [9] "Width (mm)"            "Total Wet Wt (g)"      "Empty Shell Wt (g)"    "Tissue Wet Wt (g)"    
+# [13] "Tissue Dry Wt (g)"     "Tissue AFDW (g)"       "Sample Mass (mg)"      "Carbon Content (mg)"  
+# [17] "Carbon Content (%)"    "Corrected δ13C"        "Nitrogen Content (mg)" "Nitrogen Content (%)" 
+# [21] "Corrected δ15N"        "C/N Ratio" 
+dar=Darr %>% select(-c(`Bag #`, Comments,`Pan #`, `Sample Mass (mg)`, `Corrected δ13C`,  `Corrected δ15N`))
+# "Shell&Tissue_Total_Wet_Weight_g", "Shell_Dry_Weight_g", "Tissue_Wet_Weight_g",
+# "Tissue_Dry_Weight_g","Tissue_AFDW_g")
+colnames(dar)[1]="Date_Oysters_Removed"
+colnames(dar)[2]="Location_Index"
+colnames(dar)[3]="Number_ID"
+colnames(dar)[4]="Total_Shell_Height_Length_mm"
+colnames(dar)[5]="Total_Shell_Width_mm"
+colnames(dar)[6]="Total_Shell_Depth_mm"
+colnames(dar)[7]="Shell&Tissue_Total_Wet_Weight_g"
+colnames(dar)[8]="Shell_Dry_Weight_g"
+colnames(dar)[9]="Tissue_Wet_Weight_g"
+colnames(dar)[10]="Tissue_Dry_Weight_g"
+colnames(dar)[11]="Tissue_AFDW_g"
+colnames(dar)[12]="Tissue_TC_g_C_per_g_dw"
+dar$Tissue_TC_g_C_per_g_dw=Darr$`Carbon Content (mg)`/Darr$`Sample Mass (mg)`
+colnames(dar)[13]="Tissue_C_Percent"
+colnames(dar)[14]="Tissue_TN_g_N_per_g_dw"
+dar$Tissue_TN_g_C_per_g_dw=Darr$`Nitrogen Content (mg)`/Darr$`Sample Mass (mg)`
+colnames(dar)[15]="Tissue_N_Percent"
+colnames(dar)[16]="Tissue_CN_molar"
+dar$Raw_Data_File="NCOysterSizeData_DarrowKInsella_forJulieRose.xlsx"
+dar$Representative_Aquaculture_Oyster_Practice="Unknown"
+dar$Data_Source="Darrow ES & Kinsella JD, unpublished"
+dar$State="North Carolina"
+dar$Near_Waterbody__General_Location=NA
+dar$Near_Waterbody__General_Location[dar$Location_Index=="F1"]="Masonboro Island"
+dar$Near_Waterbody__General_Location[dar$Location_Index=="F2"]="Masonboro Island"
+dar$Near_Waterbody__General_Location[dar$Location_Index=="F3"]="New River"
+dar$Waterbody_Name="Masonboro Island"
+dar$Waterbody_Name[dar$Location_Index=="F3"]="New River"
+dar$Site=NA
+dar$Site[dar$Location_Index=="F1"]="Farm 1"
+dar$Site[dar$Location_Index=="F2"]="Farm 2"
+dar$Site[dar$Location_Index=="F3"]="Farm 3"
+# dar$Site_within_Study
+dar$Oyster_Growth_Location_Type="Unknown"
+dar$Subtidal_Intertidal_WaterColumn_Other="Unknown"
+dar$Ploidy="Diploid"
+# dar$Oyster_Stock
+# dar$Hatchery_produced_or_Wild
+# dar$Date_Oysters_Deployed
+# dar$Date_Oysters_Removed
+dar$Month_Oysters_Removed=month(dar$Date_Oysters_Removed)
+dar$Year_Oysters_Removed=year(dar$Date_Oysters_Removed)
+dar$Total_Shell_Height_Length_Inches=as.numeric(dar$Total_Shell_Height_Length_mm)*0.0393701
+dar$Oyster_Size_Class=NA
+dar$Oyster_Size_Class=ifelse(dar$Total_Shell_Height_Length_Inches < 2.0, "< 2.0", NA)
+dar$Oyster_Size_Class[which(dar$Total_Shell_Height_Length_Inches>=2.0 & dar$Total_Shell_Height_Length_Inches<=2.49)]="2.0 - 2.49"
+dar$Oyster_Size_Class[which(dar$Total_Shell_Height_Length_Inches>2.49 & dar$Total_Shell_Height_Length_Inches<=3.49)]="2.5 - 3.49"
+dar$Oyster_Size_Class[which(dar$Total_Shell_Height_Length_Inches>3.49 & dar$Total_Shell_Height_Length_Inches<=4.49)]="3.5 - 4.49"
+dar$Oyster_Size_Class[which(dar$Total_Shell_Height_Length_Inches>4.49 & dar$Total_Shell_Height_Length_Inches<=5.49)]="4.5 - 5.49"
+dar$Oyster_Size_Class[which(dar$Total_Shell_Height_Length_Inches>5.49)]="≥ 5.5"
+dar$Total_Shell_Height_Length_mm=as.numeric(dar$Total_Shell_Height_Length_mm)
+dar$Total_Shell_Width_mm=as.numeric(dar$Total_Shell_Width_mm)
+dar$Total_Shell_Depth_mm=as.numeric(dar$Total_Shell_Depth_mm)
+dar$`Shell&Tissue_Total_Wet_Weight_g`=as.numeric(dar$`Shell&Tissue_Total_Wet_Weight_g`)
+dar$Shell_Dry_Weight_g=as.numeric(dar$Shell_Dry_Weight_g)
+dar$Tissue_Wet_Weight_g=as.numeric(dar$Tissue_Wet_Weight_g)
+dar$Tissue_Dry_Weight_g=as.numeric(dar$Tissue_Dry_Weight_g)
+dar$Tissue_AFDW_g=as.numeric(dar$Tissue_AFDW_g)
+newdf11=bind_rows(newdf10, dar)
+
+
+colnames(Ayvazian)
+avz=Ayvazian
+colnames(avz)[1]="Year_Oysters_Removed"
+colnames(avz)[2]="Season_Oysters_Removed"
+colnames(avz)[4]="Total_Shell_Height_Length_mm"
+colnames(avz)[5]="Shell_Dry_Weight_g"
+colnames(avz)[6]="Tissue_Wet_Weight_g"
+colnames(avz)[7]="Tissue_Dry_Weight_g"
+avz$Raw_Data_File="Ninigret oyster dry weights_height.xlsx"
+avz$Representative_Aquaculture_Oyster_Practice="On-Bottom without Gear"
+avz$Data_Source="Ayvazian et al. TNC unpublished"
+avz$Location_Index="Ninigret Pond"
+avz$State="Rhode Island"
+avz$Near_Waterbody__General_Location="Charlestown"
+avz$Waterbody_Name="Ninigret Pond"
+# avz$Site_within_Study
+avz$Oyster_Growth_Location_Type="Subtidal Bottom (Not a Discrete Patch)"
+avz$Subtidal_Intertidal_WaterColumn_Other="subtidal"
+avz$Ploidy="Diploid"
+# avz$Oyster_Stock
+avz$Hatchery_produced_or_Wild="Wild"
+# avz$Date_Oysters_Deployed
+# avz$Date_Oysters_Removed
+# avz$Month_Oysters_Removed
+avz$Total_Shell_Height_Length_Inches=as.numeric(avz$Total_Shell_Height_Length_mm)*0.0393701
+avz$Oyster_Size_Class=NA
+avz$Oyster_Size_Class=ifelse(avz$Total_Shell_Height_Length_Inches < 2.0, "< 2.0", NA)
+avz$Oyster_Size_Class[which(avz$Total_Shell_Height_Length_Inches>=2.0 & avz$Total_Shell_Height_Length_Inches<=2.49)]="2.0 - 2.49"
+avz$Oyster_Size_Class[which(avz$Total_Shell_Height_Length_Inches>2.49 & avz$Total_Shell_Height_Length_Inches<=3.49)]="2.5 - 3.49"
+avz$Oyster_Size_Class[which(avz$Total_Shell_Height_Length_Inches>3.49 & avz$Total_Shell_Height_Length_Inches<=4.49)]="3.5 - 4.49"
+avz$Oyster_Size_Class[which(avz$Total_Shell_Height_Length_Inches>4.49 & avz$Total_Shell_Height_Length_Inches<=5.49)]="4.5 - 5.49"
+avz$Oyster_Size_Class[which(avz$Total_Shell_Height_Length_Inches>5.49)]="≥ 5.5"
+newdf12=bind_rows(newdf11, avz)
+
+colnames(Ayvazian2)
+avz2=Ayvazian2 %>% select(-Tissue)
+colnames(avz2)[1]="Number_ID"
+colnames(avz2)[2]="Month_Oysters_Removed"
+avz2$Month_Oysters_Removed=match(avz2$Month_Oysters_Removed, month.name)
+colnames(avz2)[3]="Site_within_Study"
+colnames(avz2)[4]="Total_Shell_Height_Length_mm"
+colnames(avz2)[5]="Tissue_Dry_Weight_g"
+avz2$Raw_Data_File="Green Hill Length_dry wgt.xlsx"
+avz2$Representative_Aquaculture_Oyster_Practice="On-Bottom without Gear"
+avz2$Data_Source="Ayvazian et al. TNC unpublished"
+avz2$Location_Index="Green Hill Pond"
+avz2$State="Rhode Island"
+avz2$Near_Waterbody__General_Location="Charlestown"
+avz2$Waterbody_Name="Green Hill Pond"
+avz2$Site="Green Hill Pond"
+avz2$Oyster_Growth_Location_Type="Subtidal Bottom (Not a Discrete Patch)"
+avz2$Subtidal_Intertidal_WaterColumn_Other="subtidal"
+avz2$Ploidy="Diploid"
+# avz2$Oyster_Stock
+avz2$Hatchery_produced_or_Wild="Wild"
+# avz2$Date_Oysters_Deployed
+avz2$Year_Oysters_Removed=2015
+# avz2$Month_Oysters_Removed
+avz2$Total_Shell_Height_Length_Inches=as.numeric(avz2$Total_Shell_Height_Length_mm)*0.0393701
+avz2$Oyster_Size_Class=NA
+avz2$Oyster_Size_Class=ifelse(avz2$Total_Shell_Height_Length_Inches < 2.0, "< 2.0", NA)
+avz2$Oyster_Size_Class[which(avz2$Total_Shell_Height_Length_Inches>=2.0 & avz2$Total_Shell_Height_Length_Inches<=2.49)]="2.0 - 2.49"
+avz2$Oyster_Size_Class[which(avz2$Total_Shell_Height_Length_Inches>2.49 & avz2$Total_Shell_Height_Length_Inches<=3.49)]="2.5 - 3.49"
+avz2$Oyster_Size_Class[which(avz2$Total_Shell_Height_Length_Inches>3.49 & avz2$Total_Shell_Height_Length_Inches<=4.49)]="3.5 - 4.49"
+avz2$Oyster_Size_Class[which(avz2$Total_Shell_Height_Length_Inches>4.49 & avz2$Total_Shell_Height_Length_Inches<=5.49)]="4.5 - 5.49"
+avz2$Oyster_Size_Class[which(avz2$Total_Shell_Height_Length_Inches>5.49)]="≥ 5.5"
+newdf13=bind_rows(newdf12, avz2)
+
+# 20230823
+# Lisa Kellogg is fine with us using the "Kellogg-Choptank" data set. It's about 300 points.
+# She's writing up the "Kellogg-Hillcrest" and "Kellogg-Onancock"
+# so if you can pull those out of the CB-C data then we should be good to go!
+Kellogg-Onancock
+
+Main=newdf13[newdf13$Data_Source != "Kellogg-Onancock",]
