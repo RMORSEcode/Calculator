@@ -457,7 +457,8 @@ B2$Data_Source="Barr et al. submitted 2022"
 # B2$Number_ID
 # B2$Analysis_ID
 # B2$Location_Index
-# B2$State
+B2$State[B2$State=="NJ"]="New Jersey"
+B2$State[B2$State=="DE"]="Delaware"
 # B2$Waterbody_Type
 # B2$Near_Waterbody__General_Location
 B2$Waterbody_Name=B2$Near_Waterbody__General_Location
@@ -565,6 +566,7 @@ K2=Kiffney2
 colnames(K2)[1]="Location_Index"
 # colnames(K2)[2]="Ploidy"
 colnames(K2)[3]="Total_Shell_Height_Length_mm"
+K2$"Total_Shell_Height_Length_mm"=K2$"Total_Shell_Height_Length_mm"/1000
 colnames(K2)[4]="Tissue_Dry_Weight_g"
 K2$Raw_Data_File="tissuePloidy2022.csv"
 K2$Representative_Aquaculture_Oyster_Practice="Off-Bottom with Gear"
@@ -741,10 +743,29 @@ avz2$Oyster_Size_Class[which(avz2$Total_Shell_Height_Length_Inches>4.49 & avz2$T
 avz2$Oyster_Size_Class[which(avz2$Total_Shell_Height_Length_Inches>5.49)]="≥ 5.5"
 newdf13=bind_rows(newdf12, avz2)
 
+Main=newdf13
 # 20230823
 # Lisa Kellogg is fine with us using the "Kellogg-Choptank" data set. It's about 300 points.
 # She's writing up the "Kellogg-Hillcrest" and "Kellogg-Onancock"
 # so if you can pull those out of the CB-C data then we should be good to go!
-Kellogg-Onancock
 
-Main=newdf13[newdf13$Data_Source != "Kellogg-Onancock",]
+# > unique(CB$Data_Source)
+# [1] "Kellogg-Onancock"  "Higgins-2011"      "Parker-unpubl"     "Kingsley-Smith"    "Higgins-Choptank" 
+# [6] "Higgins-Lynnhaven" "Ross-LA"           "Ross-Monitor"      "Kellogg-Harris"    "Kellogg-Choptank" 
+# [11] "Liddel-2008"       "Powell_Mann"      
+# > unique(CB$Raw_Data_File)
+# [1] "HillcrestCv Tissue L to Biomass"  "Higgins_Oyster Biomass"           "Parker_Master File_beforeNov2016"
+# [4] "Parker_Master File_Nov2016"       "Parker_Jan-Mar2017_data"          "Parker_Apr-Jul2017_data"         
+# [7] "Kingsley_Data_CV_Only"            "Parker_Dec2016"                   "Ross_Data"                       
+# [10] "HarrisOyster L-Biom Regressions"  "ChoptankOysters-OutliersRemoved"  "Liddel_Condition Index"          
+# [13] "Powell_Mann" 
+
+### Kellogg-Onancock removed
+Main=Main[Main$Data_Source != "Kellogg-Onancock",]
+Main=Main[Main$Data_Source != "Kellogg-Harris",]
+
+### fix Kiffney2 mg -> g (added to Main file, added fix to build for K2)
+Main$Tissue_Dry_Weight_g[Main$Raw_Data_File=="tissuePloidy2022.csv"]=Main$Tissue_Dry_Weight_g[Main$Raw_Data_File=="tissuePloidy2022.csv"]/1000
+Main$State[Main$State=="NJ"]="New Jersey"
+Main$State[Main$State=="DE"]="Delaware"
+

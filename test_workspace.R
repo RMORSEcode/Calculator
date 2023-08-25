@@ -716,3 +716,151 @@ legend('topleft',
 plot(Seb.f$Dry_tissue_wt_g ~ Seb.f$Shell_height_mm, type='p', xlab='SH (mm)', ylab='DW (g)', las=1, 
      ylim=c(0,7), xlim=c(0,150), main='All')
 Seb.f %>% ggplot(aes(y=Dry_tissue_wt_g, x=Shell_height_mm, color=Site)) + geom_point()
+
+
+### plotting Main dataframe, options to:
+# 1) plot all together (full)
+# 2) remove CB - (not include in regression of rest)
+# 3) remove CB and Levinton NY
+# plot states independently
+# plot regions
+
+library(quantreg)
+s1=match("Poach et al. in prep 2023", Main$Data_Source) # start of Poach data (after end of CB)
+s2=match("Levinton J, et al. 2011 PLoS ONE 6(4)", Main$Data_Source)-1 #Last data before Levinton
+s3=match("Barr et al. submitted 2022", Main$Data_Source) # Start of Barr (after end of Levinton)
+s4=match("Sebastiano et al 2015", Main$Data_Source)-1 #Last data before Sebastiano
+vec=c(s1:s2, s3:dim(Main)[1]) # No CB, No Levinton
+vecNoCBNY=c(s1:s4, s3:dim(Main)[1])
+# 1) plot all together (full)
+P=Main %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_mm, color=State))+ 
+  geom_point()+
+  ylim(0,8) +
+  xlim(0, 200)
+# No CB
+P1=Main[s1:dim(Main)[1],] %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_mm, color=State)) +
+  geom_point() +
+  ylim(0,8) +
+  xlim(0, 200)
+# Just CB
+P2=Main[1:s1,] %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_mm, color=State)) +
+  geom_point() +
+  ylim(0,8) +
+  xlim(0, 200)
+
+# No CB no Levinton
+P3=Main[vec,] %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_mm, color=State)) +
+  geom_point() +
+  ylim(0,8) +
+  xlim(0, 200)
+
+# No Levinton or Sebastiano
+P4=Main[vecNoCBNY,] %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_mm, color=State)) +
+  geom_point() +
+  ylim(0,8) +
+  xlim(0, 200)
+
+# All data
+qr.main=rq(log(Tissue_Dry_Weight_g) ~ 
+             log(Total_Shell_Height_Length_mm), 
+           data=Main, tau=0.5, na.action = 'na.omit')
+xval=seq(0,180,by=.5)
+yval=exp(qr.main$coefficients[1])*xval^qr.main$coefficients[2]
+mod.all=data.frame(Total_Shell_Height_Length_mm=xval, Tissue_Dry_Weight_g=yval)
+
+qr.main=lm(log(Tissue_Dry_Weight_g) ~ 
+             log(Total_Shell_Height_Length_mm), 
+           data=Main, na.action = 'na.omit')
+xval=seq(0,180,by=.5)
+yval=exp(qr.main$coefficients[1])*xval^qr.main$coefficients[2]
+mod.all.lm=data.frame(Total_Shell_Height_Length_mm=xval, Tissue_Dry_Weight_g=yval)
+
+# CB only
+qr.x=rq(log(Tissue_Dry_Weight_g) ~ 
+          log(Total_Shell_Height_Length_mm), 
+        data=Main[1:9727,], tau=0.5, na.action = 'na.omit')
+xval=seq(0,180,by=.5)
+yval=exp(qr.x$coefficients[1])*xval^qr.x$coefficients[2]
+mod.CB=data.frame(Total_Shell_Height_Length_mm=xval, Tissue_Dry_Weight_g=yval)
+
+# No CB, No Levinton
+
+qr.x=rq(log(Tissue_Dry_Weight_g) ~ 
+          log(Total_Shell_Height_Length_mm), 
+        data=Main[vec,], tau=0.5, na.action = 'na.omit')
+xval=seq(0,180,by=.5)
+yval=exp(qr.x$coefficients[1])*xval^qr.x$coefficients[2]
+mod.noCBnoLev=data.frame(Total_Shell_Height_Length_mm=xval, Tissue_Dry_Weight_g=yval)
+
+# No CB
+qr.x=rq(log(Tissue_Dry_Weight_g) ~ 
+          log(Total_Shell_Height_Length_mm), 
+        data=Main[s1:dim(Main)[1],], tau=0.5, na.action = 'na.omit')
+xval=seq(0,180,by=.5)
+yval=exp(qr.x$coefficients[1])*xval^qr.x$coefficients[2]
+mod.noCB=data.frame(Total_Shell_Height_Length_mm=xval, Tissue_Dry_Weight_g=yval)
+
+# No Levinton
+qr.x=rq(log(Tissue_Dry_Weight_g) ~ 
+          log(Total_Shell_Height_Length_mm), 
+        data=Main[Main$Data_Source!="Levinton J, et al. 2011 PLoS ONE 6(4)",], tau=0.5, na.action = 'na.omit')
+xval=seq(0,180,by=.5)
+yval=exp(qr.x$coefficients[1])*xval^qr.x$coefficients[2]
+mod.noLev=data.frame(Total_Shell_Height_Length_mm=xval, Tissue_Dry_Weight_g=yval)
+
+### CB Panel report 2nd model
+xval=seq(0,180,by=.5)
+yval=(0.00037)*xval^1.83359 # CBP all data BMP Second Report Appendix
+mod.BMP=data.frame(Total_Shell_Height_Length_mm=xval, Tissue_Dry_Weight_g=yval)
+
+P + 
+  geom_line(data=mod.all, color='black', size=1.25) +
+  geom_line(data=mod.CB, color='black', linetype = "dashed", size=1.25) +
+  geom_line(data=mod.noLev, color='red', size=1.25) +
+  geom_line(data=mod.noCB, color='gray', size=1.25) +
+  geom_line(data=mod.noCBnoLev, color='blue', size=1.25)+
+  geom_line(data=mod.BMP, color='black', linetype = "dotted", size=1.25)+
+  geom_line(data=mod.all.lm, color='green', size=1.25)
+
+P3 + geom_line(data=mod.noCBnoLev, color='blue', size=1.25) +
+  geom_line(data=mod.BMP, color='black', linetype = "dotted", size=1.25)
+
+plot(Main$Tissue_Dry_Weight_g ~ Main$Total_Shell_Height_Length_mm, type='n', ylim=c(0,8), xlim=c(0,200))
+lines(mod.all$Tissue_Dry_Weight_g ~mod.all$Total_Shell_Height_Length_mm, col='black', lwd=2)
+lines(mod.all.lm$Tissue_Dry_Weight_g ~mod.all.lm$Total_Shell_Height_Length_mm, col='black')
+lines(mod.BMP$Tissue_Dry_Weight_g ~mod.BMP$Total_Shell_Height_Length_mm, col='black', lty=2, lwd=2)
+
+lines(gxval, gyval, col='gray70', lwd=2) #NH
+lines(rxval, ryval, col='red', lwd=2) #MA
+lines(cxval, cyval, col='blue', lwd=2)#CB
+lines(sxval, syval, col='purple', lwd=2) #NY
+lines(bxval, byval, col='green', lwd=2) #CT
+lines(njxval, dbyval, col='yellow', lwd=2) #NJ Delaware Bay
+lines(njxval, bbyval, col='orange', lwd=2) #NJ Barnegat Bay
+lines(njxval, rbyval, col='brown', lwd=2) #DE Rehobath Bay
+legend('topleft', bty='n', 
+       legend = c('NH', 'MA', 'CB', 'NY', 'CT', 'NJ Del', 'NJ Barn', 'DE Reho'), 
+       text.col=c('gray70', 'red', 'blue', 'purple', 'green', 'yellow', 'orange', 'brown'))
+
+library(colorspace)
+q11 <- qualitative_hcl(11, "Dark3")
+# qr By state
+plot(Main$Tissue_Dry_Weight_g ~ Main$Total_Shell_Height_Length_mm, type='n', 
+     ylim=c(0,8), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1)
+stt=sort(unique(Main$State))
+MainNoCB=Main[s1:dim(Main)[1],]
+for(i in 1:length(unique(Main$State))){
+  # dataa=Main[Main$State==stt[i],]
+  dataa=MainNoCB[MainNoCB$State==stt[i],]
+  qr.x=rq(log(Tissue_Dry_Weight_g) ~  log(Total_Shell_Height_Length_mm), 
+          data=dataa, tau=0.5, na.action = 'na.omit')
+  xval=seq(0,180,by=.5)
+  yval=exp(qr.x$coefficients[1])*xval^qr.x$coefficients[2]
+  points(dataa$Tissue_Dry_Weight_g ~dataa$Total_Shell_Height_Length_mm, pch=21, col=q11[i], ylim=c(0,8), xlim=c(0,200))
+  lines(yval ~xval, col=q11[i], lwd=2)
+  }
+legend('topleft', bty='n', 
+       legend = c('CT', 'DE', 'ME', 'MD', 'MA', 'NH', 'NJ', 'NY', 'NC', 'RI', 'VA'), 
+       text.col=q11)
+
+
