@@ -202,6 +202,11 @@ r3$Oyster_Growth_Location_Type[reitsma$OysterGrp=="Coff"]='Near-bottom cages'
 r3$Oyster_Growth_Location_Type[reitsma$OysterGrp=="Coff-T"]='Near-bottom cages'
 r3$Oyster_Growth_Location_Type[reitsma$OysterGrp=="W"]='Reef'
 r3$Oyster_Growth_Location_Type[reitsma$OysterGrp=="Con"]='Reef'
+## Fix issue with total C (fall) and organic C (spring)
+r3$Shell_Organic_C_Percent=NA
+r3$Shell_Organic_C_Percent[r3$Shell_C_Percent<4 & !is.na(r3$Shell_C_Percent)]=r3$Shell_C_Percent[r3$Shell_C_Percent<4 & !is.na(r3$Shell_C_Percent)]
+r3$Shell_C_Percent[r3$Shell_C_Percent<4 & !is.na(r3$Shell_C_Percent)]=NA
+
 newdf3=bind_rows(newdf2, r3)
 
 
@@ -765,7 +770,13 @@ Main=Main[Main$Data_Source != "Kellogg-Onancock",]
 Main=Main[Main$Data_Source != "Kellogg-Harris",]
 
 ### fix Kiffney2 mg -> g (added to Main file, added fix to build for K2)
-Main$Tissue_Dry_Weight_g[Main$Raw_Data_File=="tissuePloidy2022.csv"]=Main$Tissue_Dry_Weight_g[Main$Raw_Data_File=="tissuePloidy2022.csv"]/1000
-Main$State[Main$State=="NJ"]="New Jersey"
-Main$State[Main$State=="DE"]="Delaware"
+# Main$Tissue_Dry_Weight_g[Main$Raw_Data_File=="tissuePloidy2022.csv"]=Main$Tissue_Dry_Weight_g[Main$Raw_Data_File=="tissuePloidy2022.csv"]/1000
+## fix states for Barr (done above now)
+# Main$State[Main$State=="NJ"]="New Jersey"
+# Main$State[Main$State=="DE"]="Delaware"
+
+### fix Reitsma shell C percent for low values (Organic C vs total C) (added to r3 above)
+# Main$Shell_Organic_C_Percent=NA
+# Main$Shell_Organic_C_Percent[Main$Shell_C_Percent<4 & !is.na(Main$Shell_C_Percent)]=Main$Shell_C_Percent[Main$Shell_C_Percent<4 & !is.na(Main$Shell_C_Percent)]
+# Main$Shell_C_Percent[Main$Shell_C_Percent<4 & !is.na(Main$Shell_C_Percent)]=NA
 

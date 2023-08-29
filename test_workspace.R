@@ -731,7 +731,7 @@ s2=match("Levinton J, et al. 2011 PLoS ONE 6(4)", Main$Data_Source)-1 #Last data
 s3=match("Barr et al. submitted 2022", Main$Data_Source) # Start of Barr (after end of Levinton)
 s4=match("Sebastiano et al 2015", Main$Data_Source)-1 #Last data before Sebastiano
 vec=c(s1:s2, s3:dim(Main)[1]) # No CB, No Levinton
-vecNoCBNY=c(s1:s4, s3:dim(Main)[1])
+vecNoCBNY=c(s1:s4, s3:dim(Main)[1]) # No CB, Sebastiano, Levinton
 # 1) plot all together (full)
 P=Main %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_mm, color=State))+ 
   geom_point()+
@@ -754,7 +754,7 @@ P3=Main[vec,] %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_
   ylim(0,8) +
   xlim(0, 200)
 
-# No Levinton or Sebastiano
+# No Levinton or Sebastiano or CB
 P4=Main[vecNoCBNY,] %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_mm, color=State)) +
   geom_point() +
   ylim(0,8) +
@@ -844,14 +844,22 @@ legend('topleft', bty='n',
 
 library(colorspace)
 q11 <- qualitative_hcl(11, "Dark3")
+q11 <- diverging_hcl(11, "Berlin")
+q11 <- diverging_hcl(11, "Tofino")
 # qr By state
 plot(Main$Tissue_Dry_Weight_g ~ Main$Total_Shell_Height_Length_mm, type='n', 
      ylim=c(0,8), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1)
+#plot with CB
+plot(Main$Tissue_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727], type='p', 
+     pch=19, col='gray70', ylim=c(0,8), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1)
+
 stt=sort(unique(Main$State))
 MainNoCB=Main[s1:dim(Main)[1],]
+MainNoCBLev=Main[vec,]
 for(i in 1:length(unique(Main$State))){
   # dataa=Main[Main$State==stt[i],]
-  dataa=MainNoCB[MainNoCB$State==stt[i],]
+  # dataa=MainNoCB[MainNoCB$State==stt[i],]
+  dataa=MainNoCBLev[MainNoCBLev$State==stt[i],]
   qr.x=rq(log(Tissue_Dry_Weight_g) ~  log(Total_Shell_Height_Length_mm), 
           data=dataa, tau=0.5, na.action = 'na.omit')
   xval=seq(0,180,by=.5)
@@ -863,4 +871,149 @@ legend('topleft', bty='n',
        legend = c('CT', 'DE', 'ME', 'MD', 'MA', 'NH', 'NJ', 'NY', 'NC', 'RI', 'VA'), 
        text.col=q11)
 
+#plot on bottom 
 
+plot(Main$Tissue_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727], type='p', 
+     pch=19, col='gray70', ylim=c(0,8), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1, main="On-bottom no gear")
+dataa=Main[Main$Representative_Aquaculture_Oyster_Practice=="On-Bottom without Gear",]
+points(dataa$Tissue_Dry_Weight_g ~dataa$Total_Shell_Height_Length_mm, pch=21, col=q11[i], ylim=c(0,8), xlim=c(0,200))
+qr.x=rq(log(Tissue_Dry_Weight_g) ~  log(Total_Shell_Height_Length_mm), 
+        data=dataa, tau=0.5, na.action = 'na.omit')
+xval=seq(0,180,by=.5)
+yval=exp(qr.x$coefficients[1])*xval^qr.x$coefficients[2]
+lines(yval ~xval, col='black', lwd=2)
+lines(mod.BMP$Tissue_Dry_Weight_g ~mod.BMP$Total_Shell_Height_Length_mm, col='black', lty=2, lwd=2)
+
+
+#plot off bottom
+plot(Main$Tissue_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727], type='p', 
+     pch=19, col='gray70', ylim=c(0,8), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1, main="Off-bottom with gear")
+dataa=Main[Main$Representative_Aquaculture_Oyster_Practice=="Off-Bottom with Gear",]
+points(dataa$Tissue_Dry_Weight_g ~dataa$Total_Shell_Height_Length_mm, pch=21, col=q11[i], ylim=c(0,8), xlim=c(0,200))
+qr.x=rq(log(Tissue_Dry_Weight_g) ~  log(Total_Shell_Height_Length_mm), 
+        data=dataa, tau=0.5, na.action = 'na.omit')
+xval=seq(0,180,by=.5)
+yval=exp(qr.x$coefficients[1])*xval^qr.x$coefficients[2]
+lines(yval ~xval, col='black', lwd=2)
+lines(mod.BMP$Tissue_Dry_Weight_g ~mod.BMP$Total_Shell_Height_Length_mm, col='black', lty=2, lwd=2)
+
+# plot SH:DW by growth location type for all data
+Main %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_mm, color=Oyster_Growth_Location_Type))+ 
+  geom_point()+
+  ylim(0,8) +
+  xlim(0, 200)
+
+# plot SH:DW by growth location type for all data besides CB BMP and Levinton NY
+Main[vecNoCBNY,] %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_mm, color=Oyster_Growth_Location_Type))+ 
+  geom_point()+
+  ylim(0,8) +
+  xlim(0, 200)
+
+Main[complete.cases(Main$Tissue_N_Percent),] %>% select(State, Month_Oysters_Removed, Tissue_N_Percent) %>% 
+  ggplot(aes(x=Month_Oysters_Removed, y = Tissue_N_Percent, color = State, shape = State)) +
+  xlim(1,12) +
+  ylim(5,11)+
+  geom_point()
+
+Main[complete.cases(Main$Tissue_C_Percent),] %>% select(State, Month_Oysters_Removed, Tissue_C_Percent) %>% 
+  ggplot(aes(x=Month_Oysters_Removed, y = Tissue_C_Percent, color = State, shape = State)) +
+  xlim(1,12) +
+  ylim(15,60)+
+  geom_point()
+
+
+
+## Tissue P
+Main[complete.cases(Main$Tissue_TP_Percent),] %>% select(State, Ploidy, Tissue_TP_Percent) %>% 
+  ggplot(aes(y=Tissue_TP_Percent, x=State)) + 
+  geom_boxplot(color = "black", notch=T) +
+  theme_classic()+
+  labs(x='', y = 'Tissue P Percent') +
+  coord_cartesian(ylim = c(0.5, 1.5))+
+  scale_fill_manual(values=c("white", "gray")) +
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(legend.position = "none") +
+  theme(text = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 20)) 
+
+
+## Tissue C
+Main[complete.cases(Main$Tissue_C_Percent),] %>% select(State, Ploidy, Tissue_C_Percent) %>% 
+  ggplot(aes(y=Tissue_C_Percent, x=State)) + 
+  geom_boxplot(color = "black", notch=T) +
+  theme_classic()+
+  labs(x='', y = 'Tissue C Percent') +
+  coord_cartesian(ylim = c(15, 55))+
+  scale_fill_manual(values=c("white", "gray")) +
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(legend.position = "none") +
+  theme(text = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 20)) 
+
+
+## Tissue N
+Main[complete.cases(Main$Tissue_N_Percent),] %>% select(State, Ploidy, Tissue_N_Percent) %>% 
+  ggplot(aes(y=Tissue_N_Percent, x=State)) + 
+  geom_boxplot(color = "black", notch=T) +
+  theme_classic()+
+  labs(x='', y = 'Tissue N Percent') +
+  coord_cartesian(ylim = c(0, 15))+
+  scale_fill_manual(values=c("white", "gray")) +
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(legend.position = "none") +
+  theme(text = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 20)) 
+
+
+## Shell N
+Main[complete.cases(Main$Shell_N_Percent),] %>% select(State, Ploidy, Shell_N_Percent) %>% 
+  ggplot(aes(y=Shell_N_Percent, x=State)) + 
+  geom_boxplot(color = "black", notch=T) +
+  theme_classic()+
+  labs(x='', y = 'Shell N Percent') +
+  coord_cartesian(ylim = c(0, 1))+
+  scale_fill_manual(values=c("white", "gray")) +
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(legend.position = "none") +
+  theme(text = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 20)) 
+
+## Shell P
+Main[complete.cases(Main$Shell_TP_Percent),] %>% select(State, Ploidy, Shell_TP_Percent) %>% 
+  ggplot(aes(y=Shell_TP_Percent, x=State)) + 
+  geom_boxplot(color = "black", notch=T) +
+  theme_classic()+
+  labs(x='', y = 'Shell P Percent') +
+  coord_cartesian(ylim = c(0.02, 0.06))+
+  scale_fill_manual(values=c("white", "gray")) +
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(legend.position = "none") +
+  theme(text = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 20)) 
+
+## Shell C #Reitsma data issue, half values around 15, rest around 0.5-1.5.
+# JoJoshua Reitsma:
+  # Organic Carbon values shown for Spring, missing values were run so inorganic was included, fall includes all Carbon
+Main[complete.cases(Main$Shell_C_Percent),] %>% select(State, Ploidy, Shell_C_Percent) %>% 
+  ggplot(aes(y=Shell_C_Percent, x=State)) + 
+  geom_boxplot(color = "black", notch=T) +
+  theme_classic()+
+  labs(x='', y = 'Shell C Percent') +
+  coord_cartesian(ylim = c(10, 15))+
+  scale_fill_manual(values=c("white", "gray")) +
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(legend.position = "none") +
+  theme(text = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 20)) 
