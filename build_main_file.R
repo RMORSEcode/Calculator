@@ -780,3 +780,6 @@ Main=Main[Main$Data_Source != "Kellogg-Harris",]
 # Main$Shell_Organic_C_Percent[Main$Shell_C_Percent<4 & !is.na(Main$Shell_C_Percent)]=Main$Shell_C_Percent[Main$Shell_C_Percent<4 & !is.na(Main$Shell_C_Percent)]
 # Main$Shell_C_Percent[Main$Shell_C_Percent<4 & !is.na(Main$Shell_C_Percent)]=NA
 
+dt=now()
+dat=as.character(dt, format="%Y%m%d")
+save(Main, file=paste(wd, dat, "_Calculator_Main_oyster_data.rdata", sep=''))

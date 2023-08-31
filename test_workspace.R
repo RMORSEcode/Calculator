@@ -987,7 +987,7 @@ Main[complete.cases(Main$Shell_N_Percent),] %>% select(State, Ploidy, Shell_N_Pe
   theme(legend.text = element_text(size = 20)) 
 
 ## Shell P
-Main[complete.cases(Main$Shell_TP_Percent),] %>% select(State, Ploidy, Shell_TP_Percent) %>% 
+Main[complete.cases(Main$Shell_TP_Percent),] %>% select(State, Shell_TP_Percent) %>% 
   ggplot(aes(y=Shell_TP_Percent, x=State)) + 
   geom_boxplot(color = "black", notch=T) +
   theme_classic()+
@@ -1001,8 +1001,40 @@ Main[complete.cases(Main$Shell_TP_Percent),] %>% select(State, Ploidy, Shell_TP_
   theme(text = element_text(size = 20)) +
   theme(legend.text = element_text(size = 20)) 
 
+# testing shell P 
+boxplot(PCB$Shell_TP_Percent~PCB$State)
+PCB %>% ggplot(aes(y=Shell_TP_Percent, x=State)) + 
+  geom_boxplot(color = "black", notch=T) +
+  theme_classic()+
+  labs(x='', y = 'Shell P Percent') +
+  coord_cartesian(ylim = c(0.02, 0.06))+
+  scale_fill_manual(values=c("white", "gray")) +
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(legend.position = "none") +
+  theme(text = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 20))
+Main[complete.cases(Main$Shell_TP_Percent),] %>% ggplot(aes(y=Shell_TP_Percent, x=State)) + 
+  geom_boxplot(color = "black", notch=T) +
+  theme_classic()+
+  labs(x='', y = 'Shell P Percent') +
+  coord_cartesian(ylim = c(0.02, 0.06))+
+  scale_fill_manual(values=c("white", "gray")) +
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(legend.position = "none") +
+  theme(text = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 20))
+test=Main[complete.cases(Main$Shell_TP_Percent),]
+boxplot(test$Shell_TP_Percent~test$State)
+test2=test[test$Data_Source!="Poach et al. in prep 2023",]
+boxplot(test2$Shell_TP_Percent~test2$State)
+
+
 ## Shell C #Reitsma data issue, half values around 15, rest around 0.5-1.5.
-# JoJoshua Reitsma:
+# Joshua Reitsma:
   # Organic Carbon values shown for Spring, missing values were run so inorganic was included, fall includes all Carbon
 Main[complete.cases(Main$Shell_C_Percent),] %>% select(State, Ploidy, Shell_C_Percent) %>% 
   ggplot(aes(y=Shell_C_Percent, x=State)) + 
