@@ -475,7 +475,7 @@ B2$Representative_Aquaculture_Oyster_Practice[B2$Near_Waterbody__General_Locatio
 # B2$Site_within_Study
 B2$Oyster_Growth_Location_Type=NA
 B2$Oyster_Growth_Location_Type[B2$Near_Waterbody__General_Location=='Barnegat Bay']="Floating Rafts"
-B2$Oyster_Growth_Location_Type[B2$Near_Waterbody__General_Location=='Delaware Bay']="Near bottom cages"
+B2$Oyster_Growth_Location_Type[B2$Near_Waterbody__General_Location=='Delaware Bay']="Near-bottom cages"
 B2$Oyster_Growth_Location_Type[B2$Near_Waterbody__General_Location=='Rehobath Bay']="Floats in water column"
 B2$Subtidal_Intertidal_WaterColumn_Other="Subtidal"
 B2$Ploidy="Diploid"
@@ -638,7 +638,6 @@ dar$Tissue_TN_g_C_per_g_dw=Darr$`Nitrogen Content (mg)`/Darr$`Sample Mass (mg)`
 colnames(dar)[15]="Tissue_N_Percent"
 colnames(dar)[16]="Tissue_CN_molar"
 dar$Raw_Data_File="NCOysterSizeData_DarrowKInsella_forJulieRose.xlsx"
-dar$Representative_Aquaculture_Oyster_Practice="Unknown"
 dar$Data_Source="Darrow ES & Kinsella JD, unpublished"
 dar$State="North Carolina"
 dar$Near_Waterbody__General_Location=NA
@@ -652,7 +651,15 @@ dar$Site[dar$Location_Index=="F1"]="Farm 1"
 dar$Site[dar$Location_Index=="F2"]="Farm 2"
 dar$Site[dar$Location_Index=="F3"]="Farm 3"
 # dar$Site_within_Study
-dar$Oyster_Growth_Location_Type="Unknown"
+dar$Oyster_Growth_Location_Type=NA
+dar$Oyster_Growth_Location_Type[dar$Location_Index=="F1"]="Off-Bottom with Gear"
+dar$Oyster_Growth_Location_Type[dar$Location_Index=="F2"]="On-Bottom without Gear"
+dar$Oyster_Growth_Location_Type[dar$Location_Index=="F3"]="Off-Bottom with Gear"
+dar$Representative_Aquaculture_Oyster_Practice=NA
+dar$Representative_Aquaculture_Oyster_Practice[dar$Location_Index=="F1"]="Floating Rafts"
+dar$Representative_Aquaculture_Oyster_Practice[dar$Location_Index=="F2"]="bottom cage design"
+dar$Representative_Aquaculture_Oyster_Practice[dar$Location_Index=="F1"]="Near-bottom cages"
+
 dar$Subtidal_Intertidal_WaterColumn_Other="Unknown"
 dar$Ploidy="Diploid"
 # dar$Oyster_Stock
@@ -769,6 +776,7 @@ Main=newdf13
 Main=Main[Main$Data_Source != "Kellogg-Onancock",]
 Main=Main[Main$Data_Source != "Kellogg-Harris",]
 
+### FIXES these can be removed as all changes have been made to Main file and to above code ###
 ### fix Kiffney2 mg -> g (added to Main file, added fix to build for K2)
 # Main$Tissue_Dry_Weight_g[Main$Raw_Data_File=="tissuePloidy2022.csv"]=Main$Tissue_Dry_Weight_g[Main$Raw_Data_File=="tissuePloidy2022.csv"]/1000
 ## fix states for Barr (done above now)
@@ -779,6 +787,19 @@ Main=Main[Main$Data_Source != "Kellogg-Harris",]
 # Main$Shell_Organic_C_Percent=NA
 # Main$Shell_Organic_C_Percent[Main$Shell_C_Percent<4 & !is.na(Main$Shell_C_Percent)]=Main$Shell_C_Percent[Main$Shell_C_Percent<4 & !is.na(Main$Shell_C_Percent)]
 # Main$Shell_C_Percent[Main$Shell_C_Percent<4 & !is.na(Main$Shell_C_Percent)]=NA
+
+### fix Barr "Near bottom cages" -> "Near-bottom cages", (added above)
+# Main$Oyster_Growth_Location_Type[Main$Oyster_Growth_Location_Type=="Near bottom cages"]="Near-bottom cages"
+
+### fix Darrow growth practices with updated information (added above)
+# table(Main$Oyster_Growth_Location_Type[Main$Data_Source=="Darrow ES & Kinsella JD, unpublished"])
+# Main$Oyster_Growth_Location_Type[which(Main$Data_Source=="Darrow ES & Kinsella JD, unpublished" & Main$Location_Index=="F1")]="Off-Bottom with Gear"
+# Main$Oyster_Growth_Location_Type[which(Main$Data_Source=="Darrow ES & Kinsella JD, unpublished" & Main$Location_Index=="F2")]="On-Bottom without Gear"
+# Main$Oyster_Growth_Location_Type[which(Main$Data_Source=="Darrow ES & Kinsella JD, unpublished" & Main$Location_Index=="F3")]="Off-Bottom with Gear"
+# Main$Representative_Aquaculture_Oyster_Practice[which(Main$Data_Source=="Darrow ES & Kinsella JD, unpublished" & Main$Location_Index=="F1")]="Floating Rafts"
+# Main$Representative_Aquaculture_Oyster_Practice[which(Main$Data_Source=="Darrow ES & Kinsella JD, unpublished" & Main$Location_Index=="F2")]="bottom cage design"
+# Main$Representative_Aquaculture_Oyster_Practice[which(Main$Data_Source=="Darrow ES & Kinsella JD, unpublished" & Main$Location_Index=="F1")]="Near-bottom cages"
+
 
 dt=now()
 dat=as.character(dt, format="%Y%m%d")

@@ -1,34 +1,24 @@
 
 names=data.frame(matrix(NA, nrow = ncol(CB), ncol=1)); colnames(names)[1]='cornwell'
 names$cornwell=colnames(CB)
-
 names$poach=NA
 names$poach[1:ncol(poach)]=colnames(poach)
-
 names$reitsma=NA
 names$reitsma[1:ncol(reitsma)]=colnames(reitsma)
-
 names$grizzle=NA
 names$grizzle[1:ncol(grizzle.all)]=colnames(grizzle.all)
-
 names$bayer=NA
 names$bayer[1:ncol(bayer)]=colnames(bayer)
-
 names$seb2=NA
 names$seb2[1:ncol(Seb2)]=colnames(Seb2)
-
 names$Barr=NA
 names$Barr[1:ncol(Barr)]=colnames(Barr)
-
 names$Kiffney=NA
 names$Kiffney[1:ncol(Kiffney)]=colnames(Kiffney)
-
 names$Darrow=NA
 names$Darrow[1:ncol(Darrow)]=colnames(Darrow)
-
 names$Ayvazian=NA
 names$Ayvazian[1:ncol(Ayvazian)]=colnames(Ayvazian)
-
 date='20230810'
 write.csv(names, file=paste(wd, 'Join/', date,'_data_names.csv', sep=''))
 
@@ -858,21 +848,159 @@ MainNoCB=Main[s1:dim(Main)[1],]
 MainNoCBLev=Main[vec,]
 for(i in 1:length(unique(Main$State))){
   # dataa=Main[Main$State==stt[i],]
-  # dataa=MainNoCB[MainNoCB$State==stt[i],]
-  dataa=MainNoCBLev[MainNoCBLev$State==stt[i],]
-  qr.x=rq(log(Tissue_Dry_Weight_g) ~  log(Total_Shell_Height_Length_mm), 
+  dataa=MainNoCB[MainNoCB$State==stt[i],]
+  # dataa=MainNoCBLev[MainNoCBLev$State==stt[i],]
+  qr.x=rq(log(Tissue_Dry_Weight_g) ~  log(Total_Shell_Height_Length_mm),
+          data=dataa, tau=0.5, na.action = 'na.omit')
+  xval=seq(0,180,by=.5)
+  yval=exp(qr.x$coefficients[1])*xval^qr.x$coefficients[2]
+  # points(dataa$Tissue_Dry_Weight_g ~dataa$Total_Shell_Height_Length_mm, pch=21, col=q11[i], ylim=c(0,8), xlim=c(0,200))
+  lines(yval ~xval, col=q11[i], lwd=2)
+  qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, 
+           data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+  x <- seq(0, 180, length = 250)
+  lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 2, lwd=2, col = q11[i])
+  }
+legend('topleft', bty='n', 
+       legend = c('CT', 'DE', 'ME', 'MD', 'MA', 'NH', 'NJ', 'NY', 'NC', 'RI', 'VA'), 
+       text.col=q11)
+# Add in qr50 for all included data (change data=...)
+qr.x=rq(log(Tissue_Dry_Weight_g) ~  log(Total_Shell_Height_Length_mm), 
+        data=Main[1:s1-1,], tau=0.5, na.action = 'na.omit')
+xval=seq(0,180,by=.5)
+yval=exp(qr.x$coefficients[1])*xval^qr.x$coefficients[2]
+lines(yval ~xval, col='black', lwd=2)
+lines(mod.BMP$Tissue_Dry_Weight_g ~mod.BMP$Total_Shell_Height_Length_mm, col='black', lty=2, lwd=2)
+
+plot(Main$Tissue_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727], type='p', 
+    pch=19, col='gray70', ylim=c(0,8), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1)
+# try lm fit instead of qr 
+cb2023lm=lm(log(Main$Tissue_Dry_Weight_g[1:s1-1])~log(Main$Total_Shell_Height_Length_mm[1:s1-1]))
+yval=exp(cb2023lm$coefficients[1])*xval^cb2023lm$coefficients[2]
+lines(yval ~xval, col='blue', lwd=2)
+### adding in routine from BMP
+# cb2023qr=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = Main[1:s1-1,], start = list(a = 0.0001, b = 2.1056), tau=0.5)
+cb2023qr=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = Main[1:s1-1,], start = list(a = 0.00037, b = 1.83359), tau=0.5)
+x <- seq(0, 180, length = 250)
+lines(predict(cb2023qr, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 2, lwd=2, col = "red")
+
+
+plot(Main$Tissue_Dry_Weight_g ~ Main$Total_Shell_Height_Length_mm, type='n', 
+     ylim=c(0,8), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1)
+for(i in 1:length(unique(Main$State))){
+  # dataa=Main[Main$State==stt[i],]
+  dataa=MainNoCB[MainNoCB$State==stt[i],]
+  # dataa=MainNoCBLev[MainNoCBLev$State==stt[i],]
+  qr.x=rq(log(Tissue_Dry_Weight_g) ~  log(Total_Shell_Height_Length_mm),
           data=dataa, tau=0.5, na.action = 'na.omit')
   xval=seq(0,180,by=.5)
   yval=exp(qr.x$coefficients[1])*xval^qr.x$coefficients[2]
   points(dataa$Tissue_Dry_Weight_g ~dataa$Total_Shell_Height_Length_mm, pch=21, col=q11[i], ylim=c(0,8), xlim=c(0,200))
   lines(yval ~xval, col=q11[i], lwd=2)
-  }
+  qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+  x <- seq(0, 180, length = 250)
+  lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 2, lwd=2, col = q11[i])
+}
 legend('topleft', bty='n', 
        legend = c('CT', 'DE', 'ME', 'MD', 'MA', 'NH', 'NJ', 'NY', 'NC', 'RI', 'VA'), 
        text.col=q11)
+summary(qrx)
+summary(qr.x)
 
-#plot on bottom 
+### checking on quantile regression rq vs nlrq
+plot(PCB$Tissue_Dry_Weight_g[PCB$Ploidy=="Diploid"] ~ PCB$Total_Shell_Height_Length_mm[PCB$Ploidy=="Diploid"], type='p', 
+     col='gray', ylim=c(0,7), xlim=c(0,140), ylab='Tissue dry weight (g)', xlab='Shell height (mm)', pch=19, las=1,
+     cex.axis=1.5,cex.lab=1.5)
+points(PCB$Tissue_Dry_Weight_g[PCB$Ploidy=="Triploid"] ~ PCB$Total_Shell_Height_Length_mm[PCB$Ploidy=="Triploid"], pch=1, col='purple', )
+clmt=lm(log(PCB$Tissue_Dry_Weight_g[PCB$Ploidy=="Triploid"])~log(PCB$Total_Shell_Height_Length_mm[PCB$Ploidy=="Triploid"]))
+clmd=lm(log(PCB$Tissue_Dry_Weight_g[PCB$Ploidy=="Diploid"])~log(PCB$Total_Shell_Height_Length_mm[PCB$Ploidy=="Diploid"]))
+t=PCB %>% filter(Ploidy=="Diploid")
+qr2=rq(log(Tissue_Dry_Weight_g) ~ log(Total_Shell_Height_Length_mm), data=t, tau=0.5, na.action = 'na.omit')
+xval=seq(20,140,by=.5)
+yval=exp(qr2$coefficients[1])*xval^qr2$coefficients[2]
+lines(xval, yval, col='black', lwd=2, lty=1)
+qrxd=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = t, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+x <- seq(0, 180, length = 250)
+lines(predict(qrxd, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 2, lwd=2, col = 'yellow')
 
+t=PCB %>% filter(Ploidy=="Triploid")
+qr3=rq(log(Tissue_Dry_Weight_g) ~ log(Total_Shell_Height_Length_mm), data=t, tau=0.5, na.action = 'na.omit')
+yval=exp(qr3$coefficients[1])*xval^qr3$coefficients[2]
+lines(xval, yval, col='red', lwd=2, lty=1)
+qrxt=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = t, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+x <- seq(0, 180, length = 250)
+lines(predict(qrxt, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 2, lwd=2, col = 'green')
+
+
+qrxt=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = t, start = list(a = 0.0005, b = 2), tau=0.5)
+x <- seq(0, 180, length = 250)
+lines(predict(qrxt, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 1, lwd=2, col = 'yellow')
+
+## 2023 report updates
+yvalcbdng=(0.00037)*xval^1.83359 # CB BMP diploids w/out gear BMP Second Report Appendix 2023
+yvalcbdg=(0.00016)*xval^2.07714 # CB BMP diploids w/ gear BMP Second Report Appendix 2023
+yvalcbtg=(0.00002)*xval^2.607 # CB BMP triploids w/ gear BMP Second Report Appendix 2023
+lines(xval, yvalcbdng, col='black', lwd=2, lty=3)
+lines(xval, yvalcbdg, col='black', lwd=2, lty=2)
+lines(xval, yvalcbtg, col='red', lwd=2, lty=2)
+
+s5=match("Reitsma et al. 2017", Main$Data_Source)-1 #end of Poach
+q10 <- qualitative_hcl(10, "Dark3")
+## plot CB BMP by source (10)
+plot(Main$Tissue_Dry_Weight_g ~ Main$Total_Shell_Height_Length_mm, type='n', 
+     ylim=c(0,8), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1)
+dss=sort(unique(Main$Data_Source[1:s1-1]))
+for(i in 1:length(unique(Main$Data_Source[1:s1-1]))){
+  # dataa=Main[Main$State==stt[i],]
+  dataa=Main[Main$Data_Source==dss[i],]
+  # dataa=MainNoCBLev[MainNoCBLev$State==stt[i],]
+  qr.x=rq(log(Tissue_Dry_Weight_g) ~  log(Total_Shell_Height_Length_mm),
+          data=dataa, tau=0.5, na.action = 'na.omit')
+  xval=seq(0,180,by=.5)
+  yval=exp(qr.x$coefficients[1])*xval^qr.x$coefficients[2]
+  points(dataa$Tissue_Dry_Weight_g ~dataa$Total_Shell_Height_Length_mm, pch=21, col=q10[i], ylim=c(0,8), xlim=c(0,200))
+  lines(yval ~xval, col=q10[i], lwd=2)
+  qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+  x <- seq(0, 180, length = 250)
+  lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 3, lwd=2, col = q10[i])
+}
+
+legend('topleft', bty='n', legend = dss, text.col=q11)
+legend('topleft', bty='n', legend = dss[i], text.col=q11[i])
+
+### CB BMP by gear and ploidy
+dataa=Main[1:s1-1,]
+table(dataa$Representative_Aquaculture_Oyster_Practice)
+plot(Main$Tissue_Dry_Weight_g ~ Main$Total_Shell_Height_Length_mm, type='n', 
+     ylim=c(0,8), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1)
+points(dataa$Tissue_Dry_Weight_g[which(dataa$Ploidy=="Diploid" & dataa$Representative_Aquaculture_Oyster_Practice=="On-Bottom without Gear")] ~ 
+         dataa$Total_Shell_Height_Length_mm[which(dataa$Ploidy=="Diploid" & dataa$Representative_Aquaculture_Oyster_Practice=="On-Bottom without Gear")], 
+       pch=21, col='gray70', ylim=c(0,8), xlim=c(0,200))
+points(dataa$Tissue_Dry_Weight_g[which(dataa$Ploidy=="Triploid" & dataa$Representative_Aquaculture_Oyster_Practice=="Off-Bottom with Gear")] ~ 
+         dataa$Total_Shell_Height_Length_mm[which(dataa$Ploidy=="Triploid" & dataa$Representative_Aquaculture_Oyster_Practice=="Off-Bottom with Gear")], 
+       pch="x", col='red', ylim=c(0,8), xlim=c(0,200))
+points(dataa$Tissue_Dry_Weight_g[which(dataa$Ploidy=="Diploid" & dataa$Representative_Aquaculture_Oyster_Practice=="Off-Bottom with Gear")] ~ 
+         dataa$Total_Shell_Height_Length_mm[which(dataa$Ploidy=="Diploid" & dataa$Representative_Aquaculture_Oyster_Practice=="Off-Bottom with Gear")], 
+       pch="+", col='black', ylim=c(0,8), xlim=c(0,200))
+lines(xval, yvalcbdng, col='gray50', lwd=2, lty=2)
+lines(xval, yvalcbdg, col='black', lwd=2, lty=2)
+lines(xval, yvalcbtg, col='red', lwd=2, lty=2)
+
+ssdng=dataa[which(dataa$Ploidy=="Diploid" & dataa$Representative_Aquaculture_Oyster_Practice=="On-Bottom without Gear"),]
+ssdg=dataa[which(dataa$Ploidy=="Diploid" & dataa$Representative_Aquaculture_Oyster_Practice=="Off-Bottom with Gear"),]
+sstg=dataa[which(dataa$Ploidy=="Triploid" & dataa$Representative_Aquaculture_Oyster_Practice=="Off-Bottom with Gear"),]
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = ssdng, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 3, lwd=2, col = 'gray50')
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = ssdg, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 3, lwd=2, col = 'black')
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = sstg, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 3, lwd=2, col = 'red')
+
+
+
+
+
+#plot gear on bottom 
 plot(Main$Tissue_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727], type='p', 
      pch=19, col='gray70', ylim=c(0,8), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1, main="On-bottom no gear")
 dataa=Main[Main$Representative_Aquaculture_Oyster_Practice=="On-Bottom without Gear",]
