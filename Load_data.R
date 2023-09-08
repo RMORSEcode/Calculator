@@ -17,13 +17,13 @@ wd="C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem
 # CB.shell=readxl::read_xlsx(paste(wd,"Oyster morphometrics/Data_compiled_MASTER_updated on11-15-17_2.xlsx", sep=''),
 #                            sheet='Used_Shell Analysis', skip=0, col_names = T)
 ## original data from Cromwell 2017 BMP
-# CB=readxl::read_xlsx(paste(wd,"Oyster morphometrics/CBay/CB-oyster expert panel-compiled data 9.xlsx", sep=''),
+# CB2016=readxl::read_xlsx(paste(wd,"Oyster morphometrics/CBay/CB-oyster expert panel-compiled data 9.xlsx", sep=''),
 #                      sheet='All_Shell Height_Tissue_DryWT', skip=0, col_names = T)
 # CBnocoast=readxl::read_xlsx(paste(wd,"Oyster morphometrics/CBay/CB-oyster expert panel-compiled data 9.xlsx", sep=''),
 #                      sheet='SHeight_Tissue_DryWT_NoCoastal', skip=0, col_names = T)
 
 ## from Julie Reichert, contains data from 2022 update to BMP --> USE THIS ONE 20230807 RM/JR
-CB=read_xlsx(paste(wd,"Oyster morphometrics/CBay/Tissue_Re-eval_9-6-17/Tissue_Re-eval_Gear_Ploidy_9-11-17.xlsx", sep=''), 
+CB=readxl::read_xlsx(paste(wd,"Oyster morphometrics/CBay/Tissue_Re-eval_9-6-17/Tissue_Re-eval_Gear_Ploidy_9-11-17.xlsx", sep=''), 
                     sheet='Tissue_Re-eval')
 
 
@@ -70,15 +70,30 @@ grizzle=readxl::read_xlsx(paste(wd,'Nitrogen data/Grizzle_2011-data.xlsx', sep='
 # grizzle.all$DW[grizzle.all$`Shell Height (mm)`<20]=grizzle.all$`Soft Tissue DW (g)`[grizzle.all$`Shell Height (mm)`<20]
 
 ### Bayer CT data ###
+# RM notes - no sample 156, 310 has 2 samples (310, 310A)
 # original file location: "paste(wd,"Nitrogen data/Copy of Greenwich FARM data 2019-2020.xlsx", sep='')
 # bayer=readxl::read_xlsx(paste(wd,'/','RM.xlsx', sep=''), sheet='Bayer') file contains merged data from multiple sheets
-bayer=readxl::read_xlsx(paste(wd,'Nitrogen data/Bayer_Greenwich_FARM_data_2019_2020.xlsx', sep=''), sheet='Bayer') #file contains merged data from multiple sheets
+bayer=readxl::read_xlsx(paste(wd,'Nitrogen data/CT/Bayer_Greenwich_FARM_data_2019_2020.xlsx', sep=''), 
+                        sheet='Bayer') #file contains manually merged data from multiple sheets
 bayer2=bayer
 ## use Image J values for missing shell length and widths
 bayer2$SH=bayer$`Length (mm)`
 bayer2$SH[which(is.na(bayer$`Length (mm)`))]=bayer$`IJ Length (mm)`[which(is.na(bayer$`Length (mm)`))]
 bayer2$SW=bayer$`width (mm)`
 bayer2$SW[which(is.na(bayer$`width (mm)`))]=bayer$`IJ width (mm)`[which(is.na(bayer$`width (mm)`))]
+## read in updated shell N and C without rounding issue (all shell N was either 0.001 or 0.002)
+b2shell=readxl::read_xlsx(paste(wd,'Nitrogen data/CT/Tissue and Shells Nitrogen_Carbon results.xlsx', 
+                                sep=''), sheet='SHELL with 4 decimals', skip = 2)
+colnames(b2shell)=c("ID", "Shell_TN_g_N_per_g_dw", "Shell_N_Percent", "Shell_TC_g_C_per_g_dw", "Shell_C_Percent")
+b2shell$Shell_N_Percent=b2shell$Shell_TN_g_N_per_g_dw*100
+b2shell$Shell_C_Percent=b2shell$Shell_TC_g_C_per_g_dw*100
+# fix sample number issue 310, 310A
+b2shell$ID[which(b2shell$ID=="310A")]=3100
+b2shell$ID=as.numeric(b2shell$ID)
+bayer2$ID[which(bayer2$ID=="310A")]=3100
+bayer2$ID=as.numeric(bayer2$ID)
+bayer2=left_join(bayer2, b2shell, by="ID")
+
 
 ### Sebastiano data from NY ### THIS HAS BEEN REPLACED WITH MORE EXTENSIVE DATA BELOW RM 20230822
 # Sebastiano=readxl::read_xlsx(paste(wd,'/','RM.xlsx', sep=''), sheet='SebMeanSH')

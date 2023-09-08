@@ -45,12 +45,19 @@ for(i in 1:ncol(CB)){
   print(unique(CB[,i]))
 }
 # newdf=CB %>% select(-c(Original_Order, Number_ID, Analysis_ID, Yates_Bar_Name, Location_Index_Raw_Data, 
-# Near_Waterbody__General_Location, Waterbody_Type,.,Ross_Project:Quantile_Grouping))
+# Near_Waterbody_General_Location, Waterbody_Type,.,Ross_Project:Quantile_Grouping))
 # to match PCB
 newdf=CB %>% select(-c(Original_Order, Analysis_ID, Yates_Bar_Name, .,Ross_Project:Quantile_Grouping))
 colnames(newdf)[5]="Location_Index"
-colnames(newdf)[15]="Hatchery_produced_or_Wild"
+# colnames(newdf)[15]="Hatchery_produced_or_Wild" # this is Oyster_Stock
+colnames(newdf)[16]="Hatchery_produced_or_Wild"
 newdf$Number_ID=as.numeric(newdf$Number_ID)
+## fix names that cause issues
+colnames(newdf)[38]="Shell_TC_g_C_per_g_dw" #"Shell_TC_g_C_per_ g_dw" 
+colnames(newdf)[8]="Near_Waterbody_General_Location" #"Near_Waterbody__General_Location"
+colnames(newdf)[25]="Shell_and_Tissue_Total_Wet_Weight_g" # Shell&Tissue_Total_Wet_Weight_g
+colnames(newdf)[31]="Tissue_TC_g_C_per_g_dw" #"Tissue_TC_g_C_per_ g_dw"
+
 
 for(i in 1:ncol(newdf)){
   if(colnames(newdf)[i] %in% colnames(newdf)[xx]){
@@ -68,7 +75,7 @@ for(i in 1:ncol(newdf)){
 # xxx$Data_Source
 # xxx$Location_Index
 # xxx$State
-# xxx$Near_Waterbody__General_Location
+# xxx$Near_Waterbody_General_Location
 # xxx$Waterbody_Name
 # xxx$Site
 # xxx$Site_within_Study
@@ -76,7 +83,7 @@ for(i in 1:ncol(newdf)){
 # xxx$Subtidal_Intertidal_WaterColumn_Other
 # xxx$Ploidy
 # xxx$Oyster_Stock
-# xxx$Hatchery-produced_or_Wild
+# xxx$Hatchery_produced_or_Wild
 # xxx$Date_Oysters_Deployed
 # xxx$Date_Oysters_Removed
 # xxx$Month_Oysters_Removed
@@ -91,6 +98,10 @@ for(i in 1:ncol(newdf)){
 colnames(newdf)[!(colnames(newdf) %in% colnames(PCB))]
 colnames(PCB)[!(colnames(PCB) %in% colnames(newdf))]
 colnames(PCB)[1]="Representative_Aquaculture_Oyster_Practice"
+colnames(PCB)[28]="Shell_TC_g_C_per_g_dw" #"Shell_TC_g_C_per_ g_dw" 
+colnames(PCB)[6]="Near_Waterbody_General_Location" #"Near_Waterbody__General_Location"
+colnames(PCB)[12]="Hatchery_produced_or_Wild" #Hatchery-produced_or_Wild
+colnames(PCB)[22]="Tissue_TC_g_C_per_g_dw" #"Tissue_TC_g_C_per_ g_dw"
 PCB2=select(PCB, -is.outlier)
 ### add missing cols
 PCB2$Raw_Data_File='CB_oyster_nutrient_data_edited.xlsx'
@@ -98,7 +109,6 @@ PCB2$Raw_Data_File='CB_oyster_nutrient_data_edited.xlsx'
 PCB2$Data_Source="Poach et al. in prep 2023"
 # PCB2$Location_Index
 # PCB2$State
-# PCB2$Near_Waterbody__General_Location
 # PCB2$Waterbody_Name
 # PCB2$Site
 PCB2$Site_within_Study=NA
@@ -108,7 +118,7 @@ PCB2$Subtidal_Intertidal_WaterColumn_Other="Subtidal"
 PCB2$Oyster_Stock=NA
 PCB2$Oyster_Stock[PCB2$State=='Virginia']='Rappahannock Oyster Co.'
 PCB2$Oyster_Stock[PCB2$State=='Maryland']='Orchard Point Oyster Co. LLC'
-# PCB2$Hatchery-produced_or_Wild
+# PCB2$Hatchery_produced_or_Wild
 # PCB2$Date_Oysters_Deployed
 # PCB2$Date_Oysters_Removed
 # PCB2$Month_Oysters_Removed
@@ -134,15 +144,15 @@ r2=reitsma %>% select(-c(Analysis, GroupID, Species, OysterGrp,`off/on bottom`, 
 colnames(r2)[1]="Number_ID"
 colnames(r2)[2]="Season_Oysters_Removed"
 colnames(r2)[3]="Date_Oysters_Removed"
-colnames(r2)[4]="Near_Waterbody__General_Location"
+colnames(r2)[4]="Near_Waterbody_General_Location"
 colnames(r2)[5]="Waterbody_Name"
 # colnames(r2)[6]="Site"
-colnames(r2)[7]="Hatchery-produced_or_Wild"
+colnames(r2)[7]="Hatchery_produced_or_Wild"
 colnames(r2)[8]="Volume_ml" #"Volume (ml)" 
 colnames(r2)[9]="Total_Shell_Height_Length_mm" #"Shell Length (mm)"
 colnames(r2)[10]="Total_Shell_Width_mm" #"Shell Width (mm)"
 colnames(r2)[11]="Total_Shell_Depth_mm" #[11] "Shell Height (mm)"
-colnames(r2)[12]="Shell&Tissue_Total_Wet_Weight_g" #"Whole Weight (g)"
+colnames(r2)[12]="Shell_and_Tissue_Total_Wet_Weight_g" #"Whole Weight (g)"
 colnames(r2)[13]="Shell_Dry_Weight_g" #Dry Shell Mass (g)"
 colnames(r2)[14]="Tissue_Dry_Weight_g" #"Dry Tiss Mass (g)"
 colnames(r2)[15]="Condition_Index" #"Condition Index"    
@@ -250,7 +260,7 @@ grz$Location_Index[grz$Site=='LBO']='Little Bay Oyster Company Fox Point'
 grz$Location_Index[grz$Site=='GSS']='Granite State Shellfish Oyster River'
 grz$Location_Index[grz$Site=='BMY']='Bellamy River'
 grz$Location_Index[grz$Site=='AP']='Adams Point'
-grz$Near_Waterbody__General_Location="Portsmouth"
+grz$Near_Waterbody_General_Location="Portsmouth"
 grz$Ploidy="Diploid"
 grz$Total_Shell_Height_Length_Inches=grz$Total_Shell_Height_Length_mm*0.0393701
 grz$Hatchery_produced_or_Wild="?"
@@ -259,18 +269,18 @@ newdf4=bind_rows(newdf3, grz)
 
 ### Now add bayer (CT)
 # colnames(bayer2)
-b2=bayer2 %>% select(-(c(`Length (mm)`,`width (mm)`, `Image J`:`dry tissue + boat weight (g)`, `Comments`)))
+b2=bayer2 %>% select(-(c(`Length (mm)`,`width (mm)`, `Image J`:`dry tissue + boat weight (g)`, `Comments`, `Shell N (mg/mg)`, `Shell %N`, `Shell C(mg/mg)`)))
 colnames(b2)[1]="Number_ID" #"ID"
 colnames(b2)[2]="Tissue_TN_g_N_per_g_dw" #"Tissue N (mg/mg)" 
 colnames(b2)[3]="Tissue_N_Percent" #"Tissue %N"
 colnames(b2)[4]="Tissue_TC_g_C_per_g_dw" #"Tissue C(mg/mg)"
 colnames(b2)[5]="Tissue_CN_molar" #"Tissue C:N"
-colnames(b2)[6]="Near_Waterbody__General_Location" #City
+colnames(b2)[6]="Near_Waterbody_General_Location" #City
 colnames(b2)[7]="State" #"State"
 colnames(b2)[8]="Date_Oysters_Removed" #"Date"
-colnames(b2)[9]="Shell_TN_g_N_per_g_dw" #"Shell N (mg/mg)"
-colnames(b2)[10]="Shell_N_Percent" #"Shell %N"
-colnames(b2)[11]="Shell_TC_g_C_per_ g_dw" # "Shell C(mg/mg)"
+# colnames(b2)[9]="Shell_TN_g_N_per_g_dw" #"Shell N (mg/mg)"
+# colnames(b2)[10]="Shell_N_Percent" #"Shell %N"
+# colnames(b2)[11]="Shell_TC_g_C_per_g_dw" # "Shell C(mg/mg)"
 colnames(b2)[12]="Month_Oysters_Removed"#"Month"
 colnames(b2)[13]="Shell_CN_molar" #"Shell C:N"
 #[14]="ID #"
@@ -324,7 +334,7 @@ colnames(sbs)
 # [7] "percent_N"       "percent_C"       "Site"            "Dry_tissue_wt_g"
 colnames(sbs)[1]="Date_Oysters_Removed"
 colnames(sbs)[2]="Number_ID"
-colnames(sbs)[3]="Shell&Tissue_Total_Wet_Weight_g"
+colnames(sbs)[3]="Shell_and_Tissue_Total_Wet_Weight_g"
 colnames(sbs)[4]="Total_Shell_Height_Length_mm"
 colnames(sbs)[5]="Total_Shell_Width_mm"
 colnames(sbs)[6]="Total_Shell_Depth_mm"
@@ -343,7 +353,7 @@ sbs$Location_Index=NA
 sbs$Location_Index[sbs$Site == "JBE" | sbs$Site == "JBC"| sbs$Site == "JBW"]="Jamaica Bay"
 sbs$Location_Index[sbs$Site == "GSBE" | sbs$Site == "GSBC"| sbs$Site == "GSBW"]="Great South Bay"
 sbs$State="New York"
-sbs$Near_Waterbody__General_Location="Long Island"
+sbs$Near_Waterbody_General_Location="Long Island"
 sbs$Waterbody_Name="NY Coastal Bays"
 sbs$Site_within_Study=sbs$Site
 sbs$Oyster_Growth_Location_Type="Near-bottom cages"
@@ -375,7 +385,7 @@ colnames(Lv)
 # [11] "Wet_shell_CI"       "Dry_shell_CI"       "Dry_tissue_wt_g"   
 colnames(Lv)[2]="Number_ID"
 colnames(Lv)[3]="Date_Oysters_Removed"
-colnames(Lv)[4]="Shell&Tissue_Total_Wet_Weight_g"
+colnames(Lv)[4]="Shell_and_Tissue_Total_Wet_Weight_g"
 colnames(Lv)[5]="Total_Shell_Height_Length_mm"
 colnames(Lv)[6]="Total_Shell_Width_mm"
 colnames(Lv)[7]="Total_Shell_Depth_mm"
@@ -394,7 +404,7 @@ Lv$Location_Index=Lv$Site
 Lv$State="New York"
 Lv$State[Lv$Site==RB]="New Jersey"
 # Lv$Waterbody_Type
-Lv$Near_Waterbody__General_Location="NY and NJ Coastal Bays"
+Lv$Near_Waterbody_General_Location="NY and NJ Coastal Bays"
 Lv$Waterbody_Name=NA
 Lv$Waterbody_Name[Lv$Site=="RB"]="Raritan Bay"
 Lv$Waterbody_Name[Lv$Site=="PF"]="Hudson River"
@@ -453,7 +463,7 @@ colnames(B2)[7]="Filtration_Rate_mg_h"
 #[8]Sex
 colnames(B2)[9]="Date_Oysters_Removed"
 B2$Date_Oysters_Removed=as.Date(Barr$date,format = "%m/%d/%Y")
-colnames(B2)[10]="Near_Waterbody__General_Location"
+colnames(B2)[10]="Near_Waterbody_General_Location"
 colnames(B2)[11]="Location_Index"
 ## add data
 # Original_Order
@@ -465,18 +475,17 @@ B2$Data_Source="Barr et al. submitted 2022"
 B2$State[B2$State=="NJ"]="New Jersey"
 B2$State[B2$State=="DE"]="Delaware"
 # B2$Waterbody_Type
-# B2$Near_Waterbody__General_Location
-B2$Waterbody_Name=B2$Near_Waterbody__General_Location
+B2$Waterbody_Name=B2$Near_Waterbody_General_Location
 B2$Site=B2$Location_Index
 B2$Representative_Aquaculture_Oyster_Practice=NA
-B2$Representative_Aquaculture_Oyster_Practice[B2$Near_Waterbody__General_Location=='Barnegat Bay']="Off-Bottom with Gear"
-B2$Representative_Aquaculture_Oyster_Practice[B2$Near_Waterbody__General_Location=='Delaware Bay']="Off-Bottom with Gear"
-B2$Representative_Aquaculture_Oyster_Practice[B2$Near_Waterbody__General_Location=='Rehobath Bay']="Off-Bottom with Gear"
+B2$Representative_Aquaculture_Oyster_Practice[B2$Near_Waterbody_General_Location=='Barnegat Bay']="Off-Bottom with Gear"
+B2$Representative_Aquaculture_Oyster_Practice[B2$Near_Waterbody_General_Location=='Delaware Bay']="Off-Bottom with Gear"
+B2$Representative_Aquaculture_Oyster_Practice[B2$Near_Waterbody_General_Location=='Rehobath Bay']="Off-Bottom with Gear"
 # B2$Site_within_Study
 B2$Oyster_Growth_Location_Type=NA
-B2$Oyster_Growth_Location_Type[B2$Near_Waterbody__General_Location=='Barnegat Bay']="Floating Rafts"
-B2$Oyster_Growth_Location_Type[B2$Near_Waterbody__General_Location=='Delaware Bay']="Near-bottom cages"
-B2$Oyster_Growth_Location_Type[B2$Near_Waterbody__General_Location=='Rehobath Bay']="Floats in water column"
+B2$Oyster_Growth_Location_Type[B2$Near_Waterbody_General_Location=='Barnegat Bay']="Floating Rafts"
+B2$Oyster_Growth_Location_Type[B2$Near_Waterbody_General_Location=='Delaware Bay']="Near-bottom cages"
+B2$Oyster_Growth_Location_Type[B2$Near_Waterbody_General_Location=='Rehobath Bay']="Floats in water column"
 B2$Subtidal_Intertidal_WaterColumn_Other="Subtidal"
 B2$Ploidy="Diploid"
 # B2$Oyster_Stock
@@ -489,7 +498,7 @@ B2$Year_Oysters_Removed=year(B2$Date_Oysters_Removed)
 # B2$Total_Shell_Height_Length_mm
 # B2$Total_Shell_Width_mm
 # B2$Total_Shell_Depth_mm
-# B2$Shell&Tissue_Total_Wet_Weight_g
+# B2$Shell_and_Tissue_Total_Wet_Weight_g
 # B2$Shell_Dry_Weight_g
 # B2$Tissue_Dry_Weight_g
 # B2$Tissue_AFDW_g
@@ -502,7 +511,7 @@ B2$Year_Oysters_Removed=year(B2$Date_Oysters_Removed)
 # Tissue_TP_g_P_per_g_dw
 # Shell_CN_molar
 # Shell_C_Percent
-# Shell_TC_g_C_per_ g_dw
+# Shell_TC_g_C_per_g_dw
 # Shell_N_Percent
 # Shell_TN_g_N_per_g_dw
 # Shell_TP_Percent
@@ -535,9 +544,9 @@ K1$Site[K1$Location_Index=="DMC"]="Darling Marine Center"
 K1$Waterbody_Name[K1$Location_Index=="DMC"]="Damariscotta River"
 K1$Site[K1$Location_Index=="POC"]="Pemaquid Oyster Company"
 K1$Waterbody_Name[K1$Location_Index=="POC"]="Damariscotta River"
-K1Near_Waterbody__General_Location="Coastal Maine"
+K1Near_Waterbody_General_Location="Coastal Maine"
 colnames(K1)[2]="Total_Shell_Height_Length_mm"
-colnames(K1)[3]="Shell&Tissue_Total_Wet_Weight_g"
+colnames(K1)[3]="Shell_and_Tissue_Total_Wet_Weight_g"
 colnames(K1)[4]="Tissue_Wet_Weight_g"
 colnames(K1)[5]="Tissue_Dry_Weight_g"
 colnames(K1)[6]="Shell_Wet_Weight_g"
@@ -583,7 +592,7 @@ K2$Site[K2$Location_Index=="DMC"]="Darling Marine Center"
 K2$Waterbody_Name[K2$Location_Index=="DMC"]="Damariscotta River"
 K2$Site[K2$Location_Index=="POC"]="Pemaquid Oyster Company"
 K2$Waterbody_Name[K2$Location_Index=="POC"]="Damariscotta River"
-K2Near_Waterbody__General_Location="Coastal Maine"
+K2Near_Waterbody_General_Location="Coastal Maine"
 # K2$Site_within_Study=
 K2$Oyster_Growth_Location_Type="Floating Rafts"
 K2$Subtidal_Intertidal_WaterColumn_Other="Other"
@@ -617,7 +626,7 @@ colnames(Darr)
 # [17] "Carbon Content (%)"    "Corrected δ13C"        "Nitrogen Content (mg)" "Nitrogen Content (%)" 
 # [21] "Corrected δ15N"        "C/N Ratio" 
 dar=Darr %>% select(-c(`Bag #`, Comments,`Pan #`, `Sample Mass (mg)`, `Corrected δ13C`,  `Corrected δ15N`))
-# "Shell&Tissue_Total_Wet_Weight_g", "Shell_Dry_Weight_g", "Tissue_Wet_Weight_g",
+# "Shell_and_Tissue_Total_Wet_Weight_g", "Shell_Dry_Weight_g", "Tissue_Wet_Weight_g",
 # "Tissue_Dry_Weight_g","Tissue_AFDW_g")
 colnames(dar)[1]="Date_Oysters_Removed"
 colnames(dar)[2]="Location_Index"
@@ -625,7 +634,7 @@ colnames(dar)[3]="Number_ID"
 colnames(dar)[4]="Total_Shell_Height_Length_mm"
 colnames(dar)[5]="Total_Shell_Width_mm"
 colnames(dar)[6]="Total_Shell_Depth_mm"
-colnames(dar)[7]="Shell&Tissue_Total_Wet_Weight_g"
+colnames(dar)[7]="Shell_and_Tissue_Total_Wet_Weight_g"
 colnames(dar)[8]="Shell_Dry_Weight_g"
 colnames(dar)[9]="Tissue_Wet_Weight_g"
 colnames(dar)[10]="Tissue_Dry_Weight_g"
@@ -640,10 +649,10 @@ colnames(dar)[16]="Tissue_CN_molar"
 dar$Raw_Data_File="NCOysterSizeData_DarrowKInsella_forJulieRose.xlsx"
 dar$Data_Source="Darrow ES & Kinsella JD, unpublished"
 dar$State="North Carolina"
-dar$Near_Waterbody__General_Location=NA
-dar$Near_Waterbody__General_Location[dar$Location_Index=="F1"]="Masonboro Island"
-dar$Near_Waterbody__General_Location[dar$Location_Index=="F2"]="Masonboro Island"
-dar$Near_Waterbody__General_Location[dar$Location_Index=="F3"]="New River"
+dar$Near_Waterbody_General_Location=NA
+dar$Near_Waterbody_General_Location[dar$Location_Index=="F1"]="Masonboro Island"
+dar$Near_Waterbody_General_Location[dar$Location_Index=="F2"]="Masonboro Island"
+dar$Near_Waterbody_General_Location[dar$Location_Index=="F3"]="New River"
 dar$Waterbody_Name="Masonboro Island"
 dar$Waterbody_Name[dar$Location_Index=="F3"]="New River"
 dar$Site=NA
@@ -679,7 +688,7 @@ dar$Oyster_Size_Class[which(dar$Total_Shell_Height_Length_Inches>5.49)]="≥ 5.5
 dar$Total_Shell_Height_Length_mm=as.numeric(dar$Total_Shell_Height_Length_mm)
 dar$Total_Shell_Width_mm=as.numeric(dar$Total_Shell_Width_mm)
 dar$Total_Shell_Depth_mm=as.numeric(dar$Total_Shell_Depth_mm)
-dar$`Shell&Tissue_Total_Wet_Weight_g`=as.numeric(dar$`Shell&Tissue_Total_Wet_Weight_g`)
+dar$Shell_and_Tissue_Total_Wet_Weight_g=as.numeric(dar$Shell_and_Tissue_Total_Wet_Weight_g)
 dar$Shell_Dry_Weight_g=as.numeric(dar$Shell_Dry_Weight_g)
 dar$Tissue_Wet_Weight_g=as.numeric(dar$Tissue_Wet_Weight_g)
 dar$Tissue_Dry_Weight_g=as.numeric(dar$Tissue_Dry_Weight_g)
@@ -700,7 +709,7 @@ avz$Representative_Aquaculture_Oyster_Practice="On-Bottom without Gear"
 avz$Data_Source="Ayvazian et al. TNC unpublished"
 avz$Location_Index="Ninigret Pond"
 avz$State="Rhode Island"
-avz$Near_Waterbody__General_Location="Charlestown"
+avz$Near_Waterbody_General_Location="Charlestown"
 avz$Waterbody_Name="Ninigret Pond"
 # avz$Site_within_Study
 avz$Oyster_Growth_Location_Type="Subtidal Bottom (Not a Discrete Patch)"
@@ -734,7 +743,7 @@ avz2$Representative_Aquaculture_Oyster_Practice="On-Bottom without Gear"
 avz2$Data_Source="Ayvazian et al. TNC unpublished"
 avz2$Location_Index="Green Hill Pond"
 avz2$State="Rhode Island"
-avz2$Near_Waterbody__General_Location="Charlestown"
+avz2$Near_Waterbody_General_Location="Charlestown"
 avz2$Waterbody_Name="Green Hill Pond"
 avz2$Site="Green Hill Pond"
 avz2$Oyster_Growth_Location_Type="Subtidal Bottom (Not a Discrete Patch)"
@@ -799,6 +808,41 @@ Main=Main[Main$Data_Source != "Kellogg-Harris",]
 # Main$Representative_Aquaculture_Oyster_Practice[which(Main$Data_Source=="Darrow ES & Kinsella JD, unpublished" & Main$Location_Index=="F1")]="Floating Rafts"
 # Main$Representative_Aquaculture_Oyster_Practice[which(Main$Data_Source=="Darrow ES & Kinsella JD, unpublished" & Main$Location_Index=="F2")]="bottom cage design"
 # Main$Representative_Aquaculture_Oyster_Practice[which(Main$Data_Source=="Darrow ES & Kinsella JD, unpublished" & Main$Location_Index=="F1")]="Near-bottom cages"
+
+### issues with colnames(Main) 20230908, fixed and added to above
+#[7] "Waterbody_Type"                             "Near_Waterbody__General_Location"  
+#[15] "Hatchery_produced_or_Wild"                  "Hatchery-produced_or_Wild" 
+#[25] "Shell&Tissue_Total_Wet_Weight_g"            "Shell_Dry_Weight_g"   
+#[31] "Tissue_TC_g_C_per_ g_dw"                    "Tissue_N_Percent"  
+#[37] "Shell_C_Percent"                            "Shell_TC_g_C_per_ g_dw"
+#[49] "Tissue_TC_g_C_per_g_dw"                     "Sex"     
+### combine 2 Tissue_TC
+# test1=is.na(Main$`Tissue_TC_g_C_per_ g_dw`)
+# test2=is.na(Main$`Tissue_TC_g_C_per_g_dw`)
+# test=Main[which(test1==F & test2==F),]
+# test=Main %>% mutate(mycol = coalesce(`Tissue_TC_g_C_per_ g_dw`,`Tissue_TC_g_C_per_g_dw`)) %>%
+#   select( mycol)
+# Main$Tissue_TC_g_C_per_g_dw=test
+# Main=Main %>% select(-`Tissue_TC_g_C_per_ g_dw`)
+# colnames(Main)[37]="Shell_TC_g_C_per_g_dw" #"Shell_TC_g_C_per_ g_dw" 
+# colnames(Main)[8]="Near_Waterbody_General_Location" #"Near_Waterbody__General_Location"
+# test1=is.na(Main$Hatchery_produced_or_Wild)
+# test2=is.na(Main$`Hatchery-produced_or_Wild`)
+# test=Main[which(test1==F & test2==F),]
+# colnames(Main)
+# colnames(Main)[15]="Oyster_Stock" # carryover from mistake in newdf, fixed above
+# colnames(Main)[16]="Hatchery_produced_or_Wild"
+# colnames(Main)[25]="Shell_and_Tissue_Total_Wet_Weight_g"  #"Shell&Tissue_Total_Wet_Weight_g"
+
+### update Bayer shell N and C (values were rounded), fixed above
+# test=as.data.frame(Main$Shell_N_Percent[which(Main$Data_Source=="Bayer et al. in prep. 2023")])
+# colnames(test)='og'
+# test$new=NA
+# test$new=b2shell$Shell_N_Percent
+# Main$Shell_TN_g_N_per_g_dw[which(Main$Data_Source=="Bayer et al. in prep. 2023")]=b2shell$Shell_TN_g_N_per_g_dw
+# Main$Shell_N_Percent[which(Main$Data_Source=="Bayer et al. in prep. 2023")]=b2shell$Shell_N_Percent
+# Main$Shell_TC_g_C_per_g_dw[which(Main$Data_Source=="Bayer et al. in prep. 2023")]=b2shell$Shell_TC_g_C_per_g_dw
+# Main$Shell_C_Percent[which(Main$Data_Source=="Bayer et al. in prep. 2023")]=b2shell$Shell_C_Percent
 
 
 dt=now()
