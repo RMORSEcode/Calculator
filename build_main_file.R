@@ -263,7 +263,7 @@ grz$Location_Index[grz$Site=='AP']='Adams Point'
 grz$Near_Waterbody_General_Location="Portsmouth"
 grz$Ploidy="Diploid"
 grz$Total_Shell_Height_Length_Inches=grz$Total_Shell_Height_Length_mm*0.0393701
-grz$Hatchery_produced_or_Wild="?"
+grz$Hatchery_produced_or_Wild="Hatchery-produced"
 grz$Oyster_Stock='Little Bay Oyster Company'
 newdf4=bind_rows(newdf3, grz)
 
@@ -300,7 +300,7 @@ b2$Site="Elias Point"
 b2$Oyster_Growth_Location_Type="oyster reef (public grounds)"
 b2$Subtidal_Intertidal_WaterColumn_Other="Subtidal"
 b2$Ploidy="Diploid"
-# b2$Oyster_Stock
+b2$Oyster_Stock="Stella Mar Oyster Co."
 b2$Hatchery_produced_or_Wild="Hatchery-produced"
 # b2$Date_Oysters_Deployed
 b2$Month_Oysters_Removed=month(b2$Date_Oysters_Removed)
@@ -359,7 +359,7 @@ sbs$Site_within_Study=sbs$Site
 sbs$Oyster_Growth_Location_Type="Near-bottom cages"
 sbs$Subtidal_Intertidal_WaterColumn_Other="Subtidal"
 sbs$Ploidy="Diploid"
-sbs$Oyster_Stock=NA
+sbs$Oyster_Stock="Fishers Island Oyster Farm"
 sbs$Hatchery_produced_or_Wild="Hatchery-produced"
 sbs$Date_Oysters_Deployed=NA
 sbs$Month_Oysters_Removed=month(sbs$Date_Oysters_Removed)
@@ -429,7 +429,7 @@ Lv$Oyster_Growth_Location_Type="Near-bottom cages"
 Lv$Subtidal_Intertidal_WaterColumn_Other="Subtidal"
 Lv$Ploidy="Diploid"
 Lv$Oyster_Stock="Fishers Island Oyster Farm"
-Lv$Hatchery_produced_or_Wild="Hatchery produced"
+Lv$Hatchery_produced_or_Wild="Hatchery-produced"
 Lv$Date_Oysters_Deployed=NA
 Lv$Month_Oysters_Removed=month(Lv$Date_Oysters_Removed)
 Lv$Year_Oysters_Removed=year(Lv$Date_Oysters_Removed)
@@ -600,7 +600,7 @@ K2$ploidy="Diploid"
 K2$ploidy[K2$Ploidy=="3N"]="Triploid"
 K2$Ploidy=K2$ploidy; K2=K2 %>% select(-ploidy)
 # K2$Oyster_Stock
-K2$Hatchery_produced_or_Wild="Hatchery produced"
+K2$Hatchery_produced_or_Wild="Hatchery-produced"
 # K2$Date_Oysters_Deployed
 # K2$Date_Oysters_Removed
 # K2$Month_Oysters_Removed
@@ -667,7 +667,7 @@ dar$Oyster_Growth_Location_Type[dar$Location_Index=="F3"]="Off-Bottom with Gear"
 dar$Representative_Aquaculture_Oyster_Practice=NA
 dar$Representative_Aquaculture_Oyster_Practice[dar$Location_Index=="F1"]="Floating Rafts"
 dar$Representative_Aquaculture_Oyster_Practice[dar$Location_Index=="F2"]="bottom cage design"
-dar$Representative_Aquaculture_Oyster_Practice[dar$Location_Index=="F1"]="Near-bottom cages"
+dar$Representative_Aquaculture_Oyster_Practice[dar$Location_Index=="F3"]="Near-bottom cages"
 
 dar$Subtidal_Intertidal_WaterColumn_Other="Unknown"
 dar$Ploidy="Diploid"
@@ -843,6 +843,68 @@ Main=Main[Main$Data_Source != "Kellogg-Harris",]
 # Main$Shell_N_Percent[which(Main$Data_Source=="Bayer et al. in prep. 2023")]=b2shell$Shell_N_Percent
 # Main$Shell_TC_g_C_per_g_dw[which(Main$Data_Source=="Bayer et al. in prep. 2023")]=b2shell$Shell_TC_g_C_per_g_dw
 # Main$Shell_C_Percent[which(Main$Data_Source=="Bayer et al. in prep. 2023")]=b2shell$Shell_C_Percent
+
+# Add label to search on data included in CB BMP report
+s1=match("Poach et al. in prep 2023", Main$Data_Source) # start of Poach data (after end of CB)
+Main$Panel=F
+Main$Panel[1:s1-1]=T
+
+##fix duplicated Oyster_Stock; fixed 20230912 added to above
+# duplicated(names(Main))
+# unique(Main[,15])
+# unique(Main[,45])
+# OS=coalesce(Main[,15], Main[,45])
+# sum(is.na(OS))
+# sum(is.na(Main[,15]))
+# sum(is.na(Main[,45]))
+# test15=is.na(Main[,15])
+# test45=is.na(Main[,45])
+# test=Main[which(test15==F & test45==F),]
+# unique(test$Data_Source)
+# # [1] "Grizzle and Ward 2011"                 "Levinton J, et al. 2011 PLoS ONE 6(4)"
+# test2=test[,c(15,45)]
+# table(test[which(test$Data_Source=="Grizzle and Ward 2011"),15])
+# table(test[which(test$Data_Source=="Levinton J, et al. 2011 PLoS ONE 6(4)"),15])
+# table(Main[which(Main$Data_Source=="Grizzle and Ward 2011"),15])
+# table(Main[which(Main$Data_Source=="Levinton J, et al. 2011 PLoS ONE 6(4)"),15])
+# Main[which(Main$Data_Source=="Levinton J, et al. 2011 PLoS ONE 6(4)"),15]=NA
+# Main[which(Main$Data_Source=="Grizzle and Ward 2011"),15]=NA
+# OS=coalesce(Main[,15], Main[,45])
+# unique(Main[,15])
+# unique(Main[,45])
+# unique(OS)
+# Main=Main[,-15]
+# Main$Oyster_Stock=OS
+# test=Main[which(Main$Oyster_Stock=="Hatchery-produced"),]
+# unique(test$Data_Source)
+# # [1] "Bayer et al. in prep. 2023" "Sebastiano et al 2015"
+# test=Main[which(Main$Data_Source=="Bayer et al. in prep. 2023"),]
+# unique(test$Oyster_Stock)
+# # 1 Hatchery-produced
+# test=Main[which(Main$Data_Source=="Sebastiano et al 2015"),]
+# unique(test$Oyster_Stock)
+# # 1 Hatchery-produced
+# OS2=data.frame(OS)
+# Main$Oyster_Stock=OS2$Oyster_Stock
+# Main$Oyster_Stock[which(Main$Data_Source=="Sebastiano et al 2015")]="Fishers Island Oyster Farm"
+# Main$Oyster_Stock[Main$Data_Source=="Bayer et al. in prep. 2023"]="Stella Mar Oyster Co."
+# Main$Hatchery_produced_or_Wild[Main$Data_Source=="Bayer et al. in prep. 2023"]="Wild"
+
+###Fix error in Darrow data set F3 was set to F1 for representative_aqua... corrected above
+# Main$Oyster_Growth_Location_Type[Main$Location_Index=="F1"]="Off-Bottom with Gear"
+# Main$Oyster_Growth_Location_Type[Main$Location_Index=="F2"]="On-Bottom without Gear"
+# Main$Oyster_Growth_Location_Type[Main$Location_Index=="F3"]="Off-Bottom with Gear"
+# Main$Representative_Aquaculture_Oyster_Practice[Main$Location_Index=="F1"]="Floating Rafts"
+# Main$Representative_Aquaculture_Oyster_Practice[Main$Location_Index=="F2"]="bottom cage design"
+# Main$Representative_Aquaculture_Oyster_Practice[Main$Location_Index=="F3"]="Near-bottom cages"
+
+
+
+# this is causing unknown NAs not sure why
+test=Main[Main$Oyster_Stock=="Hatchery produced",]
+unique(test$Data_Source)
+test2=test[is.na(test$Data_Source),]
+
 
 
 dt=now()

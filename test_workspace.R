@@ -700,7 +700,7 @@ plot(Main$Tissue_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727
 # plot(Main$Tissue_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_Inches[1:9727], type='p', 
 #      pch=19, col='gray70', ylim=c(0,8), xlim=c(0,7.87402), ylab="Dry weight (g)", xlab="Shell height (in)", las=1)
 
-7.87402
+
 stt=sort(unique(Main$State))
 MainNoCB=Main[s1:dim(Main)[1],]
 MainNoCBLev=Main[vec,]
@@ -784,6 +784,91 @@ qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, s
 x <- seq(0, 180, length = 250)
 lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 2, lwd=2, col = 'black')
 summary(qrx)
+## nlrq for CB
+dataa=Main %>% filter(Ploidy=="Triploid", Panel==T)
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+x <- seq(0, 180, length = 250)
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 1, lwd=2, col = 'blue')
+summary(qrx)
+
+## resample randomly but evenly across states
+table(MainNoCB$State)
+
+##try with replace=T
+
+ST=Main[Main$State=="Connecticut",]
+n1=ST[sample(nrow(ST), 50), ]
+ST=Main[Main$State=="Delaware",]
+n2=ST[sample(nrow(ST), 50), ]
+ST=Main[Main$State=="Maine",]
+n3=ST[sample(nrow(ST), 50), ]
+ST=Main[Main$State=="Maryland",]
+n4=ST[sample(nrow(ST), 50), ]
+ST=Main[Main$State=="Massachusetts",]
+n5=ST[sample(nrow(ST), 50), ]
+ST=Main[Main$State=="New Hampshire",]
+n6=ST[sample(nrow(ST), 50), ]
+ST=Main[Main$State=="New Jersey",]
+n7=ST[sample(nrow(ST), 50), ]
+ST=Main[Main$State=="New York",]
+n8=ST[sample(nrow(ST), 50), ]
+ST=Main[Main$State=="North Carolina",]
+n9=ST[sample(nrow(ST), 50), ]
+ST=Main[Main$State=="Rhode Island",]
+n10=ST[sample(nrow(ST), 50), ]
+ST=Main[Main$State=="Virginia",]
+n11=ST[sample(nrow(ST), 50), ]
+
+rsmpMain=do.call("rbind", list(n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11))
+plot(rsmpMain$Tissue_Dry_Weight_g ~ rsmpMain$Total_Shell_Height_Length_mm, type='p', 
+     pch=19, col='gray70', ylim=c(0,8), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1)
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = rsmpMain, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+x <- seq(0, 180, length = 250)
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 2, lwd=2, col = 'red')
+summary(qrx)
+dataa=MainNoCB
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+x <- seq(0, 180, length = 250)
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 2, lwd=2, col = 'black')
+dataa=Main[Main$Panel==T,]
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+x <- seq(0, 180, length = 250)
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 1, lwd=2, col = 'red')
+
+### regressions with size cut offs: 75mm and 100 mm
+dataa=MainNoCB[which(MainNoCB$Total_Shell_Height_Length_mm < 100),]
+plot(dataa$Tissue_Dry_Weight_g ~ dataa$Total_Shell_Height_Length_mm, type='p', 
+     pch=19, col='gray70', ylim=c(0,8), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1)
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+x <- seq(0, 180, length = 250)
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 2, lwd=2, col = 'red')
+summary(qrx)
+dataa=MainNoCB[which(MainNoCB$Total_Shell_Height_Length_mm < 75),]
+plot(dataa$Tissue_Dry_Weight_g ~ dataa$Total_Shell_Height_Length_mm, type='p', 
+     pch=21, col='gray70', ylim=c(0,8), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1)
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 2, lwd=2, col = 'red')
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+x <- seq(0, 180, length = 250)
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 2, lwd=2, col = 'blue')
+summary(qrx)
+
+### CB data with and without gear
+dataa=Main[which(Main$Panel==T),]
+dta=dataa %>% filter(Representative_Aquaculture_Oyster_Practice=="On-Bottom without Gear")
+plot(dta$Tissue_Dry_Weight_g ~ dta$Total_Shell_Height_Length_mm, type='p', 
+     pch=19, col='gray70', ylim=c(0,8), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1)
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dta, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+x <- seq(0, 180, length = 250)
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 1, lwd=2, col = 'black')
+dta=dataa %>% filter(Representative_Aquaculture_Oyster_Practice=="Off-Bottom with Gear")
+points(dta$Tissue_Dry_Weight_g ~ dta$Total_Shell_Height_Length_mm, pch=21, col='purple')
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dta, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+x <- seq(0, 180, length = 250)
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 1, lwd=2, col = 'red')
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = MainNoCB, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+x <- seq(0, 180, length = 250)
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 2, lwd=2, col = 'red')
+legend('topleft', lty=c(1,1,2), col=c('black', 'red', 'red'), legend=c('CB no gear', 'CB gear', 'MainNoCB all'), bty='n')
 
 
 ## OLS starting points for 'a' and 'b' for nlrq (not working yet)
@@ -1003,7 +1088,7 @@ Main[complete.cases(Main$Shell_N_Percent),] %>% select(State, Ploidy, Shell_N_Pe
   theme(text = element_text(size = 20)) +
   theme(legend.text = element_text(size = 20)) 
 
-## Shell P
+## Shell P (need to exclude Higgins from CB BMP)
 Main[complete.cases(Main$Shell_TP_Percent),] %>% select(State, Shell_TP_Percent) %>% 
   ggplot(aes(y=Shell_TP_Percent, x=State)) + 
   geom_boxplot(color = "black", notch=T) +
@@ -1058,7 +1143,7 @@ Main[complete.cases(Main$Shell_C_Percent),] %>% select(State, Ploidy, Shell_C_Pe
   geom_boxplot(color = "black", notch=T) +
   theme_classic()+
   labs(x='', y = 'Shell C Percent') +
-  coord_cartesian(ylim = c(10, 15))+
+  coord_cartesian(ylim = c(0, 15))+
   scale_fill_manual(values=c("white", "gray")) +
   stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
   theme(strip.background = element_blank(),
