@@ -265,6 +265,8 @@ grz$Ploidy="Diploid"
 grz$Total_Shell_Height_Length_Inches=grz$Total_Shell_Height_Length_mm*0.0393701
 grz$Hatchery_produced_or_Wild="Hatchery-produced"
 grz$Oyster_Stock='Little Bay Oyster Company'
+grz$Location_Index[which(is.na(grz$Location_Index))]="Little Bay Oyster Company Fox Point" # add for initial deployment
+grz$Waterbody_Name[is.na(grz$Waterbody_Name)]="Little Bay" #initial deployment
 newdf4=bind_rows(newdf3, grz)
 
 ### Now add bayer (CT)
@@ -317,6 +319,7 @@ b2$Oyster_Size_Class[which(b2$Total_Shell_Height_Length_Inches>5.49)]="≥ 5.5"
 # fix sample number issue 310, 310A
 b2$Number_ID[which(b2$Number_ID=="310A")]=3100
 b2$Number_ID=as.numeric(b2$Number_ID)
+b2$Tissue_C_Percent=b2$Tissue_TC_g_C_per_g_dw*100
 newdf5=bind_rows(newdf4, b2)
 
 
@@ -468,7 +471,7 @@ colnames(B2)[11]="Location_Index"
 ## add data
 # Original_Order
 B2$Raw_Data_File="Rutgers_RM.xlsx"
-B2$Data_Source="Barr et al. submitted 2022"
+B2$Data_Source="Barr et al. in press 2023"
 # B2$Number_ID
 # B2$Analysis_ID
 # B2$Location_Index
@@ -477,15 +480,16 @@ B2$State[B2$State=="DE"]="Delaware"
 # B2$Waterbody_Type
 B2$Waterbody_Name=B2$Near_Waterbody_General_Location
 B2$Site=B2$Location_Index
+B2$Waterbody_Name[B2$Waterbody_Name=="Rehobath Bay"]="Rehoboth Bay"
 B2$Representative_Aquaculture_Oyster_Practice=NA
 B2$Representative_Aquaculture_Oyster_Practice[B2$Near_Waterbody_General_Location=='Barnegat Bay']="Off-Bottom with Gear"
 B2$Representative_Aquaculture_Oyster_Practice[B2$Near_Waterbody_General_Location=='Delaware Bay']="Off-Bottom with Gear"
-B2$Representative_Aquaculture_Oyster_Practice[B2$Near_Waterbody_General_Location=='Rehobath Bay']="Off-Bottom with Gear"
+B2$Representative_Aquaculture_Oyster_Practice[B2$Near_Waterbody_General_Location=='Rehoboth Bay']="Off-Bottom with Gear"
 # B2$Site_within_Study
 B2$Oyster_Growth_Location_Type=NA
 B2$Oyster_Growth_Location_Type[B2$Near_Waterbody_General_Location=='Barnegat Bay']="Floating Rafts"
 B2$Oyster_Growth_Location_Type[B2$Near_Waterbody_General_Location=='Delaware Bay']="Near-bottom cages"
-B2$Oyster_Growth_Location_Type[B2$Near_Waterbody_General_Location=='Rehobath Bay']="Floats in water column"
+B2$Oyster_Growth_Location_Type[B2$Near_Waterbody_General_Location=='Rehoboth Bay']="Floats in water column"
 B2$Subtidal_Intertidal_WaterColumn_Other="Subtidal"
 B2$Ploidy="Diploid"
 # B2$Oyster_Stock
@@ -528,6 +532,13 @@ B2$Clearance_Rate_L_h=as.numeric(B2$Clearance_Rate_L_h)
 B2$Filtration_Rate_mg_h_g =as.numeric(B2$Filtration_Rate_mg_h_g )
 B2$Clearance_Rate_L_h_g=as.numeric(B2$Clearance_Rate_L_h_g)
 B2$Filtration_Rate_mg_h=as.numeric(B2$Filtration_Rate_mg_h)
+
+B2$Location_Index[is.na(B2$Location_Index)]="Rutgers Cape Shore Lab"
+B2$Waterbody_Name[B2$Waterbody_Name=="Rehobath Bay"]="Rehoboth Bay"
+## Barr
+# Delaware Bay NJ, 39.071222, -74.913194
+# Barnegat Bay NJ, Rose Cove 39.603000, -74.302000
+# Rehoboth Bay DE, Sally Cove 38.650929, -75.126330
 newdf8=bind_rows(newdf7, B2)
 
 # colnames(Kiffney)
@@ -898,6 +909,53 @@ Main$Panel[1:s1-1]=T
 # Main$Representative_Aquaculture_Oyster_Practice[Main$Location_Index=="F2"]="bottom cage design"
 # Main$Representative_Aquaculture_Oyster_Practice[Main$Location_Index=="F3"]="Near-bottom cages"
 
+#Fix Grizzle and Ward pre-deployment oyster location
+# Main$Waterbody_Name[is.na(Main$Waterbody_Name)]="Little Bay"
+# Main$Location_Index[which(is.na(Main$Location_Index)&(Main$Data_Source=="Grizzle and Ward 2011"))]="Little Bay Oyster Company Fox Point"
+#Add location index to Barr Delaware Bay
+# Main$Location_Index[which(is.na(Main$Location_Index)&(Main$Data_Source=="Barr et al. submitted 2022"))]="Rutgers Cape Shore Lab"
+# Main$Waterbody_Name[Main$Waterbody_Name=="Rehobath Bay"]="Rehoboth Bay"
+
+# Main$State[Main$Waterbody_Name=="Raritan Bay"]="New Jersey"
+
+unique(Main$State)
+Main$st_abrv=NA
+# [1] "Virginia"       "Maryland"       "Massachusetts"  "New Hampshire"  "Connecticut"    "New York"       "New Jersey"    
+# [8] "Delaware"       "Maine"          "North Carolina" "Rhode Island"  
+Main$st_abrv[Main$State=="Virginia"]="VA"
+Main$st_abrv[Main$State=="Maryland"]="MD"
+Main$st_abrv[Main$State=="Massachusetts"]="MA"
+Main$st_abrv[Main$State=="New Hampshire"]="NH"
+Main$st_abrv[Main$State=="Connecticut"]="CT"
+Main$st_abrv[Main$State=="New York"]="NY"
+Main$st_abrv[Main$State=="New Jersey"]="NJ"
+Main$st_abrv[Main$State=="Delaware"]="DE"
+Main$st_abrv[Main$State=="Maine"]="ME"
+Main$st_abrv[Main$State=="North Carolina"]="NC"
+Main$st_abrv[Main$State=="Rhode Island"]="RI"
+table(Main$st_abrv) 
+
+### Fix missing C tissue percent for Bayer
+# test=Main$Tissue_TC_g_C_per_g_dw[which(Main$Data_Source=="Bayer et al. in prep. 2023")]
+# test=Main[Main$Data_Source=="Bayer et al. in prep. 2023",]
+# test$Tissue_C_Percent=test$Tissue_TC_g_C_per_g_dw*100
+# > t2=as.matrix(test$Tissue_C_Percent)
+# > t3=as.data.frame(t2)
+# > colnames(t3)=NULL
+# > save(Main, file=paste(wd, dat, "_Calculator_Main_oyster_data.rdata", sep=''))
+# > wd
+# [1] "C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/"
+# > badC=Main
+# > load("C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/20230920_Calculator_Main_oyster_data.rdata")
+# > badC2=badC %>% select(-Tissue_C_Percent)
+# > badC2$Tissue_C_Percent=Main$Tissue_C_Percent
+# Main=badC2
+# Main$Tissue_C_Percent[which(Main$Data_Source=="Bayer et al. in prep. 2023")]=t2
+# class(Main$Tissue_C_Percent)
+# class(Main$Tissue_TC_g_C_per_g_dw)
+
+#update status of Barr paper
+# Main$Data_Source[Main$Data_Source=="Barr et al. submitted 2022"]="Barr et al. in press 2023"
 
 
 # this is causing unknown NAs not sure why

@@ -576,6 +576,7 @@ s3=match("Barr et al. submitted 2022", Main$Data_Source) # Start of Barr (after 
 s4=match("Sebastiano et al 2015", Main$Data_Source)-1 #Last data before Sebastiano
 vec=c(s1:s2, s3:dim(Main)[1]) # No CB, No Levinton
 vecNoCBNY=c(s1:s4, s3:dim(Main)[1]) # No CB, Sebastiano, Levinton
+vecNoCB=c(s1:dim(Main)[1])
 # 1) plot all together (full)
 P=Main %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_mm, color=State))+ 
   geom_point()+
@@ -790,34 +791,80 @@ qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, s
 x <- seq(0, 180, length = 250)
 lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 1, lwd=2, col = 'blue')
 summary(qrx)
+legend('topleft', col=c('black', 'blue'), lwd=c(2,2), lty=c(1,1), legend=c('Main All', 'CB Triploid'), bty = 'n')
+
+
+### summary stats used in table 1
+test=MainNoCB %>% select(State, Tissue_N_Percent, Tissue_C_Percent, Tissue_TP_Percent, Shell_N_Percent, Shell_TP_Percent, Shell_C_Percent) %>% 
+  group_by(State) %>%
+  summarise(across(everything(), \(x) mean(x, na.rm = TRUE)))
+write.csv(test, file='mean_by_state_and_ploidy.csv')
+
+testsd=MainNoCB %>% select(State, Ploidy, Tissue_N_Percent, Tissue_C_Percent, Tissue_TP_Percent, Shell_N_Percent, Shell_TP_Percent, Shell_C_Percent) %>% 
+  group_by(State, Ploidy) %>%
+  summarise(across(everything(), \(x) sd(x, na.rm = TRUE)))
+write.csv(testsd, file='sd_by_state_and_ploidy.csv')
+
 
 ## resample randomly but evenly across states
 table(MainNoCB$State)
-
 ##try with replace=T
-
+nn=300
 ST=Main[Main$State=="Connecticut",]
-n1=ST[sample(nrow(ST), 50), ]
+n1=ST[sample(nrow(ST), nn, replace=T), ]
 ST=Main[Main$State=="Delaware",]
-n2=ST[sample(nrow(ST), 50), ]
+n2=ST[sample(nrow(ST), nn, replace=T), ]
 ST=Main[Main$State=="Maine",]
-n3=ST[sample(nrow(ST), 50), ]
+n3=ST[sample(nrow(ST), nn, replace=T), ]
 ST=Main[Main$State=="Maryland",]
-n4=ST[sample(nrow(ST), 50), ]
+n4=ST[sample(nrow(ST), nn, replace=T), ]
 ST=Main[Main$State=="Massachusetts",]
-n5=ST[sample(nrow(ST), 50), ]
+n5=ST[sample(nrow(ST), nn, replace=T), ]
 ST=Main[Main$State=="New Hampshire",]
-n6=ST[sample(nrow(ST), 50), ]
+n6=ST[sample(nrow(ST), nn, replace=T), ]
 ST=Main[Main$State=="New Jersey",]
-n7=ST[sample(nrow(ST), 50), ]
+n7=ST[sample(nrow(ST), nn, replace=T), ]
 ST=Main[Main$State=="New York",]
-n8=ST[sample(nrow(ST), 50), ]
+n8=ST[sample(nrow(ST), nn, replace=T), ]
 ST=Main[Main$State=="North Carolina",]
-n9=ST[sample(nrow(ST), 50), ]
+n9=ST[sample(nrow(ST), nn, replace=T), ]
 ST=Main[Main$State=="Rhode Island",]
-n10=ST[sample(nrow(ST), 50), ]
+n10=ST[sample(nrow(ST), nn, replace=T), ]
 ST=Main[Main$State=="Virginia",]
-n11=ST[sample(nrow(ST), 50), ]
+n11=ST[sample(nrow(ST), nn, replace=T), ]
+
+# 100
+# Coefficients:
+#   Value    Std. Error t value  Pr(>|t|)
+# a  0.00003  0.00002    1.76655  0.07762
+# b  2.42963  0.13463   18.04648  0.00000
+# 75
+# Coefficients:
+#   Value    Std. Error t value  Pr(>|t|)
+# a  0.00007  0.00005    1.53389  0.12537
+# b  2.25687  0.15296   14.75483  0.00000
+# 50
+# Coefficients:
+#   Value    Std. Error t value  Pr(>|t|)
+# a  0.00002  0.00001    1.50143  0.13388
+# b  2.53693  0.15560   16.30463  0.00000
+# 300
+# Coefficients:
+#   Value    Std. Error t value  Pr(>|t|)
+# a  0.00004  0.00001    3.17203  0.00153
+# b  2.39304  0.07462   32.07097  0.00000
+# 
+# All noCB no weighting
+# Coefficients:
+#   Value    Std. Error t value  Pr(>|t|)
+# a  0.00002  0.00000    7.32803  0.00000
+# b  2.61164  0.03229   80.89136  0.00000
+# 
+# CB only
+# Coefficients:
+#   Value    Std. Error t value  Pr(>|t|)
+# a  0.00018  0.00002    8.88778  0.00000
+# b  2.00888  0.02681   74.92921  0.00000
 
 rsmpMain=do.call("rbind", list(n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11))
 plot(rsmpMain$Tissue_Dry_Weight_g ~ rsmpMain$Total_Shell_Height_Length_mm, type='p', 
@@ -834,6 +881,7 @@ dataa=Main[Main$Panel==T,]
 qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.5)
 x <- seq(0, 180, length = 250)
 lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 1, lwd=2, col = 'red')
+legend('topleft', legend = c(paste("Resample:",nn,sep=' '), "NoCB", "Panel"), col=c('red', 'black', 'red'), lty=c(2,2,1), lwd=2, bty='n')
 
 ### regressions with size cut offs: 75mm and 100 mm
 dataa=MainNoCB[which(MainNoCB$Total_Shell_Height_Length_mm < 100),]
@@ -1005,6 +1053,12 @@ Main %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_mm, color
   ylim(0,8) +
   xlim(0, 200)
 
+# plot SH:DW by growth location type for all data besides CB BMP
+Main[vecNoCB,] %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_mm, color=Oyster_Growth_Location_Type))+ 
+  geom_point()+
+  ylim(0,8) +
+  xlim(0, 200)
+
 # plot SH:DW by growth location type for all data besides CB BMP and Levinton NY
 Main[vecNoCBNY,] %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_mm, color=Oyster_Growth_Location_Type))+ 
   geom_point()+
@@ -1026,8 +1080,8 @@ Main[complete.cases(Main$Tissue_C_Percent),] %>% select(State, Month_Oysters_Rem
 
 
 ## Tissue P
-Main[complete.cases(Main$Tissue_TP_Percent),] %>% select(State, Ploidy, Tissue_TP_Percent) %>% 
-  ggplot(aes(y=Tissue_TP_Percent, x=State)) + 
+Main[complete.cases(Main$Tissue_TP_Percent),] %>% select(st_abrv, Ploidy, Tissue_TP_Percent) %>% 
+  ggplot(aes(y=Tissue_TP_Percent, x=st_abrv)) + 
   geom_boxplot(color = "black", notch=T) +
   theme_classic()+
   labs(x='', y = 'Tissue P Percent') +
@@ -1042,8 +1096,8 @@ Main[complete.cases(Main$Tissue_TP_Percent),] %>% select(State, Ploidy, Tissue_T
 
 
 ## Tissue C
-Main[complete.cases(Main$Tissue_C_Percent),] %>% select(State, Ploidy, Tissue_C_Percent) %>% 
-  ggplot(aes(y=Tissue_C_Percent, x=State)) + 
+Main[complete.cases(Main$Tissue_C_Percent),] %>% select(st_abrv, Ploidy, Tissue_C_Percent) %>% 
+  ggplot(aes(y=Tissue_C_Percent, x=st_abrv)) + 
   geom_boxplot(color = "black", notch=T) +
   theme_classic()+
   labs(x='', y = 'Tissue C Percent') +
@@ -1058,8 +1112,8 @@ Main[complete.cases(Main$Tissue_C_Percent),] %>% select(State, Ploidy, Tissue_C_
 
 
 ## Tissue N
-Main[complete.cases(Main$Tissue_N_Percent),] %>% select(State, Ploidy, Tissue_N_Percent) %>% 
-  ggplot(aes(y=Tissue_N_Percent, x=State)) + 
+Main[complete.cases(Main$Tissue_N_Percent),] %>% select(st_abrv, Ploidy, Tissue_N_Percent) %>% 
+  ggplot(aes(y=Tissue_N_Percent, x=st_abrv)) + 
   geom_boxplot(color = "black", notch=T) +
   theme_classic()+
   labs(x='', y = 'Tissue N Percent') +
@@ -1074,8 +1128,8 @@ Main[complete.cases(Main$Tissue_N_Percent),] %>% select(State, Ploidy, Tissue_N_
 
 
 ## Shell N
-Main[complete.cases(Main$Shell_N_Percent),] %>% select(State, Ploidy, Shell_N_Percent) %>% 
-  ggplot(aes(y=Shell_N_Percent, x=State)) + 
+Main[complete.cases(Main$Shell_N_Percent),] %>% select(st_abrv, Ploidy, Shell_N_Percent) %>% 
+  ggplot(aes(y=Shell_N_Percent, x=st_abrv)) + 
   geom_boxplot(color = "black", notch=T) +
   theme_classic()+
   labs(x='', y = 'Shell N Percent') +
@@ -1089,8 +1143,8 @@ Main[complete.cases(Main$Shell_N_Percent),] %>% select(State, Ploidy, Shell_N_Pe
   theme(legend.text = element_text(size = 20)) 
 
 ## Shell P (need to exclude Higgins from CB BMP)
-Main[complete.cases(Main$Shell_TP_Percent),] %>% select(State, Shell_TP_Percent) %>% 
-  ggplot(aes(y=Shell_TP_Percent, x=State)) + 
+MainNoCB[complete.cases(MainNoCB$Shell_TP_Percent),] %>% select(st_abrv, Shell_TP_Percent) %>% 
+  ggplot(aes(y=Shell_TP_Percent, x=st_abrv)) + 
   geom_boxplot(color = "black", notch=T) +
   theme_classic()+
   labs(x='', y = 'Shell P Percent') +
@@ -1104,8 +1158,8 @@ Main[complete.cases(Main$Shell_TP_Percent),] %>% select(State, Shell_TP_Percent)
   theme(legend.text = element_text(size = 20)) 
 
 # testing shell P 
-boxplot(PCB$Shell_TP_Percent~PCB$State)
-PCB %>% ggplot(aes(y=Shell_TP_Percent, x=State)) + 
+boxplot(PCB$Shell_TP_Percent~PCB$st_abrv)
+PCB %>% ggplot(aes(y=Shell_TP_Percent, x=st_abrv)) + 
   geom_boxplot(color = "black", notch=T) +
   theme_classic()+
   labs(x='', y = 'Shell P Percent') +
@@ -1117,7 +1171,7 @@ PCB %>% ggplot(aes(y=Shell_TP_Percent, x=State)) +
   theme(legend.position = "none") +
   theme(text = element_text(size = 20)) +
   theme(legend.text = element_text(size = 20))
-Main[complete.cases(Main$Shell_TP_Percent),] %>% ggplot(aes(y=Shell_TP_Percent, x=State)) + 
+Main[complete.cases(Main$Shell_TP_Percent),] %>% ggplot(aes(y=Shell_TP_Percent, x=st_abrv)) + 
   geom_boxplot(color = "black", notch=T) +
   theme_classic()+
   labs(x='', y = 'Shell P Percent') +
@@ -1130,20 +1184,20 @@ Main[complete.cases(Main$Shell_TP_Percent),] %>% ggplot(aes(y=Shell_TP_Percent, 
   theme(text = element_text(size = 20)) +
   theme(legend.text = element_text(size = 20))
 test=Main[complete.cases(Main$Shell_TP_Percent),]
-boxplot(test$Shell_TP_Percent~test$State)
+boxplot(test$Shell_TP_Percent~test$st_abrv)
 test2=test[test$Data_Source!="Poach et al. in prep 2023",]
-boxplot(test2$Shell_TP_Percent~test2$State)
+boxplot(test2$Shell_TP_Percent~test2$st_abrv)
 
 
 ## Shell C #Reitsma data issue, half values around 15, rest around 0.5-1.5.
 # Joshua Reitsma:
   # Organic Carbon values shown for Spring, missing values were run so inorganic was included, fall includes all Carbon
-Main[complete.cases(Main$Shell_C_Percent),] %>% select(State, Ploidy, Shell_C_Percent) %>% 
-  ggplot(aes(y=Shell_C_Percent, x=State)) + 
+Main[complete.cases(Main$Shell_C_Percent),] %>% select(st_abrv, Ploidy, Shell_C_Percent) %>% 
+  ggplot(aes(y=Shell_C_Percent, x=st_abrv)) + 
   geom_boxplot(color = "black", notch=T) +
   theme_classic()+
   labs(x='', y = 'Shell C Percent') +
-  coord_cartesian(ylim = c(0, 15))+
+  coord_cartesian(ylim = c(5, 15))+
   scale_fill_manual(values=c("white", "gray")) +
   stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
   theme(strip.background = element_blank(),
@@ -1173,5 +1227,21 @@ table(Main$Location_Index[Main$Data_Source=="Higgins-2011"])
 
 unique(CB2016$Data_Source)
 
+### plot map of all stations
+nesbath=getNOAA.bathy(lon1=-79,lon2=-68,lat1=31,lat2=45, resolution=10, keep=F)
+data(stateMapEnv)
+stations=readxl::read_xlsx(paste(wd, "Location_data.xlsx", sep=''),sheet='final')
 
+par(mar = c(0,0,0,0))
+par(oma = c(0,0,0,0))
+map("worldHires", xlim=c(-79,-68),ylim=c(33,45), fill=T,border=0,col="gray70")
+map('lakes', add=TRUE, fill=TRUE, col='white', boundary='black')
+map.axes(las=1)
+map('state', fill = F, add=T) # add state lines
+points(stations$Longitude, stations$Latitude, pch=19, col='red')
+points(stations$Longitude, stations$Latitude, pch=21, col='black', bg='red', cex=1.15)
+# plot(nesbath,deep=-200, shallow=-200, step=1,add=T,lwd=1,col="gray80",lty=1)
+# plot(nesbath,deep=-50, shallow=-50, step=1,add=T,lwd=1,col=addTrans('blue',125),lty=1)
+# plot(nesbath,deep=-200, shallow=-200, step=1,add=T,lwd=1,col=addTrans('blue',50),lty=1)
+# plot(nesbath,deep=-100, shallow=-100, step=1,add=T,lwd=1,col=addTrans('blue',75),lty=1)
 

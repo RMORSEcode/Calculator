@@ -992,17 +992,18 @@ legend('topleft', pch=c(19,1), col=c('black', 'gray'),
 
 
 
-### plot differences in SH:DW by stata
+### plot differences in SH:DW by state
 plot(PCB$Tissue_Dry_Weight_g[PCB$Ploidy=="Diploid" & PCB$State=='Virginia'] ~ 
        PCB$Total_Shell_Height_Length_mm[PCB$Ploidy=="Diploid"& PCB$State=='Virginia'], type='p', 
-     col='red', ylim=c(0,7), xlim=c(0,140), ylab='Dry weight (g)', xlab='Shell height (mm)', pch=19, las=1, 
+     col='red', ylim=c(0,7), xlim=c(0,140), ylab='Tissue Dry weight (g)', xlab='Shell height (mm)', pch=19, las=1, 
      cex.axis=1.5, cex.lab =1.5)
 points(PCB$Tissue_Dry_Weight_g[PCB$Ploidy=="Diploid" & PCB$State=='Maryland'] ~ 
          PCB$Total_Shell_Height_Length_mm[PCB$Ploidy=="Diploid" & PCB$State=='Maryland'], pch=19, col='gray')
 clmd=lm(log(PCB$Tissue_Dry_Weight_g[PCB$Ploidy=="Diploid"])~log(PCB$Total_Shell_Height_Length_mm[PCB$Ploidy=="Diploid"]))
 yval=exp(clmd$coefficients[1])*xval^clmd$coefficients[2]
 lines(xval, yval, col='black', lwd=2)
-legend('topleft', bty = 'n', horiz = F, legend=c("VA Diploid", "MD Diploid"), cex=1.5, text.col = c('red','gray'))
+# legend('topleft', bty = 'n', horiz = F, legend=c("VA Diploid", "MD Diploid"), cex=1.5, text.col = c('red','gray'))
+legend('topleft', bty = 'n', horiz = F, legend=c("MD Diploid", "VA Diploid"), cex=1.5, text.col = c('gray','red'))
 
 plot(PCB$Tissue_Dry_Weight_g[PCB$Ploidy=="Triploid" & PCB$State=='Virginia'] ~ 
        PCB$Total_Shell_Height_Length_mm[PCB$Ploidy=="Triploid"& PCB$State=='Virginia'], type='p', 
@@ -1014,8 +1015,9 @@ clmt=lm(log(PCB$Tissue_Dry_Weight_g[PCB$Ploidy=="Triploid"])~log(PCB$Total_Shell
 xval=seq(20,140,by=.5)
 yval=exp(clmt$coefficients[1])*xval^clmt$coefficients[2]
 lines(xval, yval, col='black', lwd=2)
-legend('topleft', bty = 'n', horiz = F, cex=1.5, legend=c("VA Triploid", "MD Triploid"), text.col = c('red','gray'))
+# legend('topleft', bty = 'n', horiz = F, cex=1.5, legend=c("VA Triploid", "MD Triploid"), text.col = c('red','gray'))
 # legend('topleft', bty = 'n', horiz = F, legend=c("Diploid", "Triploid"), text.col = c('gray', 'purple'))
+legend('topleft', bty = 'n', horiz = F, legend=c("MD Diploid", "VA Diploid"), cex=1.5, text.col = c('gray','red'))
 
 
 #### plot for paper now with quantile regression
