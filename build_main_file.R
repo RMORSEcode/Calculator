@@ -299,7 +299,7 @@ b2$Location_Index="Greenwich Bay"
 b2$Waterbody_Name="Greenwich Bay"
 b2$Site="Elias Point"
 # b2$Site_within_Study
-b2$Oyster_Growth_Location_Type="oyster reef (public grounds)"
+b2$Oyster_Growth_Location_Type="Subtidal Bottom (Not a Discrete Patch)"# "oyster reef (public grounds)"
 b2$Subtidal_Intertidal_WaterColumn_Other="Subtidal"
 b2$Ploidy="Diploid"
 b2$Oyster_Stock="Stella Mar Oyster Co."
@@ -957,13 +957,31 @@ table(Main$st_abrv)
 #update status of Barr paper
 # Main$Data_Source[Main$Data_Source=="Barr et al. submitted 2022"]="Barr et al. in press 2023"
 
+#Change Bayer bottom type (fixed above)
+# Main$Oyster_Growth_Location_Type[Main$Data_Source=="Bayer et al. in prep. 2023"]="Subtidal Bottom (Not a Discrete Patch)"
 
 # this is causing unknown NAs not sure why
 test=Main[Main$Oyster_Stock=="Hatchery produced",]
 unique(test$Data_Source)
 test2=test[is.na(test$Data_Source),]
 
-
+## add new column
+Main$Gear_Class=NA
+Main$Gear_Class[which(Main$Data_Source=="Levinton J, et al. 2011 PLoS ONE 6(4)")]="Floating"
+Main$Gear_Class[which(Main$Data_Source=="Sebastiano et al 2015")]="Floating"
+Main$Gear_Class[which(Main$Data_Source=="Ayvazian et al. TNC unpublished")]="No Gear"
+Main$Gear_Class[which((Main$Data_Source=="Darrow ES & Kinsella JD, unpublished") & (Main$Location_Index=='F1'))]="Floating"
+Main$Gear_Class[which((Main$Data_Source=="Darrow ES & Kinsella JD, unpublished") & (Main$Location_Index=='F2'))]="No Gear"
+Main$Gear_Class[which((Main$Data_Source=="Darrow ES & Kinsella JD, unpublished") & (Main$Location_Index=='F3'))]="Bottom"
+Main$Gear_Class[which(Main$Data_Source=="Grizzle and Ward 2011")]="Bottom"
+Main$Gear_Class[which(Main$Data_Source=="Poach et al. in prep 2023")]="Bottom"
+Main$Gear_Class[which(Main$Data_Source=="Bayer et al. in prep. 2023")]="No Gear"
+Main$Gear_Class[which(Main$Data_Source=="Tom Kiffney unpublished, in prep")]="Floating"
+Main$Gear_Class[which((Main$Data_Source=="Barr et al. in press 2023")&(Main$Oyster_Growth_Location_Type=="Floating Rafts"))]="Floating"
+Main$Gear_Class[which((Main$Data_Source=="Barr et al. in press 2023")&(Main$Oyster_Growth_Location_Type=="Floats in water column"))]="Floating"
+Main$Gear_Class[which((Main$Data_Source=="Barr et al. in press 2023")&(Main$Oyster_Growth_Location_Type=="Near-bottom cages"))]="Bottom"
+Main$Gear_Class[which((Main$Data_Source=="Reitsma et al. 2017") & (Main$Oyster_Growth_Location_Type=="Near-bottom cages"))]="Bottom"
+Main$Gear_Class[which((Main$Data_Source=="Reitsma et al. 2017") & (Main$Oyster_Growth_Location_Type=="Reef"))]="No Gear"
 
 dt=now()
 dat=as.character(dt, format="%Y%m%d")
