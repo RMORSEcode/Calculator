@@ -101,7 +101,7 @@ gpd2 %>%
 bsb.sp=survdat.bio %>% dplyr::filter(SVSPP==141, SEASON=="SPRING")
 bsb.fl=survdat.bio %>% dplyr::filter(SVSPP==141, SEASON=="FALL")
 plot(LENGTH~AGE,data=bsb.sp, main="BSB Spring", ylim=c(0,80), xlim=c(0,12))
-plot(LENGTH~AGE,data=bsb.fl, main="BSB Fall", ylim=c(0,60), xlim=c(0,12))
+plot(LENGTH~AGE,data=bsb.fl, main="BSB Fall", ylim=c(0,80), xlim=c(0,12))
 boxplot(LENGTH~AGE,data=bsb.sp, main="BSB Spring", ylim=c(0,60), xlim=c(0,12))
 boxplot(LENGTH~AGE,data=bsb.fl, main="BSB Fall", ylim=c(0,60), xlim=c(0,12))
 
@@ -158,13 +158,14 @@ bts.s=bts %>% filter(STRATA %in% t2.s$STRATUM)
 bts.f=bts %>% filter(STRATA %in% t2.f$STRATUM)
 plot(bts[2], axes=T, reset = FALSE, main="Spring Strata")
 plot(bts.s[2], add=T, col='red')
+plot(bts.s[[8]][[1]], add=T, col='green')
 plot(bts[2], axes=T, reset = FALSE, main="Fall Strata")
 plot(bts.f[2], add=T, col='red')
 
 test=bsb %>% count(YEAR, SEASON)
 
-# age comp in one stratum 1030 nearest RI and CT and sampled by Bigelow
-acsp=bsb.sp %>% filter(STRATUM==1030) %>% group_by(AGE) %>%
+# age comp in one stratum 1050 nearest RI and CT and sampled by Bigelow
+acsp=bsb.fl %>% filter(STRATUM==1050) %>% group_by(AGE) %>%
   summarise(mAge=mean(ABUNDANCE), sAge=sum(ABUNDANCE))
 acsp$pct=(acsp$sAge/sum(acsp$sAge))*100
 acsp=acsp[complete.cases(acsp$AGE),]
@@ -179,6 +180,10 @@ plot(LENGTH~AGE,data=bsb.fl[which(bsb.fl$YEAR==2015),], main="BSB Fall 2015", yl
 boxplot(LENGTH~AGE,data=bsb.sp[which(bsb.sp$YEAR==2016),], main="BSB Spring 2016", ylim=c(0,60), xlim=c(0,12))
 boxplot(LENGTH~AGE,data=bsb.fl[which(bsb.fl$YEAR==2015),], main="BSB Fall 2015", ylim=c(0,60), xlim=c(0,12))
 
+
+boxplot(LENGTH~AGE,data=bsb.sp, main="BSB Spring", ylim=c(0,60), xlim=c(0,10))
+boxplot(LENGTH~AGE,data=bsb.fl, main="BSB Fall", ylim=c(0,60), xlim=c(0,10))
+
 agesum <- group_by(bsb,SEX) %>%
   summarize(minage=min(AGE, na.rm = T),maxage=max(AGE, na.rm = T))
 agesum
@@ -188,13 +193,13 @@ agesum <- group_by(bsb,SEX) %>%
   summarize(minage=min(AGE, na.rm = T),maxage=max(AGE, na.rm = T))
 agesum
 
-
+## differences between spring and fall data bsb.sp2 vs bsb.fl2
 vb <- vbFuns(param="Typical")
-f.starts.sp <- vbStarts(LENGTH~AGE,data=bsb.sp2) 
-f.fit.sp <- nls(LENGTH~vb(AGE,Linf,K,t0),data=bsb.sp2,start=f.starts.sp)
+f.starts.sp <- vbStarts(LENGTH~AGE,data=bsb.fl2) 
+f.fit.sp <- nls(LENGTH~vb(AGE,Linf,K,t0),data=bsb.fl2,start=f.starts.sp)
 coef(f.fit.sp)
-ages <- seq(-1,12,by=0.2)
-ages <-c(0.5, seq(1,12,by=1))
+ages <- seq(-1,10,by=0.2)
+ages <-c(0.5, seq(1,10,by=1))
 f.boot1.sp <- Boot(f.fit.sp)  # Be aware of some non-convergence
 confint(f.boot1.sp)
 
