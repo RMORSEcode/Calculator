@@ -980,11 +980,11 @@ for(i in 2:length(states)){
 plot(n9$Tissue_Dry_Weight_g ~ n9$Total_Shell_Height_Length_mm, type='p', 
      pch=19, col='gray70', ylim=c(0,10), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1)
 
-### now compare resampled with non-resampled data
+### non-resampled data (All data for each state, no BMP data)
 stt=sort(unique(Main$st_abrv))
 stt2=stt[c(9,6,5,8,1,11,4,3,7,10,2)] #order of decreasing data density for clearer plots
 plot(Main$Tissue_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727], type='p', 
-     pch=19, col='gray70', ylim=c(0,10), xlim=c(0,200), ylab="Dry weight (g)", xlab="Shell height (mm)", las=1)
+     pch=19, col='gray70', ylim=c(0,10), xlim=c(0,200), ylab="Tissue Dry Weight (g)", xlab="Shell Height (mm)", las=1)
 SHDWf=data.frame(matrix(NA, nrow=length(stt)+1, ncol=7))
 colnames(SHDWf)=c("State","a","b","SEa","SEb","Pa","Pb")
 SHDWf[,1]=c("Avg.",stt2)
@@ -995,12 +995,19 @@ SHDWf[1,4]=summary(qrx)$coefficients[1,2]
 SHDWf[1,5]=summary(qrx)$coefficients[2,2]
 SHDWf[1,6]=summary(qrx)$coefficients[1,4]
 SHDWf[1,7]=summary(qrx)$coefficients[2,4]
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 1, lwd=2, col = 'red')
+yy=predict(qrx, list(Total_Shell_Height_Length_mm = x))
+text(150,yy[250], labels="Avg")
 for(i in 1:length(stt2)){
   dataa=MainNoCB[MainNoCB$st_abrv==stt2[i],]
   points(dataa$Tissue_Dry_Weight_g ~dataa$Total_Shell_Height_Length_mm, pch=21, col=q11[i], ylim=c(0,10), xlim=c(0,200))
   qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.5)
   x <- seq(0, 150, length = 250)
-  lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 1, lwd=2, col = q11[i])
+  if(summary(qrx)$coefficients[1,4]<0.05){
+    lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 1, lwd=2, col = q11[i])
+    } else{
+      lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 2, lwd=1, col = 'black')
+    }
   yy=predict(qrx, list(Total_Shell_Height_Length_mm = x))
   SHDWf[i+1,2]=summary(qrx)$coefficients[1,1]
   SHDWf[i+1,3]=summary(qrx)$coefficients[2,1]
@@ -1047,8 +1054,27 @@ for(i in 1:length(stt2)){
 SHDW2=SHDW[order(SHDW$State),]
 write.csv(SHDW2, file=paste(wd,"Shell_height_dry_weight_qr50_resamp_state_data2.csv"))
 
-
-
+### plot total data vs resampled only, trying to add in SE (note diff in lm(log(x)) vs nlrq predict)
+plot(Main$Tissue_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727], type='p', 
+     pch=19, col='gray70', ylim=c(0,10), xlim=c(0,200), ylab="Tissue Dry Weight (g)", xlab="Shell Height (mm)", las=1)
+points(MainNoCB$Tissue_Dry_Weight_g ~ MainNoCB$Total_Shell_Height_Length_mm, type='p', 
+       pch=19, col='gray40')
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = MainNoCB, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 1, lwd=2, col = 'red')
+yy=predict(qrx, list(Total_Shell_Height_Length_mm = x))
+text(150,yy[250], labels="All")
+points(rsmpMain$Tissue_Dry_Weight_g ~ rsmpMain$Total_Shell_Height_Length_mm, type='p', 
+       pch=21, col='blue')
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = rsmpMain, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 1, lwd=2, col = 'green')
+yy=predict(qrx, list(Total_Shell_Height_Length_mm = x))
+text(150,yy[250], labels="Resampled")
+# testing predict vs lm of log data
+lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 1, lwd=2, col = 'green')
+rslm=lm(log(rsmpMain$Tissue_Dry_Weight_g)~log(rsmpMain$Total_Shell_Height_Length_mm))
+x <- seq(0, 180, length = 250)
+yval=exp(rslm$coefficients[1])*x^rslm$coefficients[2]
+lines(x, yval, col='black', lwd=2, lty=1)
 
 
 
