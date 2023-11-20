@@ -5,7 +5,7 @@ library(tidyverse)
 library(ggpubr)
 library(quantreg)
 library(colorspace)
-
+library(quantreg)
 
 print(sapply(CB, class))
 
@@ -1068,14 +1068,14 @@ points(rsmpMain$Tissue_Dry_Weight_g ~ rsmpMain$Total_Shell_Height_Length_mm, typ
 qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = rsmpMain, start = list(a = 0.00037, b = 1.83359), tau=0.5)
 lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 1, lwd=2, col = 'green')
 yy=predict(qrx, list(Total_Shell_Height_Length_mm = x))
-text(150,yy[250], labels="Resampled")
+text(150,yy[250], labels="Resampled", col='blue')
 # testing predict vs lm of log data
 lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = 1, lwd=2, col = 'green')
 rslm=lm(log(rsmpMain$Tissue_Dry_Weight_g)~log(rsmpMain$Total_Shell_Height_Length_mm))
 x <- seq(0, 180, length = 250)
 yval=exp(rslm$coefficients[1])*x^rslm$coefficients[2]
 lines(x, yval, col='black', lwd=2, lty=1)
-
+summary(qrx)
 
 
 
