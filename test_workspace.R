@@ -1405,6 +1405,8 @@ for(i in 1:3){
   text(150,yy[250], labels=gear[i])
 }
 
+
+
 ### Plot standard error 
 plot(Main$Tissue_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727], type='p', 
      pch=19, col='gray70', ylim=c(0,10), xlim=c(0,200), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
@@ -1458,10 +1460,8 @@ yvall=(al*(x^bl))
 # yy=predict(qrx, list(Total_Shell_Height_Length_mm = x))
 # text(180,yy[250], labels="Floating")
 
-# dataa=MainNoCB %>% filter(Gear_Class=="Bottom")
-# points(dataa$Tissue_Dry_Weight_g ~dataa$Total_Shell_Height_Length_mm, pch=19, col=colql[2])
 
-## add polygons of upper and lower fit
+## add polygons of upper and lower fit (change tau for upper and lower)
 plot(Main$Tissue_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727], type='n', 
      pch=19, col='gray70', ylim=c(0,10), xlim=c(0,200), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
 dataa=MainNoCB %>% filter(Gear_Class=="Floating")
@@ -1481,7 +1481,8 @@ yvall=(al*(x^bl))
 polygon(c(x,rev(x)),c(yvalu, rev(yval)), col=rgb(red = 1, green = 0, blue = 0, alpha = 0.1))
 polygon(c(x,rev(x)),c(yvall, rev(yval)), col=rgb(red = 1, green = 0, blue = 0, alpha = 0.1))
 lines(x, yval, col=rgb(red = 1, green = 0, blue = 0, alpha = 0.9), lwd=2)
-
+text(180,yval[250], labels="Floating")
+## Bottom
 dataa=MainNoCB %>% filter(Gear_Class=="Bottom")
 qrxu=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.75)
 qrxl=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.25)
@@ -1499,10 +1500,118 @@ yvall=(al*(x^bl))
 polygon(c(x,rev(x)),c(yvalu, rev(yval)), col=rgb(red = 0, green = 0, blue = 1, alpha = 0.1))
 polygon(c(x,rev(x)),c(yvall, rev(yval)), col=rgb(red = 0, green = 0, blue = 1, alpha = 0.1))
 lines(x, yval, col=rgb(red = 0, green = 0, blue = 1, alpha = 0.9), lwd=2)
+text(180,yval[250], labels="Bottom")
+## No Gear
+dataa=MainNoCB %>% filter(Gear_Class=="No Gear")
+qrxu=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.75)
+qrxl=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.25)
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+au=summary(qrxu)$coefficients[1,1]
+bu=summary(qrxu)$coefficients[2,1]
+yvalu=(au*(x^bu))
+al=summary(qrxl)$coefficients[1,1]
+bl=summary(qrxl)$coefficients[2,1]
+yvall=(al*(x^bl))
+polygon(c(x,rev(x)),c(yvalu, rev(yval)), col=rgb(red = 0, green = 1, blue = 0, alpha = 0.1))
+polygon(c(x,rev(x)),c(yvall, rev(yval)), col=rgb(red = 0, green = 1, blue = 0, alpha = 0.1))
+lines(x, yval, col=rgb(red = 0, green = 1, blue = 0, alpha = 0.9), lwd=2)
+text(180,yval[250], labels="No Gear")
+#add all points light gray
+points(MainNoCB$Tissue_Dry_Weight_g ~MainNoCB$Total_Shell_Height_Length_mm, pch=19, col=rgb(red = 0.52, green = 0.52, blue = 0.52, alpha = 0.1))
+
+## For Shells - polygons of upper and lower fit 
+plot(Main$Shell_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727], type='n', 
+     pch=19, col='gray70', ylim=c(0,200), xlim=c(0,200), ylab="Shell dry weight (g)", xlab="Shell height (mm)", las=1)
+dataa=MainNoCB %>% filter(Gear_Class=="Floating")
+qrxu=nlrq(Shell_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.0007, b = 2), tau=0.75)
+qrxl=nlrq(Shell_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.0007, b = 2), tau=0.25)
+qrx=nlrq(Shell_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.0007, b = 2), tau=0.5)
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+au=summary(qrxu)$coefficients[1,1]
+bu=summary(qrxu)$coefficients[2,1]
+yvalu=(au*(x^bu))
+al=summary(qrxl)$coefficients[1,1]
+bl=summary(qrxl)$coefficients[2,1]
+yvall=(al*(x^bl))
+polygon(c(x,rev(x)),c(yvalu, rev(yval)), col=rgb(red = 1, green = 0, blue = 0, alpha = 0.1))
+polygon(c(x,rev(x)),c(yvall, rev(yval)), col=rgb(red = 1, green = 0, blue = 0, alpha = 0.1))
+lines(x, yval, col=rgb(red = 1, green = 0, blue = 0, alpha = 0.9), lwd=2)
+text(180,yval[250], labels="Floating")
+points(dataa$Shell_Dry_Weight_g ~dataa$Total_Shell_Height_Length_mm, pch=19, col=rgb(red = 1, green = 0, blue = 0, alpha = 0.1))
+## Bottom
+dataa=MainNoCB %>% filter(Gear_Class=="Bottom")
+qrxu=nlrq(Shell_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.0007, b = 2), tau=0.75)
+qrxl=nlrq(Shell_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.0007, b = 2), tau=0.25)
+qrx=nlrq(Shell_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.0007, b = 2), tau=0.5)
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+au=summary(qrxu)$coefficients[1,1]
+bu=summary(qrxu)$coefficients[2,1]
+yvalu=(au*(x^bu))
+al=summary(qrxl)$coefficients[1,1]
+bl=summary(qrxl)$coefficients[2,1]
+yvall=(al*(x^bl))
+polygon(c(x,rev(x)),c(yvalu, rev(yval)), col=rgb(red = 0, green = 0, blue = 1, alpha = 0.1))
+polygon(c(x,rev(x)),c(yvall, rev(yval)), col=rgb(red = 0, green = 0, blue = 1, alpha = 0.1))
+lines(x, yval, col=rgb(red = 0, green = 0, blue = 1, alpha = 0.9), lwd=2)
+text(180,yval[250], labels="Bottom")
+points(dataa$Shell_Dry_Weight_g ~dataa$Total_Shell_Height_Length_mm, pch=19, col=rgb(red = 0, green = 0, blue = 1, alpha = 0.1))
+## No Gear
+dataa=MainNoCB %>% filter(Gear_Class=="No Gear")
+qrxu=nlrq(Shell_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.0007, b = 2), tau=0.75)
+qrxl=nlrq(Shell_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.0007, b = 2), tau=0.25)
+qrx=nlrq(Shell_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.0007, b = 2), tau=0.5)
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+au=summary(qrxu)$coefficients[1,1]
+bu=summary(qrxu)$coefficients[2,1]
+yvalu=(au*(x^bu))
+al=summary(qrxl)$coefficients[1,1]
+bl=summary(qrxl)$coefficients[2,1]
+yvall=(al*(x^bl))
+polygon(c(x,rev(x)),c(yvalu, rev(yval)), col=rgb(red = 0, green = 1, blue = 0, alpha = 0.1))
+polygon(c(x,rev(x)),c(yvall, rev(yval)), col=rgb(red = 0, green = 1, blue = 0, alpha = 0.1))
+lines(x, yval, col=rgb(red = 0, green = 1, blue = 0, alpha = 0.9), lwd=2)
+text(180,yval[250], labels="No Gear")
+points(dataa$Shell_Dry_Weight_g ~dataa$Total_Shell_Height_Length_mm, pch=19, col=rgb(red = 0, green = 1, blue = 0, alpha = 0.1))
+#add all points light gray
+points(MainNoCB$Shell_Dry_Weight_g ~MainNoCB$Total_Shell_Height_Length_mm, pch=19, col=rgb(red = 0.52, green = 0.52, blue = 0.52, alpha = 0.1))
 
 
 
-
+## Tissue SH:DW by estuary for states
+plot(Main$Tissue_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727], type='p', 
+     pch=19, col='gray70', ylim=c(0,10), xlim=c(0,200), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
+# dataa=Main[Main$Representative_Aquaculture_Oyster_Practice=="On-Bottom without Gear",]
+stsel="MA"
+stwr=unique(Main$Waterbody_Region[Main$st_abrv==stsel])
+# colql=q11[c(1,3,8)]
+for(i in 1:length(stwr)){
+  dataa=MainNoCB %>% filter(st_abrv==stsel, Waterbody_Region==stwr[i])
+  # points(dataa$Tissue_Dry_Weight_g ~dataa$Total_Shell_Height_Length_mm, pch=21, col=q11[i], ylim=c(0,8), xlim=c(0,200))
+  points(dataa$Tissue_Dry_Weight_g ~dataa$Total_Shell_Height_Length_mm, pch=19, col=q11[i])
+  # qrxu=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.95)
+  # lines(predict(qrxu, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = i, lwd=1, col ='black')
+  # qrxl=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.05)
+  # lines(predict(qrxl, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = i, lwd=1, col ='black' )
+  qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+  print(summary(qrx))
+  lines(predict(qrx, list(Total_Shell_Height_Length_mm = x)) ~ x, lty = i, lwd=2, col ='black' )
+  yy=predict(qrx, list(Total_Shell_Height_Length_mm = x))
+  text(150,yy[250], labels=stwr[i])
+}
+legend('topleft', horiz=F, pch=rep(19,length(stwr)), lty=seq(1:length(stwr)), col=q11[1:length(stwr)], legend=stwr[1:length(stwr)], bty='n')
 
 #upper
 au=summary(qrx)$coefficients[1,1]+summary(qrx)$coefficients[1,2]
@@ -1732,4 +1841,13 @@ points(stations$Longitude, stations$Latitude, pch=21, col='black', bg='red', cex
 # plot(nesbath,deep=-50, shallow=-50, step=1,add=T,lwd=1,col=addTrans('blue',125),lty=1)
 # plot(nesbath,deep=-200, shallow=-200, step=1,add=T,lwd=1,col=addTrans('blue',50),lty=1)
 # plot(nesbath,deep=-100, shallow=-100, step=1,add=T,lwd=1,col=addTrans('blue',75),lty=1)
+
+## NY and New England
+map("worldHires", xlim=c(-75,-68),ylim=c(40,45), fill=T,border=0,col="gray70")
+map.axes(las=1)
+map('state', fill = F, add=T) # add state lines
+points(stations$Longitude, stations$Latitude, pch=19, col='red')
+points(stations$Longitude, stations$Latitude, pch=21, col='black', bg='red', cex=1.15)
+
+
 

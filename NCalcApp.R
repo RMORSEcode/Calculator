@@ -21,13 +21,16 @@ ui <- fluidPage(
     #               )
     #             ),
     selectInput("state", "State:",
-                c("Overall average","Connecticut","Delaware","Maine",
+                c("US East Coast","Connecticut","Delaware","Maine",
                   "Maryland","Massachusetts","New Hampshire",
                   "New Jersey","New York","North Carolina",
                   "Rhode Island","Virginia")
     ),
     
     selectInput("units", "Nutrients removed units:",c("Pounds (lbs)", "Kilopgrams (kg")
+    ),
+    
+    selectInput("gear", "Gear used for growth:",c("Floating", "Bottom", "No Gear")
     ),
     
     # Sidebar with a slider input for number of bins 
@@ -45,7 +48,7 @@ ui <- fluidPage(
         mainPanel(
            plotOutput("barPlot"),
            plotOutput("nutbplot"),
-           #tableOutput(outputId = "nutrientsremoved")
+           tableOutput("table")
            
         )
     )
@@ -133,7 +136,6 @@ server <- function(input, output) {
       tPi=((tPv/100)*tdw0)+((tPv/100)*tdw1)+((tPv/100)*tdw2)+((tPv/100)*tdw3)+((tPv/100)*tdw4)+((tPv/100)*tdw5)
       sPi=((sPv/100)*sdw0)+((sPv/100)*sdw1)+((sPv/100)*sdw2)+((sPv/100)*sdw3)+((sPv/100)*sdw4)+((sPv/100)*sdw5)
       
-      
       #convert grams N to lbs or kg
       cnvrt=ifelse(input$units=="Pounds",0.00220462,0.001)
       tN=tNi*cnvrt
@@ -145,28 +147,23 @@ server <- function(input, output) {
               names.arg=c("Tissue N", "Shell N", "Tissue P", "Shell P"),
               ylab=input$units)
       
-    
+      output$table <- renderTable(
+      data.frame("Location"=input$state, "Tissue N"=tN,"Shell N"=sN,"Tissue P"=tP,
+                 "Shell P"=sP, "Total N"=sN+tN, "Total P"=sP+tP,"Units"=input$units),
+      striped = T,
+      hover = F,
+      bordered = T,
+      spacing = c("s", "xs", "m", "l"),
+      width = "auto",
+      align = NULL,
+      rownames = FALSE,
+      colnames = TRUE,
+      digits = NULL,
+      na = "NA",
+      quoted = FALSE
+      )
     })
-    
-    # output$nutrientsremoved <- renderTable(
-    #   expr,
-    #   striped = FALSE,
-    #   hover = FALSE,
-    #   bordered = FALSE,
-    #   spacing = c("s", "xs", "m", "l"),
-    #   width = "auto",
-    #   align = NULL,
-    #   rownames = FALSE,
-    #   colnames = TRUE,
-    #   digits = NULL,
-    #   na = "NA",
-    #   ...,
-    #   env = parent.frame(),
-    #   quoted = FALSE,
-    #   outputArgs = list()
-    # 
-    # )
-}
+ }
 
 # Run the application 
 shinyApp(ui = ui, server = server)

@@ -983,6 +983,42 @@ Main$Gear_Class[which((Main$Data_Source=="Barr et al. in press 2023")&(Main$Oyst
 Main$Gear_Class[which((Main$Data_Source=="Reitsma et al. 2017") & (Main$Oyster_Growth_Location_Type=="Near-bottom cages"))]="Bottom"
 Main$Gear_Class[which((Main$Data_Source=="Reitsma et al. 2017") & (Main$Oyster_Growth_Location_Type=="Reef"))]="No Gear"
 
+## add new column
+Main$Waterbody_Region=NA
+Main$Waterbody_Region[which((Main$st_abrv=="NY") & (Main$Waterbody_Name=="NY Coastal Bays"))]="South Shore Bay"
+Main$Waterbody_Region[which((Main$st_abrv=="NY") & (Main$Waterbody_Name=="Hudson River"))]="Hudson River"
+Main$Waterbody_Region[which((Main$st_abrv=="NY") & (Main$Waterbody_Name=="Jamaica Bay"))]="Jamaica Bay"
+Main$Waterbody_Region[which((Main$st_abrv=="NY") & (Main$Waterbody_Name=="Shelter Island Sound"))]="Peconic Bay"
+Main$Waterbody_Region[which((Main$st_abrv=="NY") & (Main$Waterbody_Name=="Tappan Zee-Haverstraw Bay"))]="Hudson River"
+Main$Waterbody_Region[which((Main$st_abrv=="MA") & (Main$Waterbody_Name=="Wellfleet Harbor"))]="Cape Cod Bay"
+Main$Waterbody_Region[which((Main$st_abrv=="MA") & (Main$Waterbody_Name=="Pocasset River"))]="Buzzards Bay"
+Main$Waterbody_Region[which((Main$st_abrv=="MA") & (Main$Waterbody_Name=="Little Bay"))]="Buzzards Bay"
+Main$Waterbody_Region[which((Main$st_abrv=="MA") & (Main$Waterbody_Name=="Pleasant Bay"))]="Atlantic Ocean"
+Main$Waterbody_Region[which((Main$st_abrv=="MA") & (Main$Waterbody_Name=="Barnstable Harbor"))]="Cape Cod Bay"
+Main$Waterbody_Region[which((Main$st_abrv=="MA") & (Main$Waterbody_Name=="Oyster Pond"))]="Nantucket Sound"
+Main$Waterbody_Region[which((Main$st_abrv=="MA") & (Main$Waterbody_Name=="Buzzards Bay"))]="Buzzards Bay"
+Main$Waterbody_Region[which((Main$st_abrv=="MA") & (Main$Waterbody_Name=="Popponesset Bay"))]="Nantucket Sound"
+Main$Waterbody_Region[which((Main$st_abrv=="MA") & (Main$Waterbody_Name=="Mashpee River"))]="Nantucket Sound"
+Main$Waterbody_Region[which((Main$st_abrv=="MA") & (Main$Waterbody_Name=="Swan River"))]="Nantucket Sound"
+Main$Waterbody_Region[which((Main$st_abrv=="MA") & (Main$Waterbody_Name=="Duxbury Bay"))]="Cape Cod Bay"
+Main$Waterbody_Region[which((Main$st_abrv=="MA") & (Main$Waterbody_Name=="Phinneys Harbor"))]="Buzzards Bay"
+Main$Waterbody_Region[which((Main$st_abrv=="MA") & (Main$Waterbody_Name=="Pocasset Harbor"))]="Buzzards Bay"
+Main$Waterbody_Region[which(Main$st_abrv=="VA")]="Chesapeake Bay"
+Main$Waterbody_Region[which(Main$st_abrv=="MD")]="Chesapeake Bay"
+Main$Waterbody_Region[which(Main$st_abrv=="NH")]="Great Bay"
+Main$Waterbody_Region[which(Main$st_abrv=="CT")]="Long Island Sound"
+Main$Waterbody_Region[which(Main$st_abrv=="NJ")]=Main$Waterbody_Name[Main$st_abrv=="NJ"]
+Main$Waterbody_Region[which(Main$st_abrv=="DE")]=Main$Waterbody_Name[Main$st_abrv=="DE"]
+Main$Waterbody_Region[which(Main$st_abrv=="ME")]=Main$Waterbody_Name[Main$st_abrv=="ME"]
+Main$Waterbody_Region[which(Main$st_abrv=="NC")]=Main$Waterbody_Name[Main$st_abrv=="NC"]
+Main$Waterbody_Region[which(Main$st_abrv=="RI")]="RI Coastal Ponds"
+
+
+
+
+# Add estuary information
+unique(Main$Waterbody_Name[Main$st_abrv=="NY"])
+
 dt=now()
 dat=as.character(dt, format="%Y%m%d")
 save(Main, file=paste(wd, dat, "_Calculator_Main_oyster_data.rdata", sep=''))
