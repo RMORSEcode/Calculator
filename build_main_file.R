@@ -988,6 +988,8 @@ Main$Waterbody_Region=NA
 Main$Waterbody_Region[which((Main$st_abrv=="NY") & (Main$Waterbody_Name=="NY Coastal Bays"))]="South Shore Bay"
 Main$Waterbody_Region[which((Main$st_abrv=="NY") & (Main$Waterbody_Name=="Hudson River"))]="Hudson River"
 Main$Waterbody_Region[which((Main$st_abrv=="NY") & (Main$Waterbody_Name=="Jamaica Bay"))]="Jamaica Bay"
+Main$Waterbody_Region[which((Main$st_abrv=="NY") & (Main$Location_Index=="Jamaica Bay"))]="Jamaica Bay" # Sebastiano
+Main$Waterbody_Region[which((Main$st_abrv=="NY") & (Main$Location_Index=="Great South Bay"))]="South Shore Bay" # Sebastiano
 Main$Waterbody_Region[which((Main$st_abrv=="NY") & (Main$Waterbody_Name=="Shelter Island Sound"))]="Peconic Bay"
 Main$Waterbody_Region[which((Main$st_abrv=="NY") & (Main$Waterbody_Name=="Tappan Zee-Haverstraw Bay"))]="Hudson River"
 Main$Waterbody_Region[which((Main$st_abrv=="MA") & (Main$Waterbody_Name=="Wellfleet Harbor"))]="Cape Cod Bay"

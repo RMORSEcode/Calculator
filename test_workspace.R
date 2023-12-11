@@ -5,7 +5,6 @@ library(tidyverse)
 library(ggpubr)
 library(quantreg)
 library(colorspace)
-library(quantreg)
 
 print(sapply(CB, class))
 
@@ -1131,6 +1130,8 @@ for(i in c(1:3,5:8,10)){
 SHDW2=SHDW[order(SHDW$State),]
 write.csv(SHDW2, file=paste(wd,"SH_shell_DW_qr50_resamp_state_data2.csv"))
 
+dataa=MainNoCB %>% filter(Waterbody_Region != c("Jamaica Bay", "Hudson River"))
+dataa2=MainNoCB %>% filter(Waterbody_Region == c("Jamaica Bay", "Hudson River"))
 
 ### plot total data vs resampled only, trying to add in SE (note diff in lm(log(x)) vs nlrq predict)
 plot(Main$Tissue_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727], type='p', 
@@ -1465,6 +1466,7 @@ yvall=(al*(x^bl))
 plot(Main$Tissue_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727], type='n', 
      pch=19, col='gray70', ylim=c(0,10), xlim=c(0,200), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
 dataa=MainNoCB %>% filter(Gear_Class=="Floating")
+dataa=MainNoCB2 %>% filter(Gear_Class=="Floating") #no Hudson, no Jamaica Bay
 qrxu=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.75)
 qrxl=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.25)
 qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa, start = list(a = 0.00037, b = 1.83359), tau=0.5)
