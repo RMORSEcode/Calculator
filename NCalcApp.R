@@ -9,7 +9,6 @@
 
 library(shiny)
 
-# Define UI for application that draws a histogram
 ui <- fluidPage(
 
     # Application title
@@ -20,6 +19,17 @@ ui <- fluidPage(
     #               "New Jersey","New York","North Carolina",
     #               )
     #             ),
+    # checkboxInput('selvarLoc', "Selcect Location", value = FALSE, width = NULL),
+    # checkboxInput('selvarGear', "Selcect Gear", value = FALSE, width = NULL),
+    # checkboxInput('selvarPloidy', "Selcect Ploidy", value = FALSE, width = NULL),
+    # 
+    radioButtons('selvar', 'Selection factor for oyster growth', c('Location', 'Gear', 'Ploidy'),
+                 inline = TRUE),
+    # downloadButton('downloadReport'),
+    
+    selectInput("units", "Units for nutrient removal:",c("Pounds (lbs)", "Kilograms (kg")
+    ),
+    
     selectInput("state", "State:",
                 c("US East Coast","Connecticut","Delaware","Maine",
                   "Maryland","Massachusetts","New Hampshire",
@@ -27,19 +37,19 @@ ui <- fluidPage(
                   "Rhode Island","Virginia")
     ),
     
-    selectInput("units", "Units for nutrient removal:",c("Pounds (lbs)", "Kilograms (kg")
+    selectInput("gear", "Gear used for growing oysters:",c("Floating", "Bottom", "No Gear")
     ),
     
-    selectInput("gear", "Gear used for growing oysters:",c("Floating", "Bottom", "No Gear")
+    selectInput("ploidy", "Select Diploid or Triploid:",c("Diploid", "Triploid")
     ),
     
     sliderInput(
       "hsize",
       "Average oyster size at harvest (Inches)",
       2.0,
-      4.0,
+      5.0,
       3.0,
-      step = 0.05,
+      step = 0.1,
       round = FALSE,
       ticks = TRUE,
       animate = FALSE,
@@ -54,9 +64,13 @@ ui <- fluidPage(
     
     numericInput("Num", "Number of oysters at harvest", 0, min=0, max=NA),
     helpText("Please enter the total number of oysters harvested at the selected size"),
-    dateInput("Htime", "Date of harvest yyyy-mm-dd", NULL, min=NA, max=NA, startview = "month"),
+    dateRangeInput("Htime", "Period of harvest (yyyy-mm-dd)", start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month"),
+    
+    textInput("farmloc", "Farm Location - City, State", value = "", width = NULL, placeholder = NULL),
     
     actionButton("add", "Add another harvest size"),
+    
+    downloadButton("report", "Generate report"),
     
     # sidebarLayout(
     #     sidebarPanel(
@@ -89,18 +103,50 @@ server <- function(input, output) {
     #             ylab="Number of Oysters")
     # })
     output$nutbplot <- renderPlot({
-      # get a and b values based on selected location (Default to resampled average value for ifelse statement==F)
-      # Tisssue SH:DW regression a and b values
-      taval=ifelse(input$state=="Connecticut", 0.000661292,
-                         ifelse(input$state=="Maine", 2.35E-06, 
-                                ifelse(input$state=="New Jersey", 0.000181615,
-                                       ifelse(input$state=="New York", 1.06E-05, 
-                                              ifelse(input$state=="North Carolina", 5.22E-05, 3.967457e-05)))))
-      tbval=ifelse(input$state=="Connecticut", 1.801627333,
-                         ifelse(input$state=="Maine", 3.016394768, 
-                                ifelse(input$state=="New Jersey", 2.104415861,
-                                       ifelse(input$state=="New York", 2.72612343, 
-                                              ifelse(input$state=="North Carolina", 2.133216559, 2.393042)))))
+      # #Floating
+      # taval=4.33372435089667E-06
+      # tbbal=2.87897996925124
+      # saval=0.000004368781292322
+      # sbval=2.87724414276531
+      # #Bottom
+      # taval=0.000301023631573294
+      # tbbal=1.88875141240511
+      # saval=0.000161318358295551
+      # sbval=2.02143772694841
+      # #No Gear
+      # taval=0.000381111318078651
+      # tbbal=1.89841023951104
+      # saval=0.000380450078626961
+      # sbval=1.89882484544669
+      
+      ## Gear
+      taval=ifelse(input$gear=="Floating",4.33E-06,
+                   ifelse(input$gear=="Bottom",0.000301, 0.000381))
+      tbval=ifelse(input$gear=="Floating",2.88,
+                   ifelse(input$gear=="Bottom",1.89, 1.88))
+      saval=ifelse(input$gear=="Floating",0.00012,
+                   ifelse(input$gear=="Bottom",0.0005, 0.0011))
+      sbval=ifelse(input$gear=="Floating",2.84,
+                   ifelse(input$gear=="Bottom",2.522, 2.34))
+      
+      # ## Ploidy
+      # taval=ifelse(input$ploidy=="Diploid",3E-05, 2.7E-05)
+      # tbval=ifelse(input$ploidy=="Diploid",2.43, 2.37)
+      # saval=ifelse(input$ploidy=="Diploid",0.000451, 0.000234)
+      # sbval=ifelse(input$ploidy=="Diploid",2.551, 2.659)
+
+      ## get a and b values based on selected location (Default to resampled average value for ifelse statement==F)
+      ## Tisssue SH:DW regression a and b values
+      # taval=ifelse(input$state=="Connecticut", 0.000661292,
+      #                    ifelse(input$state=="Maine", 2.35E-06, 
+      #                           ifelse(input$state=="New Jersey", 0.000181615,
+      #                                  ifelse(input$state=="New York", 1.06E-05, 
+      #                                         ifelse(input$state=="North Carolina", 5.22E-05, 3.967457e-05)))))
+      # tbval=ifelse(input$state=="Connecticut", 1.801627333,
+      #                    ifelse(input$state=="Maine", 3.016394768, 
+      #                           ifelse(input$state=="New Jersey", 2.104415861,
+      #                                  ifelse(input$state=="New York", 2.72612343, 
+      #                                         ifelse(input$state=="North Carolina", 2.133216559, 2.393042)))))
       # Tissue N percent values by location (or default to overall average)
       tNv=ifelse(input$state=="Connecticut", 7.51,
                          ifelse(input$state=="Maine", 7.960433, 
@@ -111,16 +157,16 @@ server <- function(input, output) {
       tPv=ifelse(input$state=="Virginia", 0.87,
                  ifelse(input$state=="Maryland", 0.82,  0.845702))
       # Shell SH:DW regression a and b values
-      saval=ifelse(input$state=="Massachusetts", 0.002172198,
-                   ifelse(input$state=="Connecticut", 0.0014647,
-                          ifelse(input$state=="Maine", 0.000101427, 
-                                 ifelse(input$state=="New York", 0.0427973, 
-                                               ifelse(input$state=="North Carolina", 0.000462, 0.0002393)))))
-      sbval=ifelse(input$state=="Massachusetts", 2.21324,
-                   ifelse(input$state=="Connecticut", 2.32495,
-                          ifelse(input$state=="Maine", 2.88729, 
-                                 ifelse(input$state=="New York", 1.331250589, 
-                                        ifelse(input$state=="North Carolina", 2.49833, 2.6874)))))
+      # saval=ifelse(input$state=="Massachusetts", 0.002172198,
+      #              ifelse(input$state=="Connecticut", 0.0014647,
+      #                     ifelse(input$state=="Maine", 0.000101427, 
+      #                            ifelse(input$state=="New York", 0.0427973, 
+      #                                          ifelse(input$state=="North Carolina", 0.000462, 0.0002393)))))
+      # sbval=ifelse(input$state=="Massachusetts", 2.21324,
+      #              ifelse(input$state=="Connecticut", 2.32495,
+      #                     ifelse(input$state=="Maine", 2.88729, 
+      #                            ifelse(input$state=="New York", 1.331250589, 
+      #                                   ifelse(input$state=="North Carolina", 2.49833, 2.6874)))))
       # Shell N percent
       sNv=ifelse(input$state=="Connecticut", 0.14,
                  ifelse(input$state=="Massachusetts", 0.24, 
@@ -174,6 +220,7 @@ server <- function(input, output) {
       sN=sNi*cnvrt
       tP=tPi*cnvrt
       sP=sPi*cnvrt
+
       
       barplot(c(tN,sN, tP, sP), col = 'lightblue', border = 'white', xlab="N removal)", 
               names.arg=c("Tissue N", "Shell N", "Tissue P", "Shell P"),
@@ -207,6 +254,29 @@ server <- function(input, output) {
         ui = verbatimTextOutput(output_name)
       )
     }, ignoreNULL = FALSE)
+    
+    output$report <- downloadHandler(
+      # For PDF output, change this to "report.pdf"
+      filename = "report.pdf",
+      content = function(file) {
+        # Copy the report file to a temporary directory before processing it, in
+        # case we don't have write permissions to the current working dir (which
+        # can happen when deployed).
+        tempReport <- file.path(tempdir(), "report.Rmd")
+        file.copy("report.Rmd", tempReport, overwrite = TRUE)
+        
+        # Set up parameters to pass to Rmd document
+        params <- list(n = c(input$units, input$gear, input$ploidy, input$hsize, input$Num, input$Htime, input$farmloc))
+        
+        # Knit the document, passing in the `params` list, and eval it in a
+        # child of the global environment (this isolates the code in the document
+        # from the code in this app).
+        rmarkdown::render(tempReport, output_file = file,
+                          params = params,
+                          envir = new.env(parent = globalenv())
+        )
+      }
+    )
  }
 
 # Run the application 
