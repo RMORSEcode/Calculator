@@ -70,6 +70,9 @@ ui <- fluidPage(
     
     actionButton("add", "Add another harvest size"),
     
+    radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
+                 inline = TRUE),
+    # downloadButton('downloadReport'),
     downloadButton("report", "Generate report"),
     
     # sidebarLayout(
@@ -264,10 +267,15 @@ server <- function(input, output) {
         # can happen when deployed).
         tempReport <- file.path(tempdir(), "report.Rmd")
         file.copy("report.Rmd", tempReport, overwrite = TRUE)
-        
+
         # Set up parameters to pass to Rmd document
-        params <- list(n = c(input$units, input$gear, input$ploidy, input$hsize, input$Num, input$Htime, input$farmloc))
-        
+        params <- list("Location"=input$state, "Tissue.N"=output$tN,"Shell.N"=sN,"Tissue.P"=tP,
+                       "Shell.P"=sP, "Total.N"=sN+tN, "Total.P"=sP+tP,"Units"=input$units,
+                       "gear"=input$gear, "ploidy"=input$ploidy, "hsize"=input$hsize, 
+                       "Num"=input$Num, "htime"=input$Htime, "loc2"=input$farmloc)
+          
+          # n = c("units"=input$units, "gear"=input$gear, "ploidy"=input$ploidy, "hsize"=input$hsize, "Num"=input$Num, "htime"=input$Htime, "loc"=input$farmloc))
+
         # Knit the document, passing in the `params` list, and eval it in a
         # child of the global environment (this isolates the code in the document
         # from the code in this app).
@@ -277,6 +285,32 @@ server <- function(input, output) {
         )
       }
     )
+    
+   
+    # output$downloadReport <- downloadHandler(
+    #   filename = function() {
+    #     paste('my-report', sep = '.', switch(
+    #       input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
+    #     ))
+    #   },
+    #   
+    #   content = function(file) {
+    #     src <- normalizePath('report.Rmd')
+    #     
+    #     # temporarily switch to the temp dir, in case you do not have write
+    #     # permission to the current working directory
+    #     owd <- setwd(tempdir())
+    #     on.exit(setwd(owd))
+    #     file.copy(src, 'report.Rmd', overwrite = TRUE)
+    #     
+    #     library(rmarkdown)
+    #     out <- render('report.Rmd', switch(
+    #       input$format,
+    #       PDF = pdf_document(), HTML = html_document(), Word = word_document()
+    #     ))
+    #     file.rename(out, file)
+    #   }
+    # )
  }
 
 # Run the application 

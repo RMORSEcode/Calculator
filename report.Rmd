@@ -1,0 +1,51 @@
+---
+title: "Oyster Calculator Report"
+output: pdf_document
+date: "`r Sys.Date()`"
+params: 
+  Location: NA
+  Tissue.N: NA
+  Shell.N: NA
+  Tissue.P: NA 
+  Shell.P: NA 
+  Total.N: NA  
+  Total.P: NA
+  Units: NA 
+  gear: NA 
+  ploidy: NA  
+  hsize: NA  
+  Num: NA
+  htime: NA 
+  loc2: NA
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r, echo=FALSE}
+barplot(c(params$Tissue.N, params$Shell.N, params$Tissue.P, params$Shell.P), col = 'lightblue', border = 'white', xlab="N removal)", names.arg=c("Tissue N", "Shell N", "Tissue P", "Shell P"), ylab=params$Units)
+```
+
+```{r, echo=FALSE}
+      kable(
+      data.frame("Location"=params$state, "Tissue N"=params$Tissue.N,"Shell N"=params$Shell.N,"Tissue P"=params$Tissue.P,
+                 "Shell P"=params$Shell.P, "Total N"=params$Total.N, "Total P"=params$Total.P,"Units"=params$Units)
+      )
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
