@@ -8,11 +8,21 @@
 #
 
 library(shiny)
+library(leaflet)
+library(leaflet.extras)
 
 ui <- fluidPage(
+  
+  tags$img(src='noaa-emblem-rgb-sm-2022.png'),
 
     # Application title
-    titlePanel("Oyster Nutrient Removal Calculator"),
+    # titlePanel( div(column(width = 6, h2("My Header")), 
+    #                column(width = 6, tags$img(src = 'noaa-emblem-rgb-2022.png'))),
+    #            windowTitle="Oyster Nutrient Removal Calculator"
+    # ),
+    
+  titlePanel("Oyster Nutrient Removal Calculator"),
+    
     # States with significant regressions, other states should use overall average option
     # selectInput("state", "State:",
     #             c("Overall average","Connecticut","Maine",
@@ -68,6 +78,9 @@ ui <- fluidPage(
     
     textInput("farmloc", "Farm Location - City, State", value = "", width = NULL, placeholder = NULL),
     
+    leafletOutput("mymap"),
+    helpText("Please zoom to state level and add a location marker for your farm"),
+    
     actionButton("add", "Add another harvest size"),
     
     radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
@@ -75,17 +88,7 @@ ui <- fluidPage(
     # downloadButton('downloadReport'),
     downloadButton("report", "Generate report"),
     
-    # sidebarLayout(
-    #     sidebarPanel(
-    #       numericInput("sz0", "Number of oysters: 0 - 1.99 Inches", 0, min=0, max=NA),
-    #       numericInput("sz1", "Number of oysters: 2.0 - 2.49 Inches", 0, min=0, max=NA),
-    #       numericInput("sz2", "Number of oysters: 2.5 - 3.49 Inches", 0, min=0, max=NA),
-    #       numericInput("sz3", "Number of oysters: 3.5 - 4.49 Inches", 0, min=0, max=NA),
-    #       numericInput("sz4", "Number of oysters: 4.5 - 5.49 Inches", 0, min=0, max=NA),
-    #       numericInput("sz5", "Number of oysters: 5.5 - 7.49 Inches", 0, min=0, max=NA),
-    #     ),
-
-        mainPanel(
+    mainPanel(
            # plotOutput("barPlot"),
            plotOutput("nutbplot"),
            tableOutput("table")
@@ -97,15 +100,24 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
-    # output$barPlot <- renderPlot({
-    #     # group input values
-    #     xa    <- c(input$sz0, input$sz1, input$sz2, input$sz3, input$sz4, input$sz5)
-    #     # draw barplot 
-    #     barplot(xa, col = 'darkgray', border = 'white', xlab="Oyster Size Class (Inches)", 
-    #             names.arg=c("<2", "2-2.49", "2.5-3.49", "3.5-4.49", "4.5-5.49", ">5.5"),
-    #             ylab="Number of Oysters")
-    # })
-    output$nutbplot <- renderPlot({
+  data_of_click <- reactiveValues(clickedMarker = list())
+    
+  output$mymap <- renderLeaflet({
+    leaflet() %>%
+      addTiles() %>%
+      setView(lng = -70, lat = 40, zoom = 5) %>%
+      addDrawToolbar(
+        targetGroup='Selected',
+        polylineOptions=FALSE,
+        polygonOptions=FALSE,
+        markerOptions = T,
+        rectangleOptions =F,
+        circleOptions = F,
+        circleMarkerOptions = F,
+        editOptions = editToolbarOptions(edit = FALSE, selectedPathOptions = selectedPathOptions()))
+  })
+  
+  output$nutbplot <- renderPlot({
       # #Floating
       # taval=4.33372435089667E-06
       # tbbal=2.87897996925124
@@ -157,8 +169,8 @@ server <- function(input, output) {
                                        ifelse(input$state=="New York", 9.35, 
                                               ifelse(input$state=="North Carolina", 8.78, 7.960433)))))
       # Tissue P percent (mean of VA and MD, not currently options for drop down)
-      tPv=ifelse(input$state=="Virginia", 0.87,
-                 ifelse(input$state=="Maryland", 0.82,  0.845702))
+      # tPv=ifelse(input$state=="Virginia", 0.87,
+      #            ifelse(input$state=="Maryland", 0.82,  0.845702))
       # Shell SH:DW regression a and b values
       # saval=ifelse(input$state=="Massachusetts", 0.002172198,
       #              ifelse(input$state=="Connecticut", 0.0014647,
@@ -176,62 +188,35 @@ server <- function(input, output) {
                         ifelse(input$state=="Maryland", 0.17,
                                ifelse(input$state=="Virginia", 0.24, 0.1904083))))
       # Shell P percent (mean of VA and MD, not currently options for drop down)
-      sPv=ifelse(input$state=="Virginia", 0.044,
-                 ifelse(input$state=="Maryland", 0.046,  0.0450174))
+      # sPv=ifelse(input$state=="Virginia", 0.044,
+      #            ifelse(input$state=="Maryland", 0.046,  0.0450174))
       
-      # Calculate dry weights of oyster tissue and shell by size class input (g) based on selected location
-      # approximate midpoint of input oyster size class (mm):
-      # 24
-      # 57
-      # 76
-      # 102
-      # 127
-      # 152 * using values from CB BMP report 2023
-      #tissue
-      # tdw0=input$sz0*(taval*(24^tbval))
-      # tdw1=input$sz1*(taval*(57^tbval))
-      # tdw2=input$sz2*(taval*(76^tbval))
-      # tdw3=input$sz3*(taval*(102^tbval))
-      # tdw4=input$sz4*(taval*(127^tbval))
-      # tdw5=input$sz5*(taval*(152^tbval))
-      # #shell
-      # sdw0=input$sz0*(saval*(24^sbval))
-      # sdw1=input$sz1*(saval*(57^sbval))
-      # sdw2=input$sz2*(saval*(76^sbval))
-      # sdw3=input$sz3*(saval*(102^sbval))
-      # sdw4=input$sz4*(saval*(127^sbval))
-      # sdw5=input$sz5*(saval*(152^sbval))
-      
+     
       tdw=input$Num*(taval*((input$hsize*25.4)^tbval))
       sdw=input$Num*(saval*((input$hsize*25.4)^sbval))
       
-      #Convert dry weight of tissue and shell (g) to nutrients (g)
-      # tNi=((tNv/100)*tdw0)+((tNv/100)*tdw1)+((tNv/100)*tdw2)+((tNv/100)*tdw3)+((tNv/100)*tdw4)+((tNv/100)*tdw5)
-      # sNi=((sNv/100)*sdw0)+((sNv/100)*sdw1)+((sNv/100)*sdw2)+((sNv/100)*sdw3)+((sNv/100)*sdw4)+((sNv/100)*sdw5)
-      # tPi=((tPv/100)*tdw0)+((tPv/100)*tdw1)+((tPv/100)*tdw2)+((tPv/100)*tdw3)+((tPv/100)*tdw4)+((tPv/100)*tdw5)
-      # sPi=((sPv/100)*sdw0)+((sPv/100)*sdw1)+((sPv/100)*sdw2)+((sPv/100)*sdw3)+((sPv/100)*sdw4)+((sPv/100)*sdw5)
-      # 
+     
       #Convert dry weight of tissue and shell (g) to nutrients (g)
       tNi=((tNv/100)*tdw)+((tNv/100)*tdw)
       sNi=((sNv/100)*sdw)+((sNv/100)*sdw)
-      tPi=((tPv/100)*tdw)+((tPv/100)*tdw)
-      sPi=((sPv/100)*sdw)+((sPv/100)*sdw)
+      # tPi=((tPv/100)*tdw)+((tPv/100)*tdw)
+      # sPi=((sPv/100)*sdw)+((sPv/100)*sdw)
       
       #convert grams N to lbs or kg
       cnvrt=ifelse(input$units=="Pounds",0.00220462,0.001)
       tN=tNi*cnvrt
       sN=sNi*cnvrt
-      tP=tPi*cnvrt
-      sP=sPi*cnvrt
+      # tP=tPi*cnvrt
+      # sP=sPi*cnvrt
 
       
-      barplot(c(tN,sN, tP, sP), col = 'lightblue', border = 'white', xlab="N removal)", 
-              names.arg=c("Tissue N", "Shell N", "Tissue P", "Shell P"),
+      barplot(c(tN,sN), col = 'lightblue', border = 'white', xlab="N removal)", 
+              names.arg=c("Tissue N", "Shell N"),
               ylab=input$units)
       
       output$table <- renderTable(
-      data.frame("Location"=input$state, "Tissue N"=tN,"Shell N"=sN,"Tissue P"=tP,
-                 "Shell P"=sP, "Total N"=sN+tN, "Total P"=sP+tP,"Units"=input$units),
+      data.frame("Location"=input$state, "Tissue N"=tN,"Shell N"=sN,
+                 "Total N"=sN+tN, "Units"=input$units),
       striped = T,
       hover = F,
       bordered = T,
@@ -269,10 +254,12 @@ server <- function(input, output) {
         file.copy("report.Rmd", tempReport, overwrite = TRUE)
 
         # Set up parameters to pass to Rmd document
-        params <- list("Location"=input$state, "Tissue.N"=output$tN,"Shell.N"=sN,"Tissue.P"=tP,
-                       "Shell.P"=sP, "Total.N"=sN+tN, "Total.P"=sP+tP,"Units"=input$units,
-                       "gear"=input$gear, "ploidy"=input$ploidy, "hsize"=input$hsize, 
-                       "Num"=input$Num, "htime"=input$Htime, "loc2"=input$farmloc)
+        params <- list(n=output$table, gear=input$gear, ploidy=input$ploidy, hsize=input$hsize) 
+                       # "Num"=input$Num, "htime"=input$Htime, "loc2"=input$farmloc)
+        # "Location"=input$state, "Tissue.N"=output$tN,"Shell.N"=output$sN,
+                       # "Total.N"=sN+tN,"Units"=input$units,
+                       # "gear"=input$gear, "ploidy"=input$ploidy, "hsize"=input$hsize, 
+                       # "Num"=input$Num, "htime"=input$Htime, "loc2"=input$farmloc)
           
           # n = c("units"=input$units, "gear"=input$gear, "ploidy"=input$ploidy, "hsize"=input$hsize, "Num"=input$Num, "htime"=input$Htime, "loc"=input$farmloc))
 

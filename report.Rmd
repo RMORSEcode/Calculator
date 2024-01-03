@@ -3,6 +3,7 @@ title: "Oyster Calculator Report"
 output: pdf_document
 date: "`r Sys.Date()`"
 params: 
+  n: NA
   Location: NA
   Tissue.N: NA
   Shell.N: NA
