@@ -1,7 +1,7 @@
 ---
 title: "Oyster Calculator Report"
 output: pdf_document
-date: "`r Sys.Date()`"
+date: `r Sys.Date()`
 params: 
   n: NA
   Location: NA
