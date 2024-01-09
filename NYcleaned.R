@@ -1,3 +1,5 @@
+s1=match("Poach et al. in prep 2023", Main$Data_Source) # start of Poach data (after end of CB)
+MainNoCB=Main[s1:dim(Main)[1],]
 RegionFarm=MainNoCB %>% filter(!(Waterbody_Region %in% c("Jamaica Bay", "Hudson River", "Raritan Bay")))
 
 ### overlay with states
@@ -406,3 +408,121 @@ for(i in(1:2)){
 dt=lubridate::now()
 dat=as.character(dt, format="%Y%m%d")
 write.csv(SHDW, file=paste(wd,dat,"Shells_SH_DW_qr50_ploidy_data.csv"))
+
+### Full data sets
+SHDW=data.frame(matrix(NA, nrow=1, ncol=7))
+colnames(SHDW)=c("Div", "a", "b", "SEa", "SEb","Pa","Pb")
+for(i in(1)){
+  # j=unique(RegionFarm$Ploidy)[i]
+  dataa2=RegionFarm #%>% filter(Ploidy==j)
+  qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+  SHDW[i,1]="All data"
+  SHDW[i,2]=summary(qrx)$coefficients[1,1]
+  SHDW[i,3]=summary(qrx)$coefficients[2,1]
+  SHDW[i,4]=summary(qrx)$coefficients[1,2]
+  SHDW[i,5]=summary(qrx)$coefficients[2,2]
+  SHDW[i,6]=summary(qrx)$coefficients[1,4]
+  SHDW[i,7]=summary(qrx)$coefficients[2,4]
+}
+dt=lubridate::now()
+dat=as.character(dt, format="%Y%m%d")
+write.csv(SHDW, file=paste(wd,dat,"Tissue_SH_DW_qr50_all.csv"))
+### Shell Full data set
+SHDW=data.frame(matrix(NA, nrow=1, ncol=7))
+colnames(SHDW)=c("Div", "a", "b", "SEa", "SEb","Pa","Pb")
+for(i in(1)){
+  # j=unique(RegionFarm$Ploidy)[i]
+  dataa2=RegionFarm #%>% filter(Ploidy==j)
+  qrx=nlrq(Shell_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = 0.0007, b = 2), tau=0.5)
+  SHDW[i,1]="All data"
+  SHDW[i,2]=summary(qrx)$coefficients[1,1]
+  SHDW[i,3]=summary(qrx)$coefficients[2,1]
+  SHDW[i,4]=summary(qrx)$coefficients[1,2]
+  SHDW[i,5]=summary(qrx)$coefficients[2,2]
+  SHDW[i,6]=summary(qrx)$coefficients[1,4]
+  SHDW[i,7]=summary(qrx)$coefficients[2,4]
+}
+dt=lubridate::now()
+dat=as.character(dt, format="%Y%m%d")
+write.csv(SHDW, file=paste(wd,dat,"Shell_SH_DW_qr50_all.csv"))
+
+## Just CB Panel
+SHDW=data.frame(matrix(NA, nrow=3, ncol=7))
+colnames(SHDW)=c("Div", "a", "b", "SEa", "SEb","Pa","Pb")
+for(i in(1)){
+  # j=unique(RegionFarm$Ploidy)[i]
+  dataa2=Main %>% filter(Panel==T)
+  qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+  SHDW[i,1]="All data"
+  SHDW[i,2]=summary(qrx)$coefficients[1,1]
+  SHDW[i,3]=summary(qrx)$coefficients[2,1]
+  SHDW[i,4]=summary(qrx)$coefficients[1,2]
+  SHDW[i,5]=summary(qrx)$coefficients[2,2]
+  SHDW[i,6]=summary(qrx)$coefficients[1,4]
+  SHDW[i,7]=summary(qrx)$coefficients[2,4]
+}
+for(i in(2:3)){
+  j=unique(Main$Ploidy)[i-1]
+  dataa2=Main %>% filter(Panel==T, Ploidy==j)
+  qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+  SHDW[i,1]=j
+  SHDW[i,2]=summary(qrx)$coefficients[1,1]
+  SHDW[i,3]=summary(qrx)$coefficients[2,1]
+  SHDW[i,4]=summary(qrx)$coefficients[1,2]
+  SHDW[i,5]=summary(qrx)$coefficients[2,2]
+  SHDW[i,6]=summary(qrx)$coefficients[1,4]
+  SHDW[i,7]=summary(qrx)$coefficients[2,4]
+}
+dt=lubridate::now()
+dat=as.character(dt, format="%Y%m%d")
+write.csv(SHDW, file=paste(wd,dat,"Tissue_SH_DW_qr50_Panel.csv"))
+# Shell
+SHDW=data.frame(matrix(NA, nrow=3, ncol=7))
+colnames(SHDW)=c("Div", "a", "b", "SEa", "SEb","Pa","Pb")
+for(i in(1)){
+  # j=unique(RegionFarm$Ploidy)[i]
+  dataa2=Main %>% filter(Panel==T)
+  qrx=nlrq(Shell_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = 0.0007, b = 2), tau=0.5)
+  SHDW[i,1]="All data"
+  SHDW[i,2]=summary(qrx)$coefficients[1,1]
+  SHDW[i,3]=summary(qrx)$coefficients[2,1]
+  SHDW[i,4]=summary(qrx)$coefficients[1,2]
+  SHDW[i,5]=summary(qrx)$coefficients[2,2]
+  SHDW[i,6]=summary(qrx)$coefficients[1,4]
+  SHDW[i,7]=summary(qrx)$coefficients[2,4]
+}
+for(i in(2:3)){
+  j=unique(Main$Ploidy)[i-1]
+  dataa2=Main %>% filter(Panel==T, Ploidy==j)
+  qrx=nlrq(Shell_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = 0.0007, b = 2), tau=0.5)
+  SHDW[i,1]=j
+  SHDW[i,2]=summary(qrx)$coefficients[1,1]
+  SHDW[i,3]=summary(qrx)$coefficients[2,1]
+  SHDW[i,4]=summary(qrx)$coefficients[1,2]
+  SHDW[i,5]=summary(qrx)$coefficients[2,2]
+  SHDW[i,6]=summary(qrx)$coefficients[1,4]
+  SHDW[i,7]=summary(qrx)$coefficients[2,4]
+}
+dt=lubridate::now()
+dat=as.character(dt, format="%Y%m%d")
+write.csv(SHDW, file=paste(wd,dat,"Shell_SH_DW_qr50_Panel.csv"))
+
+
+plot(RegionFarm$Tissue_Dry_Weight_g ~ RegionFarm$Total_Shell_Height_Length_mm, type='n', 
+     ylim=c(0,10), xlim=c(0,200), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
+for(i in(1:2)){
+  j=unique(Main$Ploidy)[i]
+  dataa2=Main %>% filter(Panel==T, Ploidy==j)
+  qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+  points(dataa2$Tissue_Dry_Weight_g ~dataa2$Total_Shell_Height_Length_mm, pch=19, col=mcol[i], ylim=c(0,8), xlim=c(0,200))
+  a=summary(qrx)$coefficients[1,1]
+  b=summary(qrx)$coefficients[2,1]
+  x=seq(0, 150, length = 250)
+  yval=(a*(x^b))
+  lines(x, yval, col='black', lwd=1)
+  lines(x, yval, col='red', lwd=1)
+  
+  # lines(x, yval, col=mcol[i], lwd=2)
+  # text(180,yval[250], labels=ifelse(summary(qrx)$coefficients[1,4]<0.05, paste(stt[i],'*', sep=' '),''), col=mcol[i])
+
+}

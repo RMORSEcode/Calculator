@@ -1016,10 +1016,18 @@ Main$Waterbody_Region[which(Main$st_abrv=="NC")]=Main$Waterbody_Name[Main$st_abr
 Main$Waterbody_Region[which(Main$st_abrv=="RI")]="RI Coastal Ponds"
 
 
-
-
 # Add estuary information
 unique(Main$Waterbody_Name[Main$st_abrv=="NY"])
+
+# fix case on ploidy 20240109
+Main$Ploidy[Main$Ploidy=="diploid"]="Diploid"
+Main$Ploidy[Main$Ploidy=="triploid"]="Triploid"
+
+## Farm Data Version used for calculator 20240109
+s1=match("Poach et al. in prep 2023", Main$Data_Source) # start of Poach data (after end of CB)
+MainNoCB=Main[s1:dim(Main)[1],]
+RegionFarm=MainNoCB %>% filter(!(Waterbody_Region %in% c("Jamaica Bay", "Hudson River", "Raritan Bay")))
+
 
 dt=lubridate::now()
 dat=as.character(dt, format="%Y%m%d")

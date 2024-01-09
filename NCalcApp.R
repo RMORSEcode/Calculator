@@ -10,6 +10,7 @@
 library(shiny)
 library(leaflet)
 library(leaflet.extras)
+library(shinyscreenshot)
 
 clicks <- data.frame(lat = numeric(), lng = numeric(), .nonce = numeric())
 
@@ -35,8 +36,8 @@ ui <- fluidPage(
   # checkboxInput('selvarGear', "Selcect Gear", value = FALSE, width = NULL),
   # checkboxInput('selvarPloidy', "Selcect Ploidy", value = FALSE, width = NULL),
   # 
-  radioButtons('selvar', 'Selection factor for oyster growth', c('Gear', 'Ploidy'),
-               inline = TRUE),
+  # radioButtons('selvar', 'Selection factor for oyster growth', c('Gear', 'Ploidy'),
+  #              inline = TRUE),
   # downloadButton('downloadReport'),
   
   selectInput("units", "Units for nutrient removal:",c("Pounds (lbs)", "Kilograms (kg")
@@ -88,15 +89,18 @@ ui <- fluidPage(
   
   # actionButton("add", "Add another harvest size"),
   
-  radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
-               inline = TRUE),
+  # radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
+               # inline = TRUE),
   # downloadButton('downloadReport'),
-  downloadButton("report", "Generate report"),
+  # downloadButton("report", "Generate report"),
   
   mainPanel(
     # plotOutput("barPlot"),
-    plotOutput("nutbplot"),
-    tableOutput("table")
+    plotOutput("nutbplot", width="50%"),
+    tableOutput("table"),
+    
+    actionButton("go", "Screenshot"),
+    downloadButton("report", "Generate report"),
   )
 )
 
@@ -106,7 +110,7 @@ server <- function(input, output) {
   # Location <- reactiveValues(clickedMarker=NULL)
   
   output$mymap <- renderLeaflet({
-    leaflet() %>%
+    leaflet(height="50%") %>%
       addProviderTiles("Esri.OceanBasemap",group = "Ocean Basemap") %>%
       addTiles() %>%
       setView(lng = -70, lat = 40, zoom = 5) %>%
@@ -286,122 +290,132 @@ server <- function(input, output) {
     # # tP=tPi*cnvrt
     # # sP=sPi*cnvrt
     
-    if(input$selvar=="Ploidy"){
-      taval=ifelse(input$ploidy=="Diploid",3E-05, 2.7E-05)
-      tbval=ifelse(input$ploidy=="Diploid",2.43, 2.37)
-      saval=ifelse(input$ploidy=="Diploid",0.000451, 0.000234)
-      sbval=ifelse(input$ploidy=="Diploid",2.551, 2.659)
-    }
-    else{
-      taval=ifelse(input$gear=="Floating",4.33E-06,
-                   ifelse(input$gear=="Bottom",0.000301, 0.000381))
-      tbval=ifelse(input$gear=="Floating",2.88,
-                   ifelse(input$gear=="Bottom",1.89, 1.88))
-      saval=ifelse(input$gear=="Floating",0.00012,
-                   ifelse(input$gear=="Bottom",0.0005, 0.0011))
-      sbval=ifelse(input$gear=="Floating",2.84,
-                   ifelse(input$gear=="Bottom",2.522, 2.34))
-    }
-  tdw=input$Num*(taval*((input$hsize*25.4)^tbval))
-  sdw=input$Num*(saval*((input$hsize*25.4)^sbval))
-  
-  #Convert dry weight of tissue and shell (g) to nutrients (g)
-  tNi=(0.0796*tdw)
-  sNi=(0.0019*sdw)
-  
-  #convert grams N to lbs or kg
-  cnvrt=ifelse(input$units=="Pounds",0.00220462,0.001)
-  tN=tNi*cnvrt
-  sN=sNi*cnvrt
-  
-  barplot(c(tN, sN), col = 'lightblue', border = 'white', xlab="N removal)", 
-          names.arg=c("Tissue N", "Shell N"),
-          ylab=input$units)
-  
-  output$table <- renderTable(
-    data.frame("Tissue N"=tN,"Shell N"=sN, "Total N"=sN+tN, "Units"=input$units),
-    striped = T,
-    hover = F,
-    bordered = T,
-    spacing = c("s", "xs", "m", "l"),
-    width = "auto",
-    align = NULL,
-    rownames = FALSE,
-    colnames = TRUE,
-    digits = NULL,
-    na = "NA",
-    quoted = FALSE
-  )
-  })
-
-observeEvent(input$add, {
-  output_name <- paste0("out_", input$add)
-  output[[output_name]] <- renderText({
-    isolate(input$add)
-  })
-  insertUI(
-    selector = ifelse(input$add == 0L, "#add", paste0("#", "out_", input$add-1)),
-    where = "afterEnd",
-    ui = verbatimTextOutput(output_name)
-  )
-}, ignoreNULL = FALSE)
-
-output$report <- downloadHandler(
-  # For PDF output, change this to "report.pdf"
-  filename = "report.pdf",
-  content = function(file) {
-    # Copy the report file to a temporary directory before processing it, in
-    # case we don't have write permissions to the current working dir (which
-    # can happen when deployed).
-    tempReport <- file.path(tempdir(), "report.Rmd")
-    file.copy("report.Rmd", tempReport, overwrite = TRUE)
+    # if(input$selvar=="Ploidy"){
+    #   taval=ifelse(input$ploidy=="Diploid",3E-05, 2.7E-05)
+    #   tbval=ifelse(input$ploidy=="Diploid",2.43, 2.37)
+    #   saval=ifelse(input$ploidy=="Diploid",0.000451, 0.000234)
+    #   sbval=ifelse(input$ploidy=="Diploid",2.551, 2.659)
+    # }
+    # else{
+    #   taval=ifelse(input$gear=="Floating",4.33E-06,
+    #                ifelse(input$gear=="Bottom",0.000301, 0.000381))
+    #   tbval=ifelse(input$gear=="Floating",2.88,
+    #                ifelse(input$gear=="Bottom",1.89, 1.88))
+    #   saval=ifelse(input$gear=="Floating",0.00012,
+    #                ifelse(input$gear=="Bottom",0.0005, 0.0011))
+    #   sbval=ifelse(input$gear=="Floating",2.84,
+    #                ifelse(input$gear=="Bottom",2.522, 2.34))
+    # }
     
-    # Set up parameters to pass to Rmd document
-    params <- list(Location=input$state, Tissue.N=output$table$tN,Shell.N=sN, Total.N=dataInput$sN+dataInput$tN, 
-                   Units=input$units, gear=input$gear, ploidy=input$ploidy, hsize=input$hsize) 
-    # "Num"=input$Num, "htime"=input$Htime, "loc2"=input$farmloc)
-    # "Location"=input$state, "Tissue.N"=output$tN,"Shell.N"=output$sN,
-    # "Total.N"=sN+tN,"Units"=input$units,
-    # "gear"=input$gear, "ploidy"=input$ploidy, "hsize"=input$hsize, 
-    # "Num"=input$Num, "htime"=input$Htime, "loc2"=input$farmloc)
+    # Single regression values
+    taval=1.42E-05
+    tbval=2.60727827
+    saval=0.00039042
+    sbval=2.579747757
+    tdw=input$Num*(taval*((input$hsize*25.4)^tbval))
+    sdw=input$Num*(saval*((input$hsize*25.4)^sbval))
     
-    # n = c("units"=input$units, "gear"=input$gear, "ploidy"=input$ploidy, "hsize"=input$hsize, "Num"=input$Num, "htime"=input$Htime, "loc"=input$farmloc))
+    #Convert dry weight of tissue and shell (g) to nutrients (g)
+    tNi=(0.0796*tdw)
+    sNi=(0.0019*sdw)
     
-    # Knit the document, passing in the `params` list, and eval it in a
-    # child of the global environment (this isolates the code in the document
-    # from the code in this app).
-    rmarkdown::render(tempReport, output_file = file,
-                      params = params,
-                      envir = new.env(parent = globalenv())
+    #convert grams N to lbs or kg
+    cnvrt=ifelse(input$units=="Pounds",0.00220462,0.001)
+    tN=tNi*cnvrt
+    sN=sNi*cnvrt
+    
+    barplot(c(tN, sN), col = 'lightgray', border = 'white', xlab="N removal)", 
+            names.arg=c("Tissue N", "Shell N"),
+            ylab=input$units)
+    
+    output$table <- renderTable(
+      data.frame("Tissue N"=tN,"Shell N"=sN, "Total N"=sN+tN, "Units"=input$units),
+      striped = T,
+      hover = F,
+      bordered = T,
+      spacing = c("s", "xs", "m", "l"),
+      width = "auto",
+      align = NULL,
+      rownames = FALSE,
+      colnames = TRUE,
+      digits = NULL,
+      na = "NA",
+      quoted = FALSE
     )
-  }
-)
-
-
-# output$downloadReport <- downloadHandler(
-#   filename = function() {
-#     paste('my-report', sep = '.', switch(
-#       input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
-#     ))
-#   },
-#   
-#   content = function(file) {
-#     src <- normalizePath('report.Rmd')
-#     
-#     # temporarily switch to the temp dir, in case you do not have write
-#     # permission to the current working directory
-#     owd <- setwd(tempdir())
-#     on.exit(setwd(owd))
-#     file.copy(src, 'report.Rmd', overwrite = TRUE)
-#     
-#     library(rmarkdown)
-#     out <- render('report.Rmd', switch(
-#       input$format,
-#       PDF = pdf_document(), HTML = html_document(), Word = word_document()
-#     ))
-#     file.rename(out, file)
-#   }
-# )
+  })
+  
+  observeEvent(input$add, {
+    output_name <- paste0("out_", input$add)
+    output[[output_name]] <- renderText({
+      isolate(input$add)
+    })
+    insertUI(
+      selector = ifelse(input$add == 0L, "#add", paste0("#", "out_", input$add-1)),
+      where = "afterEnd",
+      ui = verbatimTextOutput(output_name)
+    )
+  }, ignoreNULL = FALSE)
+  
+  observeEvent(input$go, {
+    screenshot()
+  })
+  
+  output$report <- downloadHandler(
+    # For PDF output, change this to "report.pdf"
+    filename = "report.pdf",
+    content = function(file) {
+      # Copy the report file to a temporary directory before processing it, in
+      # case we don't have write permissions to the current working dir (which
+      # can happen when deployed).
+      tempReport <- file.path(tempdir(), "report.Rmd")
+      file.copy("report.Rmd", tempReport, overwrite = TRUE)
+      
+      # Set up parameters to pass to Rmd document
+      params <- list(Location=input$state, Tissue.N=output$table$tN,Shell.N=sN, Total.N=dataInput$sN+dataInput$tN, 
+                     Units=input$units, gear=input$gear, ploidy=input$ploidy, hsize=input$hsize) 
+      # "Num"=input$Num, "htime"=input$Htime, "loc2"=input$farmloc)
+      # "Location"=input$state, "Tissue.N"=output$tN,"Shell.N"=output$sN,
+      # "Total.N"=sN+tN,"Units"=input$units,
+      # "gear"=input$gear, "ploidy"=input$ploidy, "hsize"=input$hsize, 
+      # "Num"=input$Num, "htime"=input$Htime, "loc2"=input$farmloc)
+      
+      # n = c("units"=input$units, "gear"=input$gear, "ploidy"=input$ploidy, "hsize"=input$hsize, "Num"=input$Num, "htime"=input$Htime, "loc"=input$farmloc))
+      
+      # Knit the document, passing in the `params` list, and eval it in a
+      # child of the global environment (this isolates the code in the document
+      # from the code in this app).
+      rmarkdown::render(tempReport, output_file = file,
+                        params = params,
+                        envir = new.env(parent = globalenv())
+      )
+    }
+  )
+  
+  
+  # output$downloadReport <- downloadHandler(
+  #   filename = function() {
+  #     paste('my-report', sep = '.', switch(
+  #       input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
+  #     ))
+  #   },
+  #   
+  #   content = function(file) {
+  #     src <- normalizePath('report.Rmd')
+  #     
+  #     # temporarily switch to the temp dir, in case you do not have write
+  #     # permission to the current working directory
+  #     owd <- setwd(tempdir())
+  #     on.exit(setwd(owd))
+  #     file.copy(src, 'report.Rmd', overwrite = TRUE)
+  #     
+  #     library(rmarkdown)
+  #     out <- render('report.Rmd', switch(
+  #       input$format,
+  #       PDF = pdf_document(), HTML = html_document(), Word = word_document()
+  #     ))
+  #     file.rename(out, file)
+  #   }
+  # )
 }
 
 # Run the application 
