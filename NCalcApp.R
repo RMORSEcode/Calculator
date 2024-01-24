@@ -1,10 +1,5 @@
 #
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
+# https://connect.fisheries.noaa.gov/content/3fee583e-7721-4ed5-94fe-3f7c91c3707c
 #
 
 library(shiny)
@@ -12,43 +7,20 @@ library(leaflet)
 library(leaflet.extras)
 library(shinyscreenshot)
 
-clicks <- data.frame(lat = numeric(), lng = numeric(), .nonce = numeric())
-
 ui <- fluidPage(
   
   tags$img(src='noaa-emblem-rgb-sm2-2022.png'),
   
-  # Application title
-  # titlePanel( div(column(width = 6, h2("My Header")), 
-  #                column(width = 6, tags$img(src = 'noaa-emblem-rgb-2022.png'))),
-  #            windowTitle="Oyster Nutrient Removal Calculator"
-  # ),
-  
   titlePanel(h1("US East Coast Oyster Nutrient Removal Calculator")),
   
-  # States with significant regressions, other states should use overall average option
-  # selectInput("state", "State:",
-  #             c("Overall average","Connecticut","Maine",
-  #               "New Jersey","New York","North Carolina",
-  #               )
-  #             ),
-  # checkboxInput('selvarLoc', "Selcect Location", value = FALSE, width = NULL),
-  # checkboxInput('selvarGear', "Selcect Gear", value = FALSE, width = NULL),
-  # checkboxInput('selvarPloidy', "Selcect Ploidy", value = FALSE, width = NULL),
-  # 
-  # radioButtons('selvar', 'Selection factor for oyster growth', c('Gear', 'Ploidy'),
-  #              inline = TRUE),
-  # downloadButton('downloadReport'),
+  textInput("farmname", "Project Name", value = "", width = NULL, placeholder = NULL),
+  helpText("Please enter the name of the oyster farm"),
+  
+  textInput("projloc", "Project Location", value = "", width = NULL, placeholder = NULL),
+  helpText("Please enter the name of the water body where the oyster farm is located"),
   
   selectInput("units", "Units for nutrient removal:",c("Pounds (lbs)", "Kilograms (kg")
   ),
-  
-  # selectInput("state", "Region:",
-  #             c("US East Coast","Connecticut","Delaware","Maine",
-  #               "Maryland","Massachusetts","New Hampshire",
-  #               "New Jersey","New York","North Carolina",
-  #               "Rhode Island","Virginia")
-  # ),
   
   selectInput("gear", "Gear used for growing oysters:",c("Floating", "Bottom", "No Gear")
   ),
@@ -91,24 +63,19 @@ ui <- fluidPage(
   
   # radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
                # inline = TRUE),
-  # downloadButton('downloadReport'),
-  # downloadButton("report", "Generate report"),
-  
+
   mainPanel(
-    # plotOutput("barPlot"),
     plotOutput("nutbplot", width="50%"),
-    tableOutput("table"),
+    tableOutput("mytable"),
     
     actionButton("go", "Screenshot"),
     downloadButton("report", "Generate report"),
   )
 )
 
-# Define server logic required to draw a histogram
 server <- function(input, output) {
   
-  # Location <- reactiveValues(clickedMarker=NULL)
-  
+
   output$mymap <- renderLeaflet({
     leaflet(height="50%") %>%
       addProviderTiles("Esri.OceanBasemap",group = "Ocean Basemap") %>%
@@ -316,19 +283,22 @@ server <- function(input, output) {
     sdw=input$Num*(saval*((input$hsize*25.4)^sbval))
     
     #Convert dry weight of tissue and shell (g) to nutrients (g)
+    tNi=reactiveValues()
+    sNi=reactiveValues()
     tNi=(0.0796*tdw)
     sNi=(0.0019*sdw)
     
     #convert grams N to lbs or kg
     cnvrt=ifelse(input$units=="Pounds",0.00220462,0.001)
+    tN=reactiveValues()
     tN=tNi*cnvrt
+    sN=reactiveValues()
     sN=sNi*cnvrt
     
-    barplot(c(tN, sN), col = 'lightgray', border = 'white', xlab="N removal)", 
-            names.arg=c("Tissue N", "Shell N"),
-            ylab=input$units)
-    
-    output$table <- renderTable(
+    barplot(c(tN, sN), col = 'lightgray', border = 'white', xlab="N removal", 
+            names.arg=c("Tissue N", "Shell N"), ylab=input$units)
+   
+    output$mytable <- renderTable(
       data.frame("Tissue N"=tN,"Shell N"=sN, "Total N"=sN+tN, "Units"=input$units),
       striped = T,
       hover = F,
@@ -371,8 +341,13 @@ server <- function(input, output) {
       file.copy("report.Rmd", tempReport, overwrite = TRUE)
       
       # Set up parameters to pass to Rmd document
-      params <- list(Location=input$state, Tissue.N=output$table$tN,Shell.N=sN, Total.N=dataInput$sN+dataInput$tN, 
-                     Units=input$units, gear=input$gear, ploidy=input$ploidy, hsize=input$hsize) 
+      # testing pdf
+      params <- list(table=nutbplot(), plot=nutbplot(), Location=input$projloc, Units=input$units, gear=input$gear, ploidy=input$ploidy, hsize=input$hsize,
+                     Lat=input$mymap_draw_new_feature$geometry$coordinates[[2]], Lon=input$mymap_draw_new_feature$geometry$coordinates[[1]]) 
+      # params <- list(Location=input$state, Tissue.N=output$table$tN,Shell.N=sN, Total.N=dataInput$sN+dataInput$tN, 
+      #                Units=input$units, gear=input$gear, ploidy=input$ploidy, hsize=input$hsize) 
+      
+      # "Lon"=feature$geometry$coordinates[[1]],"Lat"=feature$geometry$coordinates[[2]]
       # "Num"=input$Num, "htime"=input$Htime, "loc2"=input$farmloc)
       # "Location"=input$state, "Tissue.N"=output$tN,"Shell.N"=output$sN,
       # "Total.N"=sN+tN,"Units"=input$units,

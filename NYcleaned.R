@@ -1,3 +1,7 @@
+library(dplyr)
+library(lubridate)
+library(quantreg)
+
 s1=match("Poach et al. in prep 2023", Main$Data_Source) # start of Poach data (after end of CB)
 MainNoCB=Main[s1:dim(Main)[1],]
 RegionFarm=MainNoCB %>% filter(!(Waterbody_Region %in% c("Jamaica Bay", "Hudson River", "Raritan Bay")))
@@ -526,3 +530,84 @@ for(i in(1:2)){
   # text(180,yval[250], labels=ifelse(summary(qrx)$coefficients[1,4]<0.05, paste(stt[i],'*', sep=' '),''), col=mcol[i])
 
 }
+
+# RegionFarm Tissue (all)
+plot(Main$Tissue_Dry_Weight_g[1:s1-1] ~ Main$Total_Shell_Height_Length_mm[1:s1-1], type='p', pch=19, col='lightblue', 
+     ylim=c(0,10), xlim=c(0,200), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
+points(RegionFarm$Tissue_Dry_Weight_g ~ RegionFarm$Total_Shell_Height_Length_mm, pch=21, col='gray20')
+a=0.0000142135070166104
+b=2.60727827
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+lines(x, yval, col='red', lwd=2)
+
+test=RegionFarm[RegionFarm$st_abrv=='ME',]
+table(test$Waterbody_Name, test$Ploidy)
+test2=test[test$Waterbody_Name=="Damariscotta River",]
+plot(RegionFarm$Tissue_Dry_Weight_g ~ RegionFarm$Total_Shell_Height_Length_mm, type='n', ylim=c(0,8), xlim=c(0,150), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
+# points(test2$Tissue_Dry_Weight_g[test2$Ploidy=="Diploid"]~test2$Total_Shell_Height_Length_mm[test2$Ploidy=="Diploid"], pch=19, col='black')
+# points(test2$Tissue_Dry_Weight_g[test2$Ploidy=="Triploid"]~test2$Total_Shell_Height_Length_mm[test2$Ploidy=="Triploid"], pch=21, col='red')
+dataa2=RegionFarm %>% filter (st_abrv=='ME', Waterbody_Name=="Damariscotta River", Ploidy=="Diploid")
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+points(dataa2$Tissue_Dry_Weight_g ~dataa2$Total_Shell_Height_Length_mm, pch=19, col='black', ylim=c(0,8), xlim=c(0,150))
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+# lines(x, yval, col='black', lwd=2)
+dataa2=RegionFarm %>% filter (st_abrv=='ME', Waterbody_Name=="Damariscotta River", Ploidy=="Triploid")
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+points(dataa2$Tissue_Dry_Weight_g ~dataa2$Total_Shell_Height_Length_mm, pch=21, col='red', ylim=c(0,8), xlim=c(0,150))
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+lines(x, yval, col='black', lwd=2)
+yval=(a*(x^b))
+lines(x, yval, col='red', lwd=2)
+
+dataa2=RegionFarm %>% filter (Data_Source=="Poach et al. in prep 2023", Ploidy=="Diploid")
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+points(dataa2$Tissue_Dry_Weight_g ~dataa2$Total_Shell_Height_Length_mm, pch=21, col='gray80', ylim=c(0,8), xlim=c(0,150))
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+dataa2=RegionFarm %>% filter (Data_Source=="Poach et al. in prep 2023", Ploidy=="Triploid")
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+points(dataa2$Tissue_Dry_Weight_g ~dataa2$Total_Shell_Height_Length_mm, pch=21, col='purple', ylim=c(0,8), xlim=c(0,150))
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+lines(x, yval, col='black', lwd=1, lty=2)
+yval=(a*(x^b))
+lines(x, yval, col='red', lwd=1, lty=2)
+# lines(x, yval, col=mcol[i], lwd=2)
+# text(180,yval[250], labels=ifelse(summary(qrx)$coefficients[1,4]<0.05, paste(stt[i],'*', sep=' '),''), col=mcol[i])
+
+a = 0.00037
+ax = 9.25e-05
+a2 = ax*1
+a2=ax*2
+a2=ax*3
+a2=ax*4
+a2=ax*5
+
+## testing sensitivity to start values for nlrq
+# ax = 9.25e-05
+# plot(RegionFarm$Tissue_Dry_Weight_g ~ RegionFarm$Total_Shell_Height_Length_mm, type='n', ylim=c(0,8), xlim=c(0,150), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
+# dataa2=RegionFarm %>% filter (Data_Source=="Poach et al. in prep 2023", Ploidy=="Triploid")
+# for(i in (1:100)){
+#   a2 = ax*i
+#   qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = a2, b = 1.83359), tau=0.5)
+#   a=summary(qrx)$coefficients[1,1]
+#   b=summary(qrx)$coefficients[2,1]
+#   yval=(a*(x^b))
+#   lines(x, yval, col=i, lwd=1)
+# }
+# bx=1.0359
+# for(i in (1:4)){
+#   b2 = bx*i
+#   qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = 0.00037, b = b2), tau=0.5)
+#   a=summary(qrx)$coefficients[1,1]
+#   b=summary(qrx)$coefficients[2,1]
+#   yval=(a*(x^b))
+#   lines(x, yval, col=i, lwd=1)
+# }

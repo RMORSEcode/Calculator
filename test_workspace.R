@@ -1833,7 +1833,7 @@ unique(CB2016$Data_Source)
 ### plot map of all stations
 nesbath=getNOAA.bathy(lon1=-79,lon2=-68,lat1=31,lat2=45, resolution=10, keep=F)
 data(stateMapEnv)
-stations=readxl::read_xlsx(paste(wd, "Location_data.xlsx", sep=''),sheet='final')
+stations=readxl::read_xlsx(paste(wd, "Location_data.xlsx", sep=''),sheet='final2')
 
 par(mar = c(0,0,0,0))
 par(oma = c(0,0,0,0))

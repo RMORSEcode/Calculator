@@ -121,12 +121,12 @@ PCB %>% select(State, Ploidy, Tissue_N_Percent, Tissue_TP_Percent) %>%
 
 
 PCB %>% select(State, Ploidy, Tissue_N_Percent) %>% 
-  ggboxplot(y='Tissue_N_Percent', x='State', fill='Ploidy', ylab = 'Tissue N Percent', xlab='', ylim=c(5,12),
+  ggboxplot(y='Tissue_N_Percent', x='State', fill='Ploidy', ylab = 'Tissue N Percent', xlab='', ylim=c(0,15),
             color = "black", palette = c("white", "gray"), notch=T) +
   theme(text = element_text(size = 15)) +
   theme(legend.text = element_text(size = 15))  
 PCB %>% select(State, Ploidy, Tissue_TP_Percent) %>% 
-  ggboxplot(y='Tissue_TP_Percent', x='State', fill='Ploidy',ylab = 'Tissue P Percent', xlab='', ylim=c(0.5,1.5),
+  ggboxplot(y='Tissue_TP_Percent', x='State', fill='Ploidy',ylab = 'Tissue P Percent', xlab='', ylim=c(0,2),
             color = "black", palette = c("white", "gray"), notch=T)  +
   theme(text = element_text(size = 15)) +
   theme(legend.text = element_text(size = 15))  
@@ -138,7 +138,7 @@ PCB %>% select(State, Ploidy, Tissue_N_Percent) %>%
   geom_boxplot(color = "black", notch=T) +
   theme_classic()+
   labs(x='', y = 'Tissue N Percent') +
-  coord_cartesian(ylim = c(5, 12))+
+  coord_cartesian(ylim = c(0, 12))+
   scale_fill_manual(values=c("white", "gray")) +
   stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
   facet_wrap(~State) +
@@ -153,7 +153,7 @@ PCB %>% select(State, Ploidy, Tissue_TP_Percent) %>%
   geom_boxplot(color = "black", notch=T) +
   theme_classic()+
   labs(x='', y = 'Tissue P Percent') +
-  coord_cartesian(ylim = c(0.5, 1.5))+
+  coord_cartesian(ylim = c(0, 2))+
   scale_fill_manual(values=c("white", "gray")) +
   stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
   facet_wrap(~State) +
