@@ -69,7 +69,11 @@ ui <- fluidPage(
     tableOutput("mytable"),
     
     actionButton("go", "Screenshot"),
-    downloadButton("report", "Generate report"),
+    # downloadButton("report", "Generate report"),
+    downloadButton(
+      outputId = "downloader",
+      label = "Download PDF"
+    )
   )
 )
 
@@ -111,6 +115,8 @@ server <- function(input, output) {
     )
   })
   
+  #****************************************
+  #* Reactive Values
   
   # dataInput=reactive({
   #   taval=ifelse(input$gear=="Floating",4.33E-06,
@@ -165,7 +171,6 @@ server <- function(input, output) {
   #   sN=sNi*cnvrt
   # })
   
-  output$nutbplot <- renderPlot({
     # # #Floating
     # # taval=4.33372435089667E-06
     # # tbbal=2.87897996925124
@@ -274,46 +279,141 @@ server <- function(input, output) {
     #                ifelse(input$gear=="Bottom",2.522, 2.34))
     # }
     
-    # Single regression values
-    taval=1.42E-05
-    tbval=2.60727827
-    saval=0.00039042
-    sbval=2.579747757
-    tdw=input$Num*(taval*((input$hsize*25.4)^tbval))
-    sdw=input$Num*(saval*((input$hsize*25.4)^sbval))
+    # # Single regression values
+    # taval=1.42E-05
+    # tbval=2.60727827
+    # saval=0.00039042
+    # sbval=2.579747757
+    # tdw=input$Num*(taval*((input$hsize*25.4)^tbval))
+    # sdw=input$Num*(saval*((input$hsize*25.4)^sbval))
+    # 
+    # #Convert dry weight of tissue and shell (g) to nutrients (g)
+    # tNi=reactiveValues()
+    # sNi=reactiveValues()
+    # tNi=(0.0796*tdw)
+    # sNi=(0.0019*sdw)
+    # 
+    # #convert grams N to lbs or kg
+    # cnvrt=ifelse(input$units=="Pounds",0.00220462,0.001)
+    # tN=reactiveValues()
+    # tN=tNi*cnvrt
+    # sN=reactiveValues()
+    # sN=sNi*cnvrt
     
-    #Convert dry weight of tissue and shell (g) to nutrients (g)
-    tNi=reactiveValues()
-    sNi=reactiveValues()
-    tNi=(0.0796*tdw)
-    sNi=(0.0019*sdw)
+    table <- reactive({
+      taval=1.42E-05
+      tbval=2.60727827
+      saval=0.00039042
+      sbval=2.579747757
+      tdw=input$Num*(taval*((input$hsize*25.4)^tbval))
+      sdw=input$Num*(saval*((input$hsize*25.4)^sbval))
+      
+      #Convert dry weight of tissue and shell (g) to nutrients (g)
+      tNi=reactiveValues()
+      sNi=reactiveValues()
+      tNi=(0.0796*tdw)
+      sNi=(0.0019*sdw)
+      
+      #convert grams N to lbs or kg
+      cnvrt=ifelse(input$units=="Pounds",0.00220462,0.001)
+      tN=reactiveValues()
+      tN=tNi*cnvrt
+      sN=reactiveValues()
+      sN=sNi*cnvrt
+      data.frame("Tissue N"=tN,"Shell N"=sN, "Total N"=sN+tN, "Units"=input$units)
+      })
     
-    #convert grams N to lbs or kg
-    cnvrt=ifelse(input$units=="Pounds",0.00220462,0.001)
-    tN=reactiveValues()
-    tN=tNi*cnvrt
-    sN=reactiveValues()
-    sN=sNi*cnvrt
+    plot <- reactive({
+      taval=1.42E-05
+      tbval=2.60727827
+      saval=0.00039042
+      sbval=2.579747757
+      tdw=input$Num*(taval*((input$hsize*25.4)^tbval))
+      sdw=input$Num*(saval*((input$hsize*25.4)^sbval))
+      
+      #Convert dry weight of tissue and shell (g) to nutrients (g)
+      tNi=reactiveValues()
+      sNi=reactiveValues()
+      tNi=(0.0796*tdw)
+      sNi=(0.0019*sdw)
+      
+      #convert grams N to lbs or kg
+      cnvrt=ifelse(input$units=="Pounds",0.00220462,0.001)
+      tN=reactiveValues()
+      tN=tNi*cnvrt
+      sN=reactiveValues()
+      sN=sNi*cnvrt
+      # barplot(c(tN, sN), col = 'lightgray', border = 'white', xlab="N removal", 
+      #         names.arg=c("Tissue N", "Shell N"), ylab=input$units)
+      # df=data.frame("Tissue N"=tN,"Shell N"=sN, "Total N"=sN+tN, "Units"=input$units)
+      df=data.frame(matrix(tN, nrow=1, ncol=1))
+      colnames(df)="N"
+      df$var="Tissue"
+      df=rbind(df, list(N=sN,var="Shell" ))
+      df=rbind(df, list(N=sN+tN,var="Total" ))
+      df$units=input$units
+      
+      P=ggplot(df, aes(x=var, y=N))+
+        geom_bar(stat="identity" , fill="steelblue")+
+        theme_minimal()+
+        ylab(input$units)+
+        xlab("Nitrogen Removed")
+      P
+      })
     
-    barplot(c(tN, sN), col = 'lightgray', border = 'white', xlab="N removal", 
-            names.arg=c("Tissue N", "Shell N"), ylab=input$units)
-   
-    output$mytable <- renderTable(
-      data.frame("Tissue N"=tN,"Shell N"=sN, "Total N"=sN+tN, "Units"=input$units),
-      striped = T,
-      hover = F,
-      bordered = T,
-      spacing = c("s", "xs", "m", "l"),
-      width = "auto",
-      align = NULL,
-      rownames = FALSE,
-      colnames = TRUE,
-      digits = NULL,
-      na = "NA",
-      quoted = FALSE
-    )
-  })
+    #****************************************
+    #*
+    #* Output Components
+    output$nutbplot <- 
+      renderPlot({
+        plot()
+      })
+    output$mytable <-
+      renderTable({
+        table()
+      })
+
+    
+    # output$nutbplot <- renderPlot({
+    #   
+    # barplot(c(tN, sN), col = 'lightgray', border = 'white', xlab="N removal", 
+    #         names.arg=c("Tissue N", "Shell N"), ylab=input$units)
+    # })
+    # output$mytable <- 
+    #   renderTable({
+    #     table()
+    #   })
+    # output$mytable <- renderTable({
+    #   table("Tissue N"=tN,"Shell N"=sN, "Total N"=sN+tN, "Units"=input$units,
+    #   striped = T,
+    #   hover = F,
+    #   bordered = T,
+    #   spacing = c("s", "xs", "m", "l"),
+    #   width = "auto",
+    #   align = NULL,
+    #   rownames = FALSE,
+    #   colnames = TRUE,
+    #   digits = NULL,
+    #   na = "NA",
+    #   quoted = FALSE
+    #   )
+    #   })
   
+    #   output$mytable <- renderTable(
+    #     data.frame("Tissue N"=tN,"Shell N"=sN, "Total N"=sN+tN, "Units"=input$units),
+    #     striped = T,
+    #     hover = F,
+    #     bordered = T,
+    #     spacing = c("s", "xs", "m", "l"),
+    #     width = "auto",
+    #     align = NULL,
+    #     rownames = FALSE,
+    #     colnames = TRUE,
+    #     digits = NULL,
+    #     na = "NA",
+    #     quoted = FALSE
+    #     )
+    # })
   observeEvent(input$add, {
     output_name <- paste0("out_", input$add)
     output[[output_name]] <- renderText({
@@ -330,41 +430,71 @@ server <- function(input, output) {
     screenshot()
   })
   
-  output$report <- downloadHandler(
-    # For PDF output, change this to "report.pdf"
-    filename = "report.pdf",
-    content = function(file) {
-      # Copy the report file to a temporary directory before processing it, in
-      # case we don't have write permissions to the current working dir (which
-      # can happen when deployed).
-      tempReport <- file.path(tempdir(), "report.Rmd")
-      file.copy("report.Rmd", tempReport, overwrite = TRUE)
-      
-      # Set up parameters to pass to Rmd document
-      # testing pdf
-      params <- list(table=nutbplot(), plot=nutbplot(), Location=input$projloc, Units=input$units, gear=input$gear, ploidy=input$ploidy, hsize=input$hsize,
-                     Lat=input$mymap_draw_new_feature$geometry$coordinates[[2]], Lon=input$mymap_draw_new_feature$geometry$coordinates[[1]]) 
-      # params <- list(Location=input$state, Tissue.N=output$table$tN,Shell.N=sN, Total.N=dataInput$sN+dataInput$tN, 
-      #                Units=input$units, gear=input$gear, ploidy=input$ploidy, hsize=input$hsize) 
-      
-      # "Lon"=feature$geometry$coordinates[[1]],"Lat"=feature$geometry$coordinates[[2]]
-      # "Num"=input$Num, "htime"=input$Htime, "loc2"=input$farmloc)
-      # "Location"=input$state, "Tissue.N"=output$tN,"Shell.N"=output$sN,
-      # "Total.N"=sN+tN,"Units"=input$units,
-      # "gear"=input$gear, "ploidy"=input$ploidy, "hsize"=input$hsize, 
-      # "Num"=input$Num, "htime"=input$Htime, "loc2"=input$farmloc)
-      
-      # n = c("units"=input$units, "gear"=input$gear, "ploidy"=input$ploidy, "hsize"=input$hsize, "Num"=input$Num, "htime"=input$Htime, "loc"=input$farmloc))
-      
-      # Knit the document, passing in the `params` list, and eval it in a
-      # child of the global environment (this isolates the code in the document
-      # from the code in this app).
-      rmarkdown::render(tempReport, output_file = file,
-                        params = params,
-                        envir = new.env(parent = globalenv())
-      )
-    }
-  )
+  output$downloader <- 
+    downloadHandler(
+      "results_from_shiny.pdf",
+      content = 
+        function(file)
+        {
+          rmarkdown::render(
+            input = "report.Rmd",
+            output_file = "built_report.pdf",
+            params = list(table = table(),
+                          plot = plot(),
+                          Location=input$projloc, 
+                          Units=input$units, 
+                          gear=input$gear, 
+                          ploidy=input$ploidy, 
+                          hsize=input$hsize,
+                          Farm=input$farmname,
+                          Number=input$Num,
+                          Lat=input$mymap_draw_new_feature$geometry$coordinates[[2]],
+                          Lon=input$mymap_draw_new_feature$geometry$coordinates[[1]])
+          ) 
+          readBin(con = "built_report.pdf", 
+                  what = "raw",
+                  n = file.info("built_report.pdf")[, "size"]) %>%
+            writeBin(con = file)
+        }
+    )
+
+  
+  
+  # output$report <- downloadHandler(
+  #   # For PDF output, change this to "report.pdf"
+  #   filename = "report.pdf",
+  #   content = function(file) {
+  #     # Copy the report file to a temporary directory before processing it, in
+  #     # case we don't have write permissions to the current working dir (which
+  #     # can happen when deployed).
+  #     tempReport <- file.path(tempdir(), "report.Rmd")
+  #     file.copy("report.Rmd", tempReport, overwrite = TRUE)
+  #     
+  #     # Set up parameters to pass to Rmd document
+  #     # testing pdf
+  #     params <- list(Location=input$projloc, Units=input$units, gear=input$gear, ploidy=input$ploidy, hsize=input$hsize,
+  #                    Lat=input$mymap_draw_new_feature$geometry$coordinates[[2]], Lon=input$mymap_draw_new_feature$geometry$coordinates[[1]]) 
+  #     # params <- list(Location=input$state, Tissue.N=output$table$tN,Shell.N=sN, Total.N=dataInput$sN+dataInput$tN, 
+  #     #                Units=input$units, gear=input$gear, ploidy=input$ploidy, hsize=input$hsize) 
+  #     # table=nutbplot(), plot=nutbplot(), 
+  #     # "Lon"=feature$geometry$coordinates[[1]],"Lat"=feature$geometry$coordinates[[2]]
+  #     # "Num"=input$Num, "htime"=input$Htime, "loc2"=input$farmloc)
+  #     # "Location"=input$state, "Tissue.N"=output$tN,"Shell.N"=output$sN,
+  #     # "Total.N"=sN+tN,"Units"=input$units,
+  #     # "gear"=input$gear, "ploidy"=input$ploidy, "hsize"=input$hsize, 
+  #     # "Num"=input$Num, "htime"=input$Htime, "loc2"=input$farmloc)
+  #     
+  #     # n = c("units"=input$units, "gear"=input$gear, "ploidy"=input$ploidy, "hsize"=input$hsize, "Num"=input$Num, "htime"=input$Htime, "loc"=input$farmloc))
+  #     
+  #     # Knit the document, passing in the `params` list, and eval it in a
+  #     # child of the global environment (this isolates the code in the document
+  #     # from the code in this app).
+  #     rmarkdown::render(tempReport, output_file = file,
+  #                       params = params,
+  #                       envir = new.env(parent = globalenv())
+  #     )
+  #   }
+  # )
   
   
   # output$downloadReport <- downloadHandler(

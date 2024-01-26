@@ -1,11 +1,12 @@
 ---
-title: "Estimated Farm Mediated Nitrogen Removal"
+title: "US East Coast Oyster Nutrient Removal Calculator"
 output: pdf_document
 date: "`r format(Sys.Date(),'%B %e, %Y')`"
 params: 
   n: NA
   table: 'NULL'
   plot: 'NULL'
+  Farm: NA
   Location: NA
   Tissue.N: NA
   Shell.N: NA
@@ -17,7 +18,7 @@ params:
   gear: NA 
   ploidy: NA  
   hsize: NA  
-  Num: NA
+  Number: NA
   htime: NA 
   loc2: NA
   Lat: NA
@@ -28,27 +29,33 @@ params:
 knitr::opts_chunk$set(echo = F)
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r, echo=FALSE}
-# barplot(c(params$Tissue.N, params$Shell.N), col = 'lightblue', border = 'white', xlab="N removal)", names.arg=c("Tissue N", "Shell N"), ylab=params$Units)
-params[["plot"]]
+```{r, include=FALSE}
+options(tinytex.verbose = TRUE)
 ```
 
-```{r, echo=FALSE}
-      # kable(
-      # data.frame("Tissue N"=params$Tissue.N,"Shell N"=params$Shell.N,
-      #             "Total N"=params$Total.N, "Units"=params$Units)
-      # )
+
+```{r, echo=FALSE,warning=FALSE}
+print(paste("Name of the oyster farm: ", params[["Farm"]]))
+print(paste("Name of the water body where the oyster farm is located: ", params[["Location"]]))
+print(paste("Gear used for growing oysters: ", params[["gear"]]))
+print(paste("Oyster ploidy: ", params[["ploidy"]]))
+print(paste("Average oyster size at harvest (Inches): " ,params[["hsize"]]))
+print(paste("Number of oysters harvested: ", params[["Number"]]))
+print(paste("Units for nutrient removal: ", params[["Units"]]))
+
+```
+
+
+```{r}
+print(paste("Farm location: " , c(params[["Lon"]]),params[["Lat"]]))
+```
+
+```{r}
+print("Estimated Farm Mediated Nitrogen Removal")
 params[["table"]]
 ```
 
-```{r, results='asis',echo=FALSE,warning=FALSE}
-print(params[["Location"]])
+```{r}
+params[["plot"]]
 ```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
