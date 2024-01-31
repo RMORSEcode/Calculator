@@ -1,11 +1,13 @@
 #
 # https://connect.fisheries.noaa.gov/content/3fee583e-7721-4ed5-94fe-3f7c91c3707c
-#
+# https://connect.fisheries.noaa.gov/Oyster-Calculator/
 
 library(shiny)
 library(leaflet)
 library(leaflet.extras)
 library(shinyscreenshot)
+library(ggplot2)
+library(formatR)
 
 ui <- fluidPage(
   
@@ -320,7 +322,7 @@ server <- function(input, output) {
       tN=tNi*cnvrt
       sN=reactiveValues()
       sN=sNi*cnvrt
-      data.frame("Tissue N"=tN,"Shell N"=sN, "Total N"=sN+tN, "Units"=input$units)
+      data.frame("Shell N"=sN, "Tissue N"=tN, "Total N"=sN+tN, "Units"=input$units)
       })
     
     plot <- reactive({
