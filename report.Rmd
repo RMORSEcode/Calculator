@@ -1,42 +1,34 @@
 ---
 title: |
-  ![](noaa-emblem-rgb-sm2-2022.png){width=1.5in}
+  ![](noaa-emblem-rgb-sm2-2022.png){width=0.75in}
   "US East Coast Oyster Nutrient Removal Calculator"
 output: pdf_document
 date: "`r format(Sys.Date(),'%B %e, %Y')`"
 params: 
-  n: NA
   table: 'NULL'
   plot: 'NULL'
   Farm: NA
   Location: NA
-  Tissue.N: NA
-  Shell.N: NA
-  Tissue.P: NA 
-  Shell.P: NA 
-  Total.N: NA  
-  Total.P: NA
+  Dates: NA
   Units: NA 
   gear: NA 
   ploidy: NA  
   hsize: NA  
   Number: NA
-  htime: NA 
-  loc2: NA
   Lat: NA
   Lon: NA
 ---
 
-```{r, echo = F, warning=FALSE}
+```{r, echo = F, warning=FALSE, echo=FALSE}
 library(knitr)
 opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
 ```
 
-```{r, include=FALSE}
-options(tinytex.verbose = TRUE)
-```
+<!-- # ```{r, include=FALSE, echo=FALSE} -->
+<!-- # options(tinytex.verbose = TRUE) -->
+<!-- # ``` -->
 
-```{r setup}
+```{r setupe, echo=FALSE}
 # A killPrefix hook.
 default_output_hook <- knitr::knit_hooks$get("output")
 knitr::knit_hooks$set( output = function(x, options) {
@@ -65,103 +57,73 @@ knitr::knit_hooks$set( output = function(x, options) {
 knitr::opts_template$set("kill_prefix"=list(comment=NA, null_prefix=TRUE))
 ```
 
-```{r}
+```{r, echo=FALSE}
 knitr::opts_chunk$set(opts.label="kill_prefix")
 ```
 
-<!-- ```{r, tidy='styler', echo=FALSE,warning=FALSE} -->
-<!--  print(paste("Name of the oyster farm: ", params[["Farm"]])) -->
-<!--  print(paste("Name of the water body where the oyster farm is located: ", params[["Location"]])) -->
-<!--  print(paste("Gear used for growing oysters: ", params[["gear"]])) -->
-<!--  print(paste("Oyster ploidy: ", params[["ploidy"]])) -->
-<!--  print(paste("Average oyster size at harvest (Inches): " ,params[["hsize"]])) -->
-<!--  print(paste("Number of oysters harvested: ", params[["Number"]])) -->
-<!--  print(paste("Units for nutrient removal: ", params[["Units"]])) -->
-<!-- ``` -->
+**Name of the oyster farm:** 
+`r params[["Farm"]]`
 
-**Name of the oyster farm:**
-```{r}
-params[["Farm"]] 
-```
+**Name of the water body where the oysters were harvested:** 
+`r params[["Location"]]`
 
-**Name of the water body where the oyster farm is located:**
-```{r}
-params[["Location"]]
-```
+**Harvest location (latitude, longitude):**  
+`r params[["Lat"]]`, `r params[["Lon"]]`
 
-**Farm location (latitude, longitude):**
-```{r}
-print(paste(c(params[["Lat"]]),", ",params[["Lon"]]))
-```
+**Gear type primarily used for growing oysters:** 
+`r params[["gear"]]`
 
-**Gear used for growing oysters:**
-```{r}
-params[["gear"]]
-```
+**Oyster ploidy:** 
+`r params[["ploidy"]]`
 
-**Oyster ploidy:**
-```{r}
-params[["ploidy"]]
-```
+**Total number of oysters harvested:**  
+`r params[["Number"]]`
 
-**Total number of oysters harvested:**
-```{r}
-params[["Number"]]
-```
+**Average size of oysters at harvest (Inches):**  
+`r params[["hsize"]]`
 
-**Average size of oysters at harvest (Inches):**
-```{r}
-params[["hsize"]]
-```
-
-<!-- **Units for nutrient removal:** -->
-<!-- ```{r} -->
-<!-- params[["Units"]] -->
-<!-- ``` -->
+**Period of harvest** (YYYY-MM-DD begin, YYYY-MM-DD end)  
+`r params[["Dates"]]`
 
 
-Estimated Farm Mediated Nitrogen Removal
-```{r, tidy='styler'}
-# print("Estimated Farm Mediated Nitrogen Removal")
+**Estimated Farm Mediated Nitrogen Removal**  
+```{r, tidy='styler', echo=FALSE}
 params[["table"]]
 ```
 
-```{r, fig.dim = c(2, 4)}
+```{r, fig.dim = c(2, 4), echo=FALSE}
 params[["plot"]]
 ```
 
-<!-- # ```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)} -->
-<!-- # print(paste("Shellfish incorporate nutrients into their tissues and shell as they grow. At harvest, these nutrients are permanently removed from the coastal environment, providing a benefit to water quality in the form of excess nutrient reduction. The harvest of this number of oysters at this size is expected to result in the removal of a total of", params[["table"]][3], " lbs of nitrogen during the harvest period.")) -->
-<!-- # ``` -->
 
-Shellfish incorporate nutrients into their tissues and shell as they grow. At harvest, these nutrients are permanently removed from the coastal environment, providing a benefit to water quality in the form of excess nutrient reduction. The harvest of 
-```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
-print(paste0(params[["Number"]]," oysters at an average size of ", params[["hsize"]], " inches"))
-```
-is expected to result in the removal of a total of
-```{r}
-print(paste0(round(params[["plot"]]$data$N[3], 2), " pounds (lbs) of N during the harvest period."))
-``` 
-<!-- of oysters at -->
-<!-- ```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)} -->
-<!-- params[["hsize"]] -->
-<!-- ```  -->
-
-<!-- is expected to result in the removal of a total of -->
-<!-- ```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)} -->
-<!-- params[["plot"]]$data$N[3] -->
-<!-- ```  -->
-<!-- pounds (lbs) of nitrogen during the harvest period. -->
-
-<!-- TESTING access to values -->
-<!-- ```{r}  -->
-<!-- params[["plot"]]$data$N[3] -->
-<!-- ```  -->
-
-
-**Data Sources**
-
-
-
-**Disclaimer**
+**Summary**  
+Shellfish incorporate nutrients into their tissues and shell as they grow. At harvest, these nutrients are permanently removed from the coastal environment, providing a benefit to water quality in the form of excess nutrient reduction. The harvest of `r params[["Number"]]` oysters at an average size of `r  params[["hsize"]]` inches is expected to result in the removal of a total of `r round(params[["plot"]]$data$N[3], 2)` pounds (lbs) of N during the harvest period.  
+  
+  
+**Data Contributors**  
+ME: Damian Brady, Tom Kiffney *University of Maine*  
+NH: Ray Grizzle, Krystin Ward *University of New Hampshire*  
+MA: Josh Reitsma *Cape Cod Cooperative Extension*  
+RI: Suzy Ayvazian *EPA Narragansett*
+CT: Skylar Bayer, Matt Poach, Shannon Meseck, Julie Rose *NOAA Milford*
+NY: Jeff Levinton, Daria Sebastiano *Stony Brook University*
+NJ: Daphne Munroe, Janine Barr *Rutgers University*  
+MD: Matt Poach *NOAA Milford*, Julie Reichert-Nguyen *NOAA Chesapeake Bay Office*, Suzanne Bricker *NOAA Oxford*, Matt Parker *NOAA Oxford*  
+VA: Matt Poach *NOAA Milford*, Julie Reichert-Nguyen *NOAA Chesapeake Bay Office*, Suzanne Bricker *NOAA Oxford*, Matt Parker *NOAA Oxford*  
+NC: Beth Darrow, Jessica Kinsella *University of North Carolina Wilmington*  
+  
+  
+**References**  
+- Cornwell, J., Rose, J., Kellogg, L., Luckenbach, M., Bricker, S., Paynter, K., Moore, C., Parker, M., Sanford, L., Wolinski, B., Lacatell, A., Fegley, L., and Hudson, K. (2016). "Panel Recommendations on the Oyster BMP Nutrient and Suspended Sediment Reduction Effectiveness Determination Decision Framework and Nitrogen and Phosphorus Assimilation in Oyster Tissue Reduction Effectiveness for Oyster Aquaculture Practices". (Report to the Chesapeake Bay Program.  Available online at http://www.chesapeakebay.net/documents/Oyster_BMP_1st_Report_Final_Approved_2016-12-19.pdf).  
+- Cornwell, J., S. Bricker, A. Lacatell, M. Luckenbach, F. Marenghi, C. Moore, M. Parker, K. Paynter, J. Rose, L. Sanford, W. Wolinski, O.N. Caretti, J. Reichert-Nguyen, & H.W. Slacum. 2023. Nitrogen and phosphorus reduction associated with harvest of hatchery-produced oysters and reef restoration: Assimilation and enhanced denitrification: Panel recommendations. Report submitted to the Chesapeake Bay Program Partnership Water Quality Goal Implementation Team January 27, 2023. (Report to the Chesapeake Bay Program.  Available online at https://d18lev1ok5leia.cloudfront.net/chesapeakebay/documents/Animal-Mortality-Mngmnt-Expert-Panel-Report-WQGIT-Approved.pdf  
+- Grizzle, R.E., Ward, K.M., Peter, C.R., Cantwell, M., Katz, D., and Sullivan, J. (2017). Growth, morphometrics and nutrient content of farmed eastern oysters, Crassostrea virginica (Gmelin), in New Hampshire, USA. Aquaculture Research 48, 1525-1537.  
+- Higgins, C.B., Stephenson, K., and Brown, B.L. (2011). Nutrient bioassimilation capacity of aquacultured oysters: quantification of an ecosystem service. Journal of Environmental Quality 40, 271-277.
+- Lindahl, O., Hart, R., Hernroth, B., Kollberg, S., Loo, L.-O., Olrog, L., Rehnstam-Holm, A.-S., Svensson, J., Svensson, S., and Syversen, U. (2005). Improving marine water quality by mussel farming - a profitable solution for Swedish society. Ambio 34, 129-136.  
+- Poach, M., Morse, R., Meseck, S. Alvarado, A.,; Reichert-Nguyen, J., McFarland, K. Elliott, H., Kellogg, M. L., Luckenbach, M., and Rose, J. (2024, in review). Nutrient reduction by eastern oysters exhibits low variability associated with season, ploidy, and farm location. Marine Pollution Bulletin
+- Reitsma, J., Murphy, D.C., Archer, A.F., and York, R.H. (2017). Nitrogen extraction potential of wild and cultured bivalves harvested from nearshore waters of Cape Cod, USA. Marine Pollution Bulletin 116, 175-181.  
+- Rose, J.M., Bricker, S.B., Tedesco, M.A., and Wikfors, G.H. (2014). A Role for Shellfish Aquaculture in Coastal Nitrogen Management. Environmental Science & Technology 48, 2519-2525.  
+- Sebastiano, D., Levinton, J.S., Doall, M., and Kamath, S. (2015). Using a Shellfish Harvest Strategy to Extract High Nitrogen Inputs in Urban and Suburban Coastal Bays: Practical and Economic Implications. Journal of Shellfish Research 34, 573-583, 511.  
+  
+  
+**Disclaimer**  
 This is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government.

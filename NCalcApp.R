@@ -1,7 +1,5 @@
-#
-# https://connect.fisheries.noaa.gov/content/3fee583e-7721-4ed5-94fe-3f7c91c3707c
+## https://connect.fisheries.noaa.gov/content/3fee583e-7721-4ed5-94fe-3f7c91c3707c
 # https://connect.fisheries.noaa.gov/Oyster-Calculator/
-
 library(shiny)
 library(leaflet)
 library(leaflet.extras)
@@ -14,20 +12,21 @@ ui <- fluidPage(
   tags$img(src='noaa-emblem-rgb-sm2-2022.png'),
   
   titlePanel(h1("US East Coast Oyster Nutrient Removal Calculator")),
+  titlePanel(h4("Data coverage ranges from ME to NC")),
   
   textInput("farmname", "Project Name", value = "", width = NULL, placeholder = NULL),
   helpText("Please enter the name of the oyster farm"),
   
-  textInput("projloc", "Project Location", value = "", width = NULL, placeholder = NULL),
-  helpText("Please enter the name of the water body where the oyster farm is located"),
+  textInput("projloc", "Harvest Location", value = "", width = NULL, placeholder = NULL),
+  helpText("Please enter the name of the water body where the oysters were harvested from"),
   
   selectInput("units", "Units for nutrient removal:",c("Pounds (lbs)", "Kilograms (kg")
   ),
   
-  selectInput("gear", "Gear used for growing oysters:",c("Floating", "Bottom", "No Gear")
+  selectInput("gear", "Gear type primarily used for growing oysters:",c("Floating", "Off-bottom", "On-Bottom")
   ),
   
-  selectInput("ploidy", "Select Diploid or Triploid:",c("Diploid", "Triploid")
+  selectInput("ploidy", "Select oyster ploidy:",c("Diploid", "Triploid", "Combination")
   ),
   
   sliderInput(
@@ -111,7 +110,7 @@ server <- function(input, output) {
       align = NULL,
       rownames = FALSE,
       colnames = TRUE,
-      digits = NULL,
+      digits = 4,
       na = "NA",
       quoted = FALSE
     )
@@ -319,9 +318,9 @@ server <- function(input, output) {
       #convert grams N to lbs or kg
       cnvrt=ifelse(input$units=="Pounds",0.00220462,0.001)
       tN=reactiveValues()
-      tN=tNi*cnvrt
+      tN=round((tNi*cnvrt),1)
       sN=reactiveValues()
-      sN=sNi*cnvrt
+      sN=round((sNi*cnvrt),1)
       data.frame("Shell N"=sN, "Tissue N"=tN, "Total N"=sN+tN, "Units"=input$units)
       })
     
@@ -342,9 +341,9 @@ server <- function(input, output) {
       #convert grams N to lbs or kg
       cnvrt=ifelse(input$units=="Pounds",0.00220462,0.001)
       tN=reactiveValues()
-      tN=tNi*cnvrt
+      tN=round((tNi*cnvrt),1)
       sN=reactiveValues()
-      sN=sNi*cnvrt
+      sN=round((sNi*cnvrt),1)
       # barplot(c(tN, sN), col = 'lightgray', border = 'white', xlab="N removal", 
       #         names.arg=c("Tissue N", "Shell N"), ylab=input$units)
       # df=data.frame("Tissue N"=tN,"Shell N"=sN, "Total N"=sN+tN, "Units"=input$units)
@@ -416,17 +415,17 @@ server <- function(input, output) {
     #     quoted = FALSE
     #     )
     # })
-  observeEvent(input$add, {
-    output_name <- paste0("out_", input$add)
-    output[[output_name]] <- renderText({
-      isolate(input$add)
-    })
-    insertUI(
-      selector = ifelse(input$add == 0L, "#add", paste0("#", "out_", input$add-1)),
-      where = "afterEnd",
-      ui = verbatimTextOutput(output_name)
-    )
-  }, ignoreNULL = FALSE)
+  # observeEvent(input$add, {
+  #   output_name <- paste0("out_", input$add)
+  #   output[[output_name]] <- renderText({
+  #     isolate(input$add)
+  #   })
+  #   insertUI(
+  #     selector = ifelse(input$add == 0L, "#add", paste0("#", "out_", input$add-1)),
+  #     where = "afterEnd",
+  #     ui = verbatimTextOutput(output_name)
+  #   )
+  # }, ignoreNULL = FALSE)
   
   observeEvent(input$go, {
     screenshot()
@@ -450,6 +449,7 @@ server <- function(input, output) {
                           hsize=input$hsize,
                           Farm=input$farmname,
                           Number=input$Num,
+                          Dates=input$Htime,
                           Lat=input$mymap_draw_new_feature$geometry$coordinates[[2]],
                           Lon=input$mymap_draw_new_feature$geometry$coordinates[[1]])
           ) 
