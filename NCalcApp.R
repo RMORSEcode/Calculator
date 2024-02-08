@@ -65,7 +65,7 @@ ui <- fluidPage(
   mainPanel(
     tabsetPanel(
       type = "tabs",
-      tabPanel("Plot", 
+      tabPanel("Calculator", 
                plotOutput("nutbplot", width="50%"), 
                tableOutput("mytable"), 
                actionButton("go", "Screenshot"),
@@ -73,6 +73,57 @@ ui <- fluidPage(
                downloadButton(
                  outputId = "downloader",
                  label = "Download PDF"
+               )
+      ),
+      tabPanel("About", 
+               tags$p(
+                 h2(strong("Background")),
+                 p("Shellfish incorporate nutrients into their tissues and shell as they grow. At harvest, these nutrients are permanently removed from the coastal environment, providing a benefit to water quality in the form of excess nutrient reduction. The US East Coast Oyster Nutrient Removal Calculator is a tool designed for resource managers to inform shellfish aquaculture permitting. Resource managers have expressed interest in easy-to-use tools that produce location and operation-appropriate values for beneficial services, and they need the values to be produced in a format that aligns with their permitting process."
+                 ),
+                 p("The nutrient removal calculations are based on relationships of oyster dry weight-to-length and the average nitrogen (N) concentrations in shell and tissue material. First, we estimate the weight of the oysters based on user input value for oyster size. These estimates are based on non-linear quantile regressions of oyster shell height and dry-weight for both tissue and shell material. Next, the oyster weight is converted into N using the average N concentration value for both shell and tissue to get an overall amount of N per oyster. This result is scaled to the user input value of the overall number of oysters."
+                 ),
+                 br(),
+                 h2(strong("Calculator Inputs")),
+                 p("The Oyster Nutrient Removal Calculator can be used for new permit applications based on estimated production value or to provide information on existing farms from actual harvest numbers. The grower provides information on:"
+                 ),
+                 p(strong("- Number of oysters harvested or to be harvested")
+                 ),
+                 p(strong("- size of oysters at harvest")
+                 ),
+                 p("- type of gear (floating gear vs. bottom gear vs. no gear)"
+                   ),
+                p("- ploidy (diploid or triploid, or a combination)*"
+                  ),
+                p(em("*We are actively seeking feedback from the aquaculture community on the inclusion of these factors, given the small effect that they had in our data analysis.")
+                ),
+                p("Project location and period of harvest (1 day to 5 years) will be included as inputs for use in generating the report, but will not affect the calculation."
+                  ),
+               )
+      ),
+
+      tabPanel("Data Sources", 
+               tags$p(
+                 strong("Data Contributors"),
+                 p("ME: Damian Brady and Tom Kiffney - University of Maine"
+                 ),
+                 p("NH: Ray Grizzle and Krystin Ward - University of New Hampshire"
+                 ),
+                 p("MA: Josh Reitsma - Cape Cod Cooperative Extension"
+                 ),
+                 p("RI: Suzy Ayvazian - EPA Narragansett"
+                 ),
+                 p("CT: Skylar Bayer, Matt Poach, Shannon Meseck, and Julie Rose - NOAA Milford"
+                 ),
+                 p("NY: Jeff Levinton and Daria Sebastiano - Stony Brook University"
+                 ),
+                 p("NJ: Daphne Munroe and Janine Barr - Rutgers University"
+                 ),
+                 p("MD: Matt Poach - NOAA Milford; Julie Reichert-Nguyen - NOAA Chesapeake Bay Office; Suzanne Bricker and Matt Parker - NOAA Oxford"
+                 ),
+                 p("VA: Matt Poach - NOAA Milford; Julie Reichert-Nguyen - NOAA Chesapeake Bay Office; Suzanne Bricker and Matt Parker - NOAA Oxford"
+                 ),
+                 p("NC: Beth Darrow and Jessica Kinsella - University of North Carolina Wilmington"
+                 ),
                )
       ),
       tabPanel("Reference", 
