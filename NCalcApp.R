@@ -6,6 +6,7 @@ library(leaflet.extras)
 library(shinyscreenshot)
 library(ggplot2)
 library(formatR)
+library(tinytex)
 
 ui <- fluidPage(
   
@@ -56,7 +57,7 @@ ui <- fluidPage(
   # textInput("farmloc", "Farm Location - City, State", value = "", width = NULL, placeholder = NULL),
   helpText(h2("Farm Location")),
   leafletOutput("mymap"),
-  helpText("Please zoom to state level and add a location marker for your farm"),
+  helpText("Please zoom to state level and add a location marker in the water where the oysters were harvested from"),
   
   tableOutput('loctable'),
   
@@ -90,20 +91,24 @@ ui <- fluidPage(
                  ),
                  p(strong("- size of oysters at harvest")
                  ),
-                 p("- type of gear (floating gear vs. bottom gear vs. no gear)"
-                   ),
-                p("- ploidy (diploid or triploid, or a combination)*"
-                  ),
-                p(em("*We are actively seeking feedback from the aquaculture community on the inclusion of these factors, given the small effect that they had in our data analysis.")
-                ),
-                p("Project location and period of harvest (1 day to 5 years) will be included as inputs for use in generating the report, but will not affect the calculation."
-                  ),
+                 p("- type of gear (floating gear vs. bottom gear vs. no gear)*"
+                 ),
+                 p("- ploidy (diploid or triploid, or a combination)*"
+                 ),
+                 p(em("*We are actively seeking feedback from the aquaculture community on the inclusion of these factors, given the small effect that they had in our data analysis.")
+                 ),
+                 p("Project location and period of harvest (1 day to 5 years) will be included as inputs for use in generating the report, but will not affect the calculation."
+                 ),
+                 br(),
+                 h2(strong("Summary")),
+                 p("We have synthesized available literature for eastern oyster farms across the Northeast region (North Carolina to Maine), and applied methodology used by the Chesapeake Bay Program to calculate nutrient removal at harvest. Variability in oyster tissue and shell nutrient content was low, and an assessment of farm location, ploidy, and cultivation practice (with vs. without gear) suggested that a single average value could reasonably be applied across all farms."
+                 ),
                )
       ),
-
+      
       tabPanel("Data Sources", 
                tags$p(
-                 strong("Data Contributors"),
+                 h2(strong("Data Contributors")),
                  p("ME: Damian Brady and Tom Kiffney - University of Maine"
                  ),
                  p("NH: Ray Grizzle and Krystin Ward - University of New Hampshire"
@@ -123,34 +128,44 @@ ui <- fluidPage(
                  p("VA: Matt Poach - NOAA Milford; Julie Reichert-Nguyen - NOAA Chesapeake Bay Office; Suzanne Bricker and Matt Parker - NOAA Oxford"
                  ),
                  p("NC: Beth Darrow and Jessica Kinsella - University of North Carolina Wilmington"
-                 ),
+                 )
                )
       ),
       tabPanel("Reference", 
                tags$p(
-                 strong("References"),
+                 h2(strong("References")),
                  p("Cornwell, J., Rose, J., Kellogg, L., Luckenbach, M., Bricker, S., Paynter, K., Moore, C., Parker, M., Sanford, L., Wolinski, B., Lacatell, A., Fegley, L., and Hudson, K. (2016). Panel Recommendations on the Oyster BMP Nutrient and Suspended Sediment Reduction Effectiveness Determination Decision Framework and Nitrogen and Phosphorus Assimilation in Oyster Tissue Reduction Effectiveness for Oyster Aquaculture Practices. (Report to the Chesapeake Bay Program.  Available online at http://www.chesapeakebay.net/documents/Oyster_BMP_1st_Report_Final_Approved_2016-12-19.pdf).")
                ),
-               p("Cornwell, J., S. Bricker, A. Lacatell, M. Luckenbach, F. Marenghi, C. Moore, M. Parker, K. Paynter, J. Rose, L. Sanford, W. Wolinski, O.N. Caretti, J. Reichert-Nguyen, & H.W. Slacum. 2023. Nitrogen and phosphorus reduction associated with harvest of hatchery-produced oysters and reef restoration: Assimilation and enhanced denitrification: Panel recommendations. Report submitted to the Chesapeake Bay Program Partnership Water Quality Goal Implementation Team January 27, 2023. (Report to the Chesapeake Bay Program.  Available online at https://d18lev1ok5leia.cloudfront.net/chesapeakebay/documents/Animal-Mortality-Mngmnt-Expert-Panel-Report-WQGIT-Approved.pdf"
-                 ),
+               p("Cornwell, J., S. Bricker, A. Lacatell, M. Luckenbach, F. Marenghi, C. Moore, M. Parker, K. Paynter, J. Rose, L. Sanford, W. Wolinski, O.N. Caretti, J. Reichert-Nguyen, & H.W. Slacum. 2023. Nitrogen and phosphorus reduction associated with harvest of hatchery-produced oysters and reef restoration: Assimilation and enhanced denitrification: Panel recommendations. Report submitted to the Chesapeake Bay Program Partnership Water Quality Goal Implementation Team January 27, 2023. (Report to the Chesapeake Bay Program.  Available online at https://d18lev1ok5leia.cloudfront.net/chesapeakebay/documents/Animal-Mortality-Mngmnt-Expert-Panel-Report-WQGIT-Approved.pdf)"
+               ),
                p("Grizzle, R.E., Ward, K.M., Peter, C.R., Cantwell, M., Katz, D., and Sullivan, J. (2017). Growth, morphometrics and nutrient content of farmed eastern oysters, Crassostrea virginica (Gmelin), in New Hampshire, USA. Aquaculture Research 48, 1525-1537."
-                 ),
+               ),
                p("Higgins, C.B., Stephenson, K., and Brown, B.L. (2011). Nutrient bioassimilation capacity of aquacultured oysters: quantification of an ecosystem service. Journal of Environmental Quality 40, 271-277."
-                 ),
+               ),
                p("Lindahl, O., Hart, R., Hernroth, B., Kollberg, S., Loo, L.-O., Olrog, L., Rehnstam-Holm, A.-S., Svensson, J., Svensson, S., and Syversen, U. (2005). Improving marine water quality by mussel farming - a profitable solution for Swedish society. Ambio 34, 129-136."
-                 ),
+               ),
                p("Poach, M., Morse, R., Meseck, S. Alvarado, A.,; Reichert-Nguyen, J., McFarland, K. Elliott, H., Kellogg, M. L., Luckenbach, M., and Rose, J. (2024, in review). Nutrient reduction by eastern oysters exhibits low variability associated with season, ploidy, and farm location. Marine Pollution Bulletin."
-                 ),
+               ),
                p("Reitsma, J., Murphy, D.C., Archer, A.F., and York, R.H. (2017). Nitrogen extraction potential of wild and cultured bivalves harvested from nearshore waters of Cape Cod, USA. Marine Pollution Bulletin 116, 175-181."
-                 ),
+               ),
                p("Rose, J.M., Bricker, S.B., Tedesco, M.A., and Wikfors, G.H. (2014). A Role for Shellfish Aquaculture in Coastal Nitrogen Management. Environmental Science & Technology 48, 2519-2525."
-                 ),
+               ),
                p("Sebastiano, D., Levinton, J.S., Doall, M., and Kamath, S. (2015). Using a Shellfish Harvest Strategy to Extract High Nitrogen Inputs in Urban and Suburban Coastal Bays: Practical and Economic Implications. Journal of Shellfish Research 34, 573-583, 511."
-                 )
+               )
       ),
+      tabPanel("Disclaimer",
+               h2(strong("Disclaimer")),
+                 p("This is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government."
+                   )
+               ),
     )
   )
 )
+  
+
+  
+
+
 server <- function(input, output) {
   
 

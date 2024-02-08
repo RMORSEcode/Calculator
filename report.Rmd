@@ -49,10 +49,8 @@ knitr::knit_hooks$set( output = function(x, options) {
     rep <- paste0( "\n", comment )
     x <- gsub( re, rep,  x )
   }
-  
-  default_output_hook( x, options )
-  
-})
+    default_output_hook( x, options )
+  })
 
 knitr::opts_template$set("kill_prefix"=list(comment=NA, null_prefix=TRUE))
 ```
