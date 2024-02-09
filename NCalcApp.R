@@ -80,29 +80,29 @@ ui <- fluidPage(
                tags$p(
                  h2(strong("Background")),
                  p("Shellfish incorporate nutrients into their tissues and shell as they grow. At harvest, these nutrients are permanently removed from the coastal environment, providing a benefit to water quality in the form of excess nutrient reduction. The US East Coast Oyster Nutrient Removal Calculator is a tool designed for resource managers to inform shellfish aquaculture permitting. Resource managers have expressed interest in easy-to-use tools that produce location and operation-appropriate values for beneficial services, and they need the values to be produced in a format that aligns with their permitting process."
-                 ),
-                 p("The nutrient removal calculations are based on relationships of oyster dry weight-to-length and the average nitrogen (N) concentrations in shell and tissue material. First, we estimate the weight of the oysters based on user input value for oyster size. These estimates are based on non-linear quantile regressions of oyster shell height and dry-weight for both tissue and shell material. Next, the oyster weight is converted into N using the average N concentration value for both shell and tissue to get an overall amount of N per oyster. This result is scaled to the user input value of the overall number of oysters."
-                 ),
+                   ),
+                 p("The nutrient removal calculations are based on relationships of oyster dry weight-to-length and the average nitrogen (N) concentrations in shell and tissue material. First, we estimate the weight of the oysters based on the typical size of oysters harvested on a farm. The weight estimates are based on non-linear quantile regressions of oyster shell height and dry-weight for both tissue and shell material. Next, the N portion of total oyster weight is calculated using the average N concentration value for both shell and tissue. Adding the tissue and shell nitrogen yields the total weight of  N per oyster. This result is scaled to the total number of oysters harvested, as input by the user."
+                   ),
                  br(),
                  h2(strong("Calculator Inputs")),
                  p("The Oyster Nutrient Removal Calculator can be used for new permit applications based on estimated production value or to provide information on existing farms from actual harvest numbers. The grower provides information on:"
-                 ),
+                   ),
                  p(strong("- Number of oysters harvested or to be harvested")
                  ),
                  p(strong("- size of oysters at harvest")
                  ),
-                 p("- type of gear (floating gear vs. bottom gear vs. no gear)*"
+                 p("- type of gear (floating gear vs. off-bottom gear vs. on-bottom)*"
                  ),
                  p("- ploidy (diploid or triploid, or a combination)*"
                  ),
                  p(em("*We are actively seeking feedback from the aquaculture community on the inclusion of these factors, given the small effect that they had in our data analysis.")
                  ),
-                 p("Project location and period of harvest (1 day to 5 years) will be included as inputs for use in generating the report, but will not affect the calculation."
-                 ),
+                 p("Farm location and period of harvest (1 day to 5 years) will be included as inputs for use in generating the report, but will not affect the calculation."
+                   ),
                  br(),
                  h2(strong("Summary")),
-                 p("We have synthesized available literature for eastern oyster farms across the Northeast region (North Carolina to Maine), and applied methodology used by the Chesapeake Bay Program to calculate nutrient removal at harvest. Variability in oyster tissue and shell nutrient content was low, and an assessment of farm location, ploidy, and cultivation practice (with vs. without gear) suggested that a single average value could reasonably be applied across all farms."
-                 ),
+                 p("We have synthesized available literature for eastern oyster farms across the Northeast region (North Carolina to Maine), and applied methodology used by the Chesapeake Bay Program to calculate nutrient removal at harvest. Variability in oyster tissue and shell nutrient concentration was low, and an assessment of farm location, ploidy, and cultivation practice (with vs. without gear) suggested that a single average value could reasonably be applied across all farms."
+                   ),
                )
       ),
       
@@ -131,12 +131,12 @@ ui <- fluidPage(
                  )
                )
       ),
-      tabPanel("Reference", 
+      tabPanel("References", 
                tags$p(
                  h2(strong("References")),
                  p("Cornwell, J., Rose, J., Kellogg, L., Luckenbach, M., Bricker, S., Paynter, K., Moore, C., Parker, M., Sanford, L., Wolinski, B., Lacatell, A., Fegley, L., and Hudson, K. (2016). Panel Recommendations on the Oyster BMP Nutrient and Suspended Sediment Reduction Effectiveness Determination Decision Framework and Nitrogen and Phosphorus Assimilation in Oyster Tissue Reduction Effectiveness for Oyster Aquaculture Practices. (Report to the Chesapeake Bay Program.  Available online at http://www.chesapeakebay.net/documents/Oyster_BMP_1st_Report_Final_Approved_2016-12-19.pdf).")
                ),
-               p("Cornwell, J., S. Bricker, A. Lacatell, M. Luckenbach, F. Marenghi, C. Moore, M. Parker, K. Paynter, J. Rose, L. Sanford, W. Wolinski, O.N. Caretti, J. Reichert-Nguyen, & H.W. Slacum. 2023. Nitrogen and phosphorus reduction associated with harvest of hatchery-produced oysters and reef restoration: Assimilation and enhanced denitrification: Panel recommendations. Report submitted to the Chesapeake Bay Program Partnership Water Quality Goal Implementation Team January 27, 2023. (Report to the Chesapeake Bay Program.  Available online at https://d18lev1ok5leia.cloudfront.net/chesapeakebay/documents/Animal-Mortality-Mngmnt-Expert-Panel-Report-WQGIT-Approved.pdf)"
+               p("Cornwell, J., S. Bricker, A. Lacatell, M. Luckenbach, F. Marenghi, C. Moore, M. Parker, K. Paynter, J. Rose, L. Sanford, W. Wolinski, O.N. Caretti, J. Reichert-Nguyen, & H.W. Slacum. 2023. Nitrogen and phosphorus reduction associated with harvest of hatchery-produced oysters and reef restoration: Assimilation and enhanced denitrification: Panel recommendations. Report submitted to the Chesapeake Bay Program Partnership Water Quality Goal Implementation Team January 27, 2023. (Report to the Chesapeake Bay Program.  Available online at https://d18lev1ok5leia.cloudfront.net/chesapeakebay/documents/Animal-Mortality-Mngmnt-Expert-Panel-Report-WQGIT-Approved.pdf)."
                ),
                p("Grizzle, R.E., Ward, K.M., Peter, C.R., Cantwell, M., Katz, D., and Sullivan, J. (2017). Growth, morphometrics and nutrient content of farmed eastern oysters, Crassostrea virginica (Gmelin), in New Hampshire, USA. Aquaculture Research 48, 1525-1537."
                ),
