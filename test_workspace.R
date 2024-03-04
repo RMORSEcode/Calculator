@@ -301,7 +301,7 @@ lines(xval, yval2, col='red', lwd=2, lty=2)
 
 
 PCB %>% select(State, Ploidy, Tissue_N_Percent) %>% 
-  ggboxplot(y='Tissue_N_Percent', x='State', fill='Ploidy',ylab = 'Tissue P Percent', xlab='', ylim=c(0,15)) + 
+  ggboxplot(y='Tissue_N_Percent', x='State', fill='Ploidy',ylab = 'Tissue N Percent', xlab='', ylim=c(0,15)) + 
 stat_compare_means(method = "anova", label.y = 0.2)+      # Add global p-value
   stat_compare_means(label = "p.signif", method = "t.test",
                      ref.group = ".all.")
@@ -1831,6 +1831,9 @@ table(Main$Location_Index[Main$Data_Source=="Higgins-2011"])
 unique(CB2016$Data_Source)
 
 ### plot map of all stations
+library(maps)
+library(mapdata)
+library(marmap)
 nesbath=getNOAA.bathy(lon1=-79,lon2=-68,lat1=31,lat2=45, resolution=10, keep=F)
 data(stateMapEnv)
 stations=readxl::read_xlsx(paste(wd, "Location_data.xlsx", sep=''),sheet='final2')

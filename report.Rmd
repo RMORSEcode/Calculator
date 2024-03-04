@@ -70,7 +70,7 @@ knitr::opts_chunk$set(opts.label="kill_prefix")
 **Harvest location (latitude, longitude):**  
 `r params[["Lat"]]`, `r params[["Lon"]]`
 
-**Gear type primarily used for growing oysters:**  
+**Culture method:**  
 `r params[["gear"]]`
 
 **Oyster ploidy:**  
