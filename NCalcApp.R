@@ -71,6 +71,26 @@ ui <- fluidPage(
                  label = "Download PDF"
                )
       ),
+      tabPanel("Harvest estimator",
+               numericInput("Nload", "Nitrogen load into waterbody (lbs N) ", 0, min=0, max=NA),
+               helpText("This will estimate the number of oysters required for harvest in order to offset the specified N load"),
+               sliderInput(
+                 "hsize2",
+                 "Average oyster size at harvest (Inches)",
+                 2.0,
+                 5.0,
+                 3.0,
+                 step = 0.1,
+                 round = FALSE,
+                 ticks = TRUE,
+                 animate = FALSE,
+                 width = NULL,
+                 sep = ",",
+                 dragRange = TRUE
+               ),
+               tableOutput("mytable2"), 
+               
+      ),
       tabPanel("About", 
                tags$p(
                  h2(strong("Background")),
@@ -224,6 +244,31 @@ server <- function(input, output) {
       data.frame("Shell N"=sN, "Tissue N"=tN, "Total N"=sN+tN, "Units"=input$units)
       })
     
+    # estimate number of oysters required for N load
+    esttable <- reactive({
+      taval=1.42E-05
+      tbval=2.60727827
+      saval=0.00039042
+      sbval=2.579747757
+      tdw=taval*(input$hsize2*25.4)^tbval
+      sdw=saval*(input$hsize2*25.4)^sbval
+      
+      #Convert dry weight of tissue and shell (g) to nutrients (g)
+      tNi=reactiveValues()
+      sNi=reactiveValues()
+      tNi=0.0796*tdw
+      sNi=0.0019*sdw
+      
+      #convert grams N to lbs
+      cnvrt=0.00220462
+      # tN=reactiveValues()
+      tN=tNi*cnvrt
+      # sN=reactiveValues()
+      sN=sNi*cnvrt
+      ReNum=round(input$Nload/(sN+tN),-3)
+      data.frame("Total N load "=input$Nload, "Number of oyster to harvest"=ReNum)
+    })
+    
     plot <- reactive({
       taval=1.42E-05
       tbval=2.60727827
@@ -272,7 +317,10 @@ server <- function(input, output) {
       renderTable({
         table()
       })
-
+    output$mytable2 <-
+      renderTable({
+        esttable()
+      })
   
   # observeEvent(input$add, {
   #   output_name <- paste0("out_", input$add)
