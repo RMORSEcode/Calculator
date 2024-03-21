@@ -1,19 +1,84 @@
-library(dplyr)
+library(tidyverse)
+library(ggExtra)
+library(ggpubr)
 library(lubridate)
 library(quantreg)
-library(ggplot2)
 
+wd="C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/"
 s1=match("Poach et al. in prep 2023", Main$Data_Source) # start of Poach data (after end of CB)
 MainNoCB=Main[s1:dim(Main)[1],]
 RegionFarm=MainNoCB %>% filter(!(Waterbody_Region %in% c("Jamaica Bay", "Hudson River", "Raritan Bay")))
-## fix second column name assignment for Tissue Carbon
-test=as.matrix(RegionFarm$Tissue_TC_g_C_per_g_dw)
-colnames(test)=NULL
-RegionFarm=RegionFarm %>% dplyr::select(-Tissue_TC_g_C_per_g_dw)
-RegionFarm$Tissue_TC_g_C_per_g_dw=test[,1]
-write.csv(RegionFarm, file=paste(wd,'RegionFarm.csv', sep=''))
 
-with(RegionFarm, table(Gear_Class,Ploidy))
+## fix second column name assignment for Tissue Carbon
+# test=as.matrix(RegionFarm$Tissue_TC_g_C_per_g_dw)
+# colnames(test)=NULL
+# RegionFarm=RegionFarm %>% dplyr::select(-Tissue_TC_g_C_per_g_dw)
+# RegionFarm$Tissue_TC_g_C_per_g_dw=test[,1]
+## reorder columns
+colnames(RegionFarm)
+RegionFarm=RegionFarm[,c(1:28,63,60)]
+outfile=RegionFarm %>% select(-c(Raw_Data_File, Number_ID))
+write.csv(outfile, file=paste(wd,'RegionFarm.csv', sep=''),row.names=FALSE)
+
+## Write out CB data for zenodo inclusion
+CB2=Main[1:s1-1,]
+test=as.matrix(CB2$Tissue_TC_g_C_per_g_dw)
+colnames(test)=NULL
+CB2=CB2 %>% dplyr::select(-Tissue_TC_g_C_per_g_dw)
+CB2$Tissue_TC_g_C_per_g_dw=test[,1]
+outfile=CB2 %>% select(-(Volume_ml:Shell_Organic_C_Percent))
+write.csv(outfile, file=paste(wd,'CB2023oysterBMP.csv', sep=''),row.names=FALSE)
+
+## fix second column name assignment for Tissue Carbon in Main
+Main2=Main
+test=as.matrix(Main2$Tissue_TC_g_C_per_g_dw)
+colnames(test)=NULL
+Main2=Main2 %>% dplyr::select(-Tissue_TC_g_C_per_g_dw)
+Main2$Tissue_TC_g_C_per_g_dw=test[,1]
+## fix issue from NC with 'Tissue_TN_g_C_per_g_dw'
+# colnames(Main)
+test=Main[,c(30,57,29)]
+t2=complete.cases(test)
+# sum(t2)
+# t3=test[t2,]
+# View(t3)
+# NC=Main[complete.cases(Main$Tissue_TN_g_C_per_g_dw),]
+oldcolN.C=Main$Tissue_TN_g_C_per_g_dw # for NC this is gN/g sample
+oldcolN.N=Main$Tissue_TN_g_N_per_g_dw # for NC data this is sample N content (g)
+newcolN.N=oldcolN.N
+newcolN.N[t2]=oldcolN.C[t2] # replace bad values for NC with real values
+Main2$Tissue_TN_g_N_per_g_dw=newcolN.N
+# NC=Main2[complete.cases(Main2$Tissue_TN_g_C_per_g_dw),]
+# outfile=Main2 %>% select(-(Volume_ml:Shell_Organic_C_Percent))
+# write.csv(outfile, file=paste(wd,'Main2.csv', sep=''),row.names=FALSE)
+Main=Main2
+
+# Fix N and C spillover from Merge on Darrow_N
+Main2[which(Main2$st_abrv=="NC"),"Tissue_TN_g_N_per_g_dw"]=NA
+Main2[which(Main2$st_abrv=="NC"),"Tissue_N_Percent"]=NA
+Main2[which(Main2$st_abrv=="NC"),"Tissue_TC_g_C_per_g_dw"]=NA
+Main2[which(Main2$st_abrv=="NC"),"Tissue_C_Percent"]=NA
+Main2[which(Main2$st_abrv=="NC"),"Tissue_CN_molar"]=NA
+Main2=bind_rows(Main2, darx) # add 11 N and C values back
+Main=Main2 %>% select(-Tissue_TN_g_C_per_g_dw) # drop error column
+
+
+
+
+
+## tables used in paper
+# with(RegionFarm, table(st_abrv, Gear_Class,Ploidy))
+# with(RegionFarm, table(st_abrv,Ploidy))
+# with(RegionFarm, table(st_abrv,Ploidy))
+# with(RegionFarm, table(Data_Source, Waterbody_Region ))
+## Tissue
+with(RegionFarm, table(complete.cases(Tissue_N_Percent), Ploidy))
+with(RegionFarm, table(complete.cases(Tissue_N_Percent), Gear_Class))
+with(RegionFarm, table(complete.cases(Tissue_N_Percent), st_abrv))
+## Shell
+with(RegionFarm, table(complete.cases(Shell_N_Percent), Ploidy))
+with(RegionFarm, table(complete.cases(Shell_N_Percent), Gear_Class))
+with(RegionFarm, table(complete.cases(Shell_N_Percent), st_abrv))
 
 ### overlay with states
 ### regressions for gear
@@ -164,6 +229,8 @@ lines(x, yval, col=rgb(red = 0, green = 1, blue = 0, alpha = 0.9), lwd=2)
 text(180,yval[250], labels="No Gear")
 text(180,yval[250], labels=ifelse(summary(qrx)$coefficients[1,4]<0.05, paste('Y=',round(a,6),'*X^',round(b,3),sep=''),''), cex=.75)
 legend('topleft', pch=19, col=c('red','green','blue'), legend=c("Floating", "On-bottom", "Off-bottom"), bty='n')
+abline(v=63.5, lty=2)
+abline(v=88.9, lty=2)
 
 ### Gear Class w/ polygons For Shells###
 plot(Main$Shell_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727], type='p', 
@@ -247,12 +314,13 @@ text(180,yval[250], labels="No Gear")
 text(180,yval[250], labels=ifelse(summary(qrx)$coefficients[1,4]<0.05, paste('Y=',round(a,6),'*X^',round(b,3),sep=''),''), cex=.75)
 
 legend('topleft', pch=19, col=c('red','green','blue'), legend=c("Floating", "On-bottom", "Off-bottom"), bty='n')
-
+abline(v=63.5, lty=2)
+abline(v=88.9, lty=2)
 # points(dataa2$Tissue_Dry_Weight_g ~dataa2$Total_Shell_Height_Length_mm, pch=19, col=rgb(red = 0, green = 1, blue = 0, alpha = 0.1))
 
 #add all points light gray
 points(RegionFarm$Tissue_Dry_Weight_g ~RegionFarm$Total_Shell_Height_Length_mm, pch=19, col=rgb(red = 0.52, green = 0.52, blue = 0.52, alpha = 0.1))
-points(Main$Tissue_Dry_Weight_g ~Main$Total_Shell_Height_Length_mm, pch=19, col=rgb(red = 0.52, green = 0.52, blue = 0.52, alpha = 0.1))
+points(Main$Tissue_Dry_Weight_g[1:s1-1] ~Main$Total_Shell_Height_Length_mm[1:s1-1], pch=19, col=rgb(red = 0.52, green = 0.52, blue = 0.52, alpha = 0.1))
 points(Main$Tissue_Dry_Weight_g ~Main$Total_Shell_Height_Length_mm, pch=19, col=rgb(red = 0.52, green = 0.52, blue = 0.52, alpha = 0.1))
 
 
@@ -290,7 +358,7 @@ b=summary(qrx)$coefficients[2,1]
 x=seq(0, 150, length = 250)
 yval=(a*(x^b))
 lines(x, yval, col=rgb(red = 1, green = 0, blue = 0, alpha = 0.9), lwd=2)
-legend('topleft', pch=19, col=c('blue', 'red'), legend=c("2N", "3N"), bty='n')
+legend('topleft', pch=19, col=c('blue', 'red'), legend=c("Diploid", "Triploid"), bty='n')
 # text(180,yval[250], labels=paste('Y=',round(a,6),'*X^',round(b,3),sep=''), cex=.75)
 # text(180,yval[250], labels="Triploid")
 
@@ -319,7 +387,7 @@ b=summary(qrx)$coefficients[2,1]
 x=seq(0, 150, length = 250)
 yval=(a*(x^b))
 lines(x, yval, col=rgb(red = 1, green = 0, blue = 0, alpha = 0.9), lwd=2)
-legend('topleft', pch=19, col=c('blue', 'red'), legend=c("2N", "3N"), bty='n')
+legend('topleft', pch=19, col=c('blue', 'red'), legend=c("Diploid", "Triploid"), bty='n')
 # text(180,yval[250], labels=paste('Y=',round(a,6),'*X^',round(b,3),sep=''), cex=.75)
 
 # plot(Main$Tissue_Dry_Weight_g ~ Main$Total_Shell_Height_Length_mm, type='n', 
@@ -675,35 +743,98 @@ RegionFarm[complete.cases(RegionFarm$Tissue_N_Percent),] %>% select(State, Ploid
 # stat_compare_means(comparisons = my_comparisons, method = "anova", label.y = c(12.5),label= "p.signif") #+
 
 ## Tissue N
-RegionFarm[complete.cases(RegionFarm$Tissue_N_Percent),] %>% select(st_abrv, Ploidy, Tissue_N_Percent) %>% 
+RegionFarm[complete.cases(RegionFarm$Tissue_N_Percent),] %>% select(st_abrv, Ploidy, Gear_Class, Tissue_N_Percent) %>% 
   ggplot(aes(y=Tissue_N_Percent, x=st_abrv)) + 
-  geom_boxplot(color = "black", notch=T) +
+  geom_boxplot(color = "black", notch=T, fill="gray") +
   theme_classic()+
   labs(x='', y = 'Tissue N Percent') +
   coord_cartesian(ylim = c(0, 15))+
-  scale_fill_manual(values=c("white", "gray")) +
   stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
   theme(strip.background = element_blank(),
         strip.text.y = element_blank())+
   theme(legend.position = "none") +
   theme(text = element_text(size = 20)) +
   theme(legend.text = element_text(size = 20)) 
+## Tissue N (gear class)
+RegionFarm[complete.cases(RegionFarm$Tissue_N_Percent),] %>% select(st_abrv, Ploidy, Gear_Class, Tissue_N_Percent) %>% 
+  ggplot(aes(y=Tissue_N_Percent, x=Gear_Class)) + 
+  geom_boxplot(color = "black", notch=T, fill="gray") +
+  theme_classic()+
+  labs(x='', y = 'Tissue N Percent') +
+  coord_cartesian(ylim = c(0, 15))+
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4, position = position_dodge(width = .75))+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank()) +
+  theme(text = element_text(size = 20)) +
+  theme(
+    # legend.position = c(0.5,0.15),
+    # legend.text = element_text(size = 20),
+    legend.title = element_blank()) +
+  guides(fill = guide_legend(nrow = 1))
 
+## Tissue N (ploidy)
+RegionFarm[complete.cases(RegionFarm$Tissue_N_Percent),] %>% select(st_abrv, Ploidy, Gear_Class, Tissue_N_Percent) %>% 
+  ggplot(aes(y=Tissue_N_Percent, x=Ploidy)) + 
+  geom_boxplot(color = "black", notch=T, fill="gray") +
+  theme_classic()+
+  labs(x='', y = 'Tissue N Percent') +
+  coord_cartesian(ylim = c(0, 15))+
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4,position = position_dodge(width = .75))+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank()) +
+  theme(
+    # legend.position = c(0.5,0.15),
+    # legend.text = element_text(size = 20),
+    legend.title = element_blank()) +
+  guides(fill = guide_legend(nrow = 1))+
+  theme(text = element_text(size = 20))  
 
-## Shell N
-RegionFarm[complete.cases(RegionFarm$Shell_N_Percent),] %>% select(st_abrv, Ploidy, Shell_N_Percent) %>% 
+## Shell N 
+RegionFarm[complete.cases(RegionFarm$Shell_N_Percent),] %>% select(st_abrv, Ploidy, Gear_Class, Shell_N_Percent) %>% 
   ggplot(aes(y=Shell_N_Percent, x=st_abrv)) + 
-  geom_boxplot(color = "black", notch=T) +
+  geom_boxplot(color = "black", notch=T, fill="gray") +
   theme_classic()+
   labs(x='', y = 'Shell N Percent') +
   coord_cartesian(ylim = c(0, 1))+
-  scale_fill_manual(values=c("white", "gray")) +
   stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
   theme(strip.background = element_blank(),
         strip.text.y = element_blank())+
-  theme(legend.position = "none") +
+  theme(legend.position = "top") +
   theme(text = element_text(size = 20)) +
-  theme(legend.text = element_text(size = 20)) 
+  theme(legend.text = element_text(size = 20))
+## Shell N (gear class)
+RegionFarm[complete.cases(RegionFarm$Shell_N_Percent),] %>% select(st_abrv, Ploidy, Gear_Class, Shell_N_Percent) %>% 
+  ggplot(aes(y=Shell_N_Percent, x=Gear_Class)) + 
+  geom_boxplot(color = "black", notch=T, fill="gray") +
+  theme_classic()+
+  labs(x='', y = 'Shell N Percent') +
+  coord_cartesian(ylim = c(0, 1))+
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4,position = position_dodge(width = .75))+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(
+    # legend.position = c(0.5,0.95),
+    # legend.text = element_text(size = 20),
+    legend.title = element_blank()) +
+  guides(fill = guide_legend(nrow = 1))+
+  theme(text = element_text(size = 20))  
+## Shell N (ploidy)
+RegionFarm[complete.cases(RegionFarm$Shell_N_Percent),] %>% select(st_abrv, Ploidy, Gear_Class, Shell_N_Percent) %>% 
+  ggplot(aes(y=Shell_N_Percent, x=Ploidy)) + 
+  geom_boxplot(color = "black", notch=T, fill="gray") +
+  theme_classic()+
+  labs(x='', y = 'Shell N Percent') +
+  coord_cartesian(ylim = c(0, 1))+
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4,position = position_dodge(width = .75))+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(
+    # legend.position = c(0.5,0.95),
+    # legend.text = element_text(size = 20),
+    legend.title = element_blank()) +
+  guides(fill = guide_legend(nrow = 1))+
+  theme(text = element_text(size = 20))  
+
 
 library(maps)
 library(mapdata)
@@ -741,3 +872,138 @@ RegionFarm %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_mm,
   geom_point()+
   ylim(0,8) +
   xlim(0, 150)
+
+library(tidyverse)
+library(ggExtra)
+library(ggpubr)
+
+mcol=c('cyan','black', 'red', 'blue', 'orange', 'brown', 'yellow', 'purple', 'green', 'gray50', 'maroon')
+
+stt=sort(unique(RegionFarm$st_abrv))
+plot(RegionFarm$Tissue_Dry_Weight_g ~ RegionFarm$Total_Shell_Height_Length_mm, type='n', 
+     ylim=c(0,8), xlim=c(0,150), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
+points(Main$Tissue_Dry_Weight_g[1:9727] ~ Main$Total_Shell_Height_Length_mm[1:9727], type='p', 
+       pch=19, col='gray10')
+
+for(i in 1:length(stt)){
+  dataa2=RegionFarm[RegionFarm$st_abrv==stt[i],]
+  points(dataa2$Tissue_Dry_Weight_g ~dataa2$Total_Shell_Height_Length_mm, pch=19, col=mcol[i], ylim=c(0,8), xlim=c(0,200))
+}
+legend('topleft', bty='n', 
+       legend = stt, 
+       text.col=mcol)
+RegionFarm %>% ggplot(aes(x=Total_Shell_Height_Length_mm, y=Tissue_Dry_Weight_g)) +  labs(y='DW (g)', x='SH (mm)') + xlim(0,140) + ylim(0,7) +
+  geom_point(aes(color=st_abrv))   
+
+## plot CB data with RegionFarm overlay
+plot(RegionFarm$Tissue_Dry_Weight_g ~ RegionFarm$Total_Shell_Height_Length_mm, type='n', ylim=c(0,8), xlim=c(0,150), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
+points(Main$Tissue_Dry_Weight_g[1:s1-1] ~Main$Total_Shell_Height_Length_mm[1:s1-1], pch=19, col='gray70')# rgb(red = 0.52, green = 0.52, blue = 0.52, alpha = 0.1))
+# points(RegionFarm$Tissue_Dry_Weight_g ~RegionFarm$Total_Shell_Height_Length_mm, pch=24, col=rgb(red = 1, green = 0, blue = 0, alpha = 0.2))
+points(RegionFarm$Tissue_Dry_Weight_g ~RegionFarm$Total_Shell_Height_Length_mm, pch=17, col=rgb(red = 1, green = 0, blue = 0, alpha = 0.2))
+legend('topleft', pch=c(19, 17), col=c('gray70',rgb(red = 1, green = 0, blue = 0, alpha = 0.2)), legend=c("CBP 2023", "This study"), bty='n')
+# text(25,6, labels=paste('Y=',round(a,6),'*X^',round(b,3),sep=''), cex=1)
+## plot 50th quantile for all data in each data set
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = Main[1:s1-1,], start = list(a = 0.00037, b = 1.83359), tau=0.5)
+print(summary(qrx))
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+lines(x, yval, col='black', lwd=2, lty=2)
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = RegionFarm, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+print(summary(qrx))
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+lines(x, yval, col='black', lwd=2, lty=1)
+a2=round(a,6)
+b2=round(b,3)
+text(25,6, labels=bquote(Y==.(a2)*X^.(b2)), cex=1)
+## add error
+ae=summary(qrx)$coefficients[1,2]
+be=summary(qrx)$coefficients[2,2]  
+yvalu=((a+ae)*(x^(b+be)))
+yvall=((a-ae)*(x^(b-be)))
+lines(x, yvalu, col='black', lwd=1, lty=2)
+lines(x, yvall, col='black', lwd=1, lty=2)
+## add interquatile range
+qrxu=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = RegionFarm, start = list(a = 0.00037, b = 1.83359), tau=0.75)
+qrxl=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = RegionFarm, start = list(a = 0.00037, b = 1.83359), tau=0.25)
+au=summary(qrxu)$coefficients[1,1]
+bu=summary(qrxu)$coefficients[2,1]
+yvaluq=(au*(x^bu))
+al=summary(qrxl)$coefficients[1,1]
+bl=summary(qrxl)$coefficients[2,1]
+yvallq=(al*(x^bl))  
+lines(x, yvaluq, col='blue', lwd=1)
+lines(x, yvallq, col='blue', lwd=1)
+# CB diploid 2023 No Gear:
+a=0.00037
+b=1.83359
+yval=(a*(x^b))
+ae=0.00005
+be=0.02896
+lines(x, yval, col='green', lwd=2, lty=1)
+yvalu=((a+ae)*(x^(b+be)))
+yvall=((a-ae)*(x^(b-be)))
+lines(x, yvalu, col='green', lwd=2, lty=2)
+lines(x, yvall, col='green', lwd=2, lty=2)
+# create scatter plot using ggplot() function
+plot <- ggplot(RegionFarm, aes(x=Total_Shell_Height_Length_mm, y=Tissue_Dry_Weight_g))+
+  geom_point()+
+  theme(legend.position="none")
+# use ggMarginal function to create marginal histogram
+ggMarginal(plot, type="histogram")
+
+"#00AFBB"
+ggscatterhist(RegionFarm, x = "Total_Shell_Height_Length_mm", y = "Tissue_Dry_Weight_g",
+              color = 'gray30',
+              margin.params = list(fill = "lightgray"),
+              xlab="Shell height (mm)",
+              ylab="Tissue dry weight (g)",
+              ylim(0,7))
+
+ggscatterhist(Main[1:s1-1,], x = "Total_Shell_Height_Length_mm", y = "Tissue_Dry_Weight_g",
+              color = 'gray30',
+              margin.params = list(fill = "lightgray"),
+              xlab="Shell height (mm)",
+              ylab="Tissue dry weight (g)")
+
+### save SH:DW by state for TISSUE
+SHDWt=data.frame(matrix(NA, nrow=3, ncol=7))
+colnames(SHDWt)=c("quantile", "a", "b", "SEa", "SEb","Pa","Pb")
+SHDWs=data.frame(matrix(NA, nrow=3, ncol=7))
+colnames(SHDWs)=c("quantile", "a", "b", "SEa", "SEb","Pa","Pb")
+for(i in c(0.25,0.5, 0.75)){
+  if(i==0.25){
+    j=1
+  }
+  else if(i==0.5){
+    j=2
+  }
+  else{
+    j=3
+  }
+  qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = RegionFarm, start = list(a = 0.00037, b = 1.83359), tau=i)
+  SHDWt[j,1]=i
+  SHDWt[j,2]=summary(qrx)$coefficients[1,1]
+  SHDWt[j,3]=summary(qrx)$coefficients[2,1]
+  SHDWt[j,4]=summary(qrx)$coefficients[1,2]
+  SHDWt[j,5]=summary(qrx)$coefficients[2,2]
+  SHDWt[j,6]=summary(qrx)$coefficients[1,4]
+  SHDWt[j,7]=summary(qrx)$coefficients[2,4]
+  qrx=nlrq(Shell_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = RegionFarm, start = list(a = 0.0007, b = 2), tau=i)
+  SHDWs[j,1]=i
+  SHDWs[j,2]=summary(qrx)$coefficients[1,1]
+  SHDWs[j,3]=summary(qrx)$coefficients[2,1]
+  SHDWs[j,4]=summary(qrx)$coefficients[1,2]
+  SHDWs[j,5]=summary(qrx)$coefficients[2,2]
+  SHDWs[j,6]=summary(qrx)$coefficients[1,4]
+  SHDWs[j,7]=summary(qrx)$coefficients[2,4]
+}
+dt=lubridate::now()
+dat=format(dt, "%Y%m%d")
+write.csv(SHDWt, file=paste(wd,dat,"Tissue_SH_DW_qr50_interquartile_data.csv"))
+write.csv(SHDWs, file=paste(wd,dat,"Shell_SH_DW_qr50_interquartile_data.csv"))
+

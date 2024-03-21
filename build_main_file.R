@@ -654,7 +654,7 @@ colnames(dar)[12]="Tissue_TC_g_C_per_g_dw"
 dar$Tissue_TC_g_C_per_g_dw=Darr$`Carbon Content (mg)`/Darr$`Sample Mass (mg)`
 colnames(dar)[13]="Tissue_C_Percent"
 colnames(dar)[14]="Tissue_TN_g_N_per_g_dw"
-dar$Tissue_TN_g_C_per_g_dw=Darr$`Nitrogen Content (mg)`/Darr$`Sample Mass (mg)`
+dar$Tissue_TN_g_N_per_g_dw=Darr$`Nitrogen Content (mg)`/Darr$`Sample Mass (mg)`
 colnames(dar)[15]="Tissue_N_Percent"
 colnames(dar)[16]="Tissue_CN_molar"
 dar$Raw_Data_File="NCOysterSizeData_DarrowKInsella_forJulieRose.xlsx"
@@ -679,7 +679,6 @@ dar$Representative_Aquaculture_Oyster_Practice=NA
 dar$Representative_Aquaculture_Oyster_Practice[dar$Location_Index=="F1"]="Floating Rafts"
 dar$Representative_Aquaculture_Oyster_Practice[dar$Location_Index=="F2"]="bottom cage design"
 dar$Representative_Aquaculture_Oyster_Practice[dar$Location_Index=="F3"]="Near-bottom cages"
-
 dar$Subtidal_Intertidal_WaterColumn_Other="Unknown"
 dar$Ploidy="Diploid"
 # dar$Oyster_Stock
@@ -706,6 +705,82 @@ dar$Tissue_Dry_Weight_g=as.numeric(dar$Tissue_Dry_Weight_g)
 dar$Tissue_AFDW_g=as.numeric(dar$Tissue_AFDW_g)
 newdf11=bind_rows(newdf10, dar)
 
+### add back in 11 samples for N and C content from tissue (bag averages)
+Darrow_x=Darrow[1,] # copy colnames and data from 1 row
+Darrow_x[1,]=NA # data to NAs
+Darr_x=full_join(Darrow_x, Darrow_N, by=c("Site", "Bag #"="Bag", "Date Collected"="SampleDate")) # merge N data
+Darr_x=Darr_x[-1,] # drop NA row
+darx=Darr_x %>% select(-c(`Bag #`, Comments,`Pan #`, `Sample Mass (mg)`, `Corrected δ13C`,  `Corrected δ15N`))
+colnames(darx)
+# [1] "Date Collected"        "Site"                  "Oyster #"              "Height (mm)"           "Length (mm)"          
+# [6] "Width (mm)"            "Total Wet Wt (g)"      "Empty Shell Wt (g)"    "Tissue Wet Wt (g)"     "Tissue Dry Wt (g)"    
+# [11] "Tissue AFDW (g)"       "Carbon Content (mg)"   "Carbon Content (%)"    "Nitrogen Content (mg)" "Nitrogen Content (%)" 
+# [16] "C/N Ratio"  
+colnames(darx)[1]="Date_Oysters_Removed"
+colnames(darx)[2]="Location_Index"
+colnames(darx)[3]="Number_ID"
+colnames(darx)[4]="Total_Shell_Height_Length_mm"
+colnames(darx)[5]="Total_Shell_Width_mm"
+colnames(darx)[6]="Total_Shell_Depth_mm"
+colnames(darx)[7]="Shell_and_Tissue_Total_Wet_Weight_g"
+colnames(darx)[8]="Shell_Dry_Weight_g" # or wet weight?
+colnames(darx)[9]="Tissue_Wet_Weight_g"
+colnames(darx)[10]="Tissue_Dry_Weight_g"
+colnames(darx)[11]="Tissue_AFDW_g"
+colnames(darx)[12]="Tissue_TC_g_C_per_g_dw"
+darx$Tissue_TC_g_C_per_g_dw=Darr_x$`Carbon Content (mg)`/Darr_x$`Sample Mass (mg)`
+colnames(darx)[13]="Tissue_C_Percent"
+colnames(darx)[14]="Tissue_TN_g_N_per_g_dw"
+darx$Tissue_TN_g_N_per_g_dw=Darr_x$`Nitrogen Content (mg)`/Darr_x$`Sample Mass (mg)`
+colnames(darx)[15]="Tissue_N_Percent"
+colnames(darx)[16]="Tissue_CN_molar"
+darx$Raw_Data_File="NCOysterSizeData_DarrowKInsella_forJulieRose.xlsx"
+darx$Data_Source="Darrow ES & Kinsella JD, unpublished"
+darx$State="North Carolina"
+darx$Near_Waterbody_General_Location=NA
+darx$Near_Waterbody_General_Location[darx$Location_Index=="F1"]="Masonboro Island"
+darx$Near_Waterbody_General_Location[darx$Location_Index=="F2"]="Masonboro Island"
+darx$Near_Waterbody_General_Location[darx$Location_Index=="F3"]="New River"
+darx$Waterbody_Name="Masonboro Island"
+darx$Waterbody_Name[darx$Location_Index=="F3"]="New River"
+darx$Site=NA
+darx$Site[darx$Location_Index=="F1"]="Farm 1"
+darx$Site[darx$Location_Index=="F2"]="Farm 2"
+darx$Site[darx$Location_Index=="F3"]="Farm 3"
+# darx$Site_within_Study
+darx$Oyster_Growth_Location_Type=NA
+darx$Oyster_Growth_Location_Type[darx$Location_Index=="F1"]="Off-Bottom with Gear"
+darx$Oyster_Growth_Location_Type[darx$Location_Index=="F2"]="On-Bottom without Gear"
+darx$Oyster_Growth_Location_Type[darx$Location_Index=="F3"]="Off-Bottom with Gear"
+darx$Representative_Aquaculture_Oyster_Practice=NA
+darx$Representative_Aquaculture_Oyster_Practice[darx$Location_Index=="F1"]="Floating Rafts"
+darx$Representative_Aquaculture_Oyster_Practice[darx$Location_Index=="F2"]="bottom cage design"
+darx$Representative_Aquaculture_Oyster_Practice[darx$Location_Index=="F3"]="Near-bottom cages"
+darx$Subtidal_Intertidal_WaterColumn_Other="Unknown"
+darx$Ploidy="Diploid"
+# darx$Oyster_Stock
+# darx$Hatchery_produced_or_Wild
+# darx$Date_Oysters_Deployed
+# darx$Date_Oysters_Removed
+darx$Month_Oysters_Removed=month(darx$Date_Oysters_Removed)
+darx$Year_Oysters_Removed=year(darx$Date_Oysters_Removed)
+darx$Total_Shell_Height_Length_Inches=as.numeric(darx$Total_Shell_Height_Length_mm)*0.0393701
+# darx$Oyster_Size_Class=NA
+# darx$Oyster_Size_Class=ifelse(darx$Total_Shell_Height_Length_Inches < 2.0, "< 2.0", NA)
+# darx$Oyster_Size_Class[which(darx$Total_Shell_Height_Length_Inches>=2.0 & darx$Total_Shell_Height_Length_Inches<=2.49)]="2.0 - 2.49"
+# darx$Oyster_Size_Class[which(darx$Total_Shell_Height_Length_Inches>2.49 & darx$Total_Shell_Height_Length_Inches<=3.49)]="2.5 - 3.49"
+# darx$Oyster_Size_Class[which(darx$Total_Shell_Height_Length_Inches>3.49 & darx$Total_Shell_Height_Length_Inches<=4.49)]="3.5 - 4.49"
+# darx$Oyster_Size_Class[which(darx$Total_Shell_Height_Length_Inches>4.49 & darx$Total_Shell_Height_Length_Inches<=5.49)]="4.5 - 5.49"
+# darx$Oyster_Size_Class[which(darx$Total_Shell_Height_Length_Inches>5.49)]="≥ 5.5"
+darx$Total_Shell_Height_Length_mm=as.numeric(darx$Total_Shell_Height_Length_mm)
+darx$Total_Shell_Width_mm=as.numeric(darx$Total_Shell_Width_mm)
+darx$Total_Shell_Depth_mm=as.numeric(darx$Total_Shell_Depth_mm)
+darx$Shell_and_Tissue_Total_Wet_Weight_g=as.numeric(darx$Shell_and_Tissue_Total_Wet_Weight_g)
+darx$Shell_Dry_Weight_g=as.numeric(darx$Shell_Dry_Weight_g)
+darx$Tissue_Wet_Weight_g=as.numeric(darx$Tissue_Wet_Weight_g)
+darx$Tissue_Dry_Weight_g=as.numeric(darx$Tissue_Dry_Weight_g)
+darx$Tissue_AFDW_g=as.numeric(darx$Tissue_AFDW_g)
+newdf11=bind_rows(newdf11, darx)
 
 colnames(Ayvazian)
 avz=Ayvazian
@@ -1028,7 +1103,46 @@ s1=match("Poach et al. in prep 2023", Main$Data_Source) # start of Poach data (a
 MainNoCB=Main[s1:dim(Main)[1],]
 RegionFarm=MainNoCB %>% filter(!(Waterbody_Region %in% c("Jamaica Bay", "Hudson River", "Raritan Bay")))
 
+# fix error in column name, fixed above 20240315
+# colnames(Main)
+# colnames(Main)[57]="Tissue_TN_g_N_per_g_dw"
 
+## fix second column name assignment for Tissue Carbon in Main (creates problem when write to csv)
+# Main2=Main
+# test=as.matrix(Main2$Tissue_TC_g_C_per_g_dw)
+# colnames(test)=NULL
+# Main2=Main2 %>% dplyr::select(-Tissue_TC_g_C_per_g_dw)
+# Main2$Tissue_TC_g_C_per_g_dw=test[,1]
+# 
+# ## fix issue from NC data with 'Tissue_TN_g_C_per_g_dw' assignment, (fixed above 20240319)
+# # colnames(Main)
+# test=Main[,c(30,57,29)]
+# t2=complete.cases(test)
+# # sum(t2)
+# # t3=test[t2,]
+# # View(t3)
+# # NC=Main[complete.cases(Main$Tissue_TN_g_C_per_g_dw),]
+# oldcolN.C=Main$Tissue_TN_g_C_per_g_dw # for NC this is gN/g sample
+# oldcolN.N=Main$Tissue_TN_g_N_per_g_dw # for NC data this is sample N content (g)
+# newcolN.N=oldcolN.N
+# newcolN.N[t2]=oldcolN.C[t2] # replace bad values for NC with real values
+# Main2$Tissue_TN_g_N_per_g_dw=newcolN.N
+# # NC=Main2[complete.cases(Main2$Tissue_TN_g_C_per_g_dw),]
+# # outfile=Main2 %>% select(-(Volume_ml:Shell_Organic_C_Percent))
+# # write.csv(outfile, file=paste(wd,'Main2.csv', sep=''),row.names=FALSE)
+# Main=Main2
+
+### Fix N and C repeat samples from Merge on Darrow_N (fixed 20240321, before adding back 11 N samples)
+# Main2[which(Main2$st_abrv=="NC"),"Tissue_TN_g_N_per_g_dw"]=NA
+# Main2[which(Main2$st_abrv=="NC"),"Tissue_N_Percent"]=NA
+# Main2[which(Main2$st_abrv=="NC"),"Tissue_TC_g_C_per_g_dw"]=NA
+# Main2[which(Main2$st_abrv=="NC"),"Tissue_C_Percent"]=NA
+# Main2[which(Main2$st_abrv=="NC"),"Tissue_CN_molar"]=NA
+# Main2=bind_rows(Main2, darx) # add 11 N and C values back
+# Main=Main2 %>% select(-Tissue_TN_g_C_per_g_dw) # drop error column
+
+### Save out file
 dt=lubridate::now()
-dat=as.character(dt, format="%Y%m%d")
+# dat=as.character(dt, format="%Y%m%d")
+dat=format(dt, "%Y%m%d")
 save(Main, file=paste(wd, dat, "_Calculator_Main_oyster_data.rdata", sep=''))

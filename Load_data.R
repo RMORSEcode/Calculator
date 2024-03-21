@@ -385,6 +385,8 @@ Kiffney2=read.csv(paste(wd,'Oyster morphometrics/Kiffney/tissuePloidy2022.csv', 
 Darrow=read_xlsx(paste(wd,"Oyster morphometrics/NC/NCOysterSizeData_DarrowKInsella_forJulieRose.xlsx", sep=''), sheet='Sheet1')
 Darrow_N=read_xlsx(paste(wd,"Oyster morphometrics/NC/NCOysterSizeData_DarrowKInsella_forJulieRose.xlsx", sep=''), sheet='Oyster %N')
 Darr=left_join(Darrow, Darrow_N, by=c("Site", "Bag #"="Bag", "Date Collected"="SampleDate")) # note N and C samples added to all oyster from Bag on merge
+Darr[,c(15:20)]=NA #drop merged N anc C data (repeats)
+
 
 ### RI data from Suzy Ayvazian
 Ayvazian=read_xlsx(paste(wd,"Oyster morphometrics/RI/Ninigret oyster dry weights_height.xlsx", sep=''), sheet='Ninigret Dry weights')
