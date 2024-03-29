@@ -1141,6 +1141,10 @@ RegionFarm=MainNoCB %>% filter(!(Waterbody_Region %in% c("Jamaica Bay", "Hudson 
 # Main2=bind_rows(Main2, darx) # add 11 N and C values back
 # Main=Main2 %>% select(-Tissue_TN_g_C_per_g_dw) # drop error column
 
+## reorder columns
+colnames(Main)
+Main=Main[,c(1:5,58,6:8,61,9:28,62,59,29:34,56,35:55,57,60)]
+
 ### Save out file
 dt=lubridate::now()
 # dat=as.character(dt, format="%Y%m%d")

@@ -8,31 +8,43 @@ library(formatR)
 library(tinytex)
 
 ui <- fluidPage(
-  
-  tags$img(src='noaa-emblem-rgb-sm2-2022.png'),
-  
+  ### Title ###
+  theme = bslib::bs_theme(bootswatch = "lux"),
+  # theme = bslib::bs_theme(bootswatch = "superhero"),
+  tags$img(src='swooshgn2.png'),
   titlePanel(h1("US East Coast Aquaculture Nutrient Removal Calculator")),
-  titlePanel(h4("Oyster nutrient removal data coverage ranges from ME to NC")),
+  titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
+  # helpText(strong("Oyster nutrient removal data coverage ranges from ME to NC")),
+  helpText(br()),
   
-  textInput("farmname", "Project Name", value = "", width = NULL, placeholder = NULL),
+  ### Farm Practices ###
+  helpText(h3("Farm Practices")),
   helpText("Please enter the name of the oyster farm"),
+  textInput("farmname", strong("Project Name:"), value = "", width = NULL, placeholder = NULL),
   
-  textInput("projloc", "Harvest Location", value = "", width = NULL, placeholder = NULL),
   helpText("Please enter the name of the water body where the oysters were harvested from"),
+  textInput("projloc", strong("Harvest Location:"), value = "", width = NULL, placeholder = NULL),
   
-  selectInput("units", "Units for nutrient removal:",c("Pounds (lbs)", "Kilograms (kg")
-  ),
-  
-  selectInput("gear", "Culture Method:",c("Floating", "Off-bottom", "On-Bottom")
-  ),
   helpText("Select the gear type primarily used for growing oysters, or select 'On-Bottom' for no gear"),
+  selectInput("gear", strong("Culture Method:"),c("Floating", "Off-bottom", "On-Bottom")),
   
-  selectInput("ploidy", "Select oyster ploidy:",c("Diploid", "Triploid", "Combination")
-  ),
+  helpText("Please select the ploidy of the oysters that were harvested"),
+  selectInput("ploidy", strong("Oyster ploidy:"),c("Diploid", "Triploid", "Combination")),
+
+  # textInput("farmloc", "Farm Location - City, State", value = "", width = NULL, placeholder = NULL),
+  helpText(h3("Farm Location")),
+  helpText("Please zoom to state level and add a location marker in the water where the oysters were harvested from"),
+  leafletOutput("mymap"),
   
+  tableOutput('loctable'),
+  helpText(br()),
+  
+  ### Harvest Details ###
+  helpText(h3("Harvest Details")),
+  helpText("Please drag the slider to select the average size of the oysters that were harvested"),
   sliderInput(
     "hsize",
-    "Average oyster size at harvest (Inches)",
+    strong("Average oyster size at harvest (Inches):"),
     2.0,
     5.0,
     3.0,
@@ -46,18 +58,19 @@ ui <- fluidPage(
   ),
   
   helpText("Please enter the total number of oysters harvested at the selected size"),
-  numericInput("Num", "Number of oysters at harvest", 0, min=0, max=NA),
+  numericInput("Num", strong("Number of oysters at harvest:"), 0, min=0, max=NA),
   
-  dateRangeInput("Htime", "Period of harvest (yyyy-mm-dd)", start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month"),
+  dateRangeInput("Htime", strong("Period of harvest (yyyy-mm-dd):"), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month"),
   
-  # textInput("farmloc", "Farm Location - City, State", value = "", width = NULL, placeholder = NULL),
-  helpText(h2("Farm Location")),
-  leafletOutput("mymap"),
-  helpText("Please zoom to state level and add a location marker in the water where the oysters were harvested from"),
-  
-  tableOutput('loctable'),
-  
-  
+  helpText("Units for nutrient removal:"),
+  # selectInput("units", strong("Units:"),c("Pounds (lbs)", "Kilograms (kg)")),
+  radioButtons(
+    "units",
+    strong("Units:"),
+    choices =c("Pounds (lbs)", "Kilograms (kg)"),
+    selected ="Pounds (lbs)",
+    inline = T),
+  helpText(br()),
   
   mainPanel(
     tabsetPanel(
@@ -71,7 +84,7 @@ ui <- fluidPage(
                  label = "Download PDF"
                )
       ),
-      tabPanel("Harvest estimator",
+      tabPanel("Harvest Estimator",
                numericInput("Nload", "Nitrogen load into waterbody (lbs N) ", 0, min=0, max=NA),
                helpText("This will estimate the number of oysters required for harvest in order to offset the specified N load"),
                sliderInput(
@@ -95,13 +108,13 @@ ui <- fluidPage(
                tags$p(
                  h2(strong("Background")),
                  p("Shellfish incorporate nutrients into their tissues and shell as they grow. At harvest, these nutrients are permanently removed from the coastal environment, providing a benefit to water quality in the form of excess nutrient reduction. The Aquaculture Nutrient Removal Calculator (ANRC) is a tool designed for resource managers to inform shellfish aquaculture permitting. Resource managers have expressed interest in easy-to-use tools that produce location and operation-appropriate values for beneficial services, and they need the values to be produced in a format that aligns with their permitting process."
-                   ),
+                 ),
                  p("The nutrient removal calculations are based on relationships of oyster dry weight-to-length and the average nitrogen (N) concentrations in shell and tissue material. First, we estimate the weight of the oysters based on the typical size of oysters harvested on a farm. The weight estimates are based on non-linear quantile regressions of oyster shell height and dry-weight for both tissue and shell material. Next, the N portion of total oyster weight is calculated using the average N concentration value for both shell and tissue. Adding the tissue and shell nitrogen yields the total weight of  N per oyster. This result is scaled to the total number of oysters harvested, as input by the user."
-                   ),
+                 ),
                  br(),
                  h2(strong("Calculator Inputs")),
                  p("The Oyster Nutrient Removal Calculator can be used for new permit applications based on estimated production value or to provide information on existing farms from actual harvest numbers. The grower provides information on:"
-                   ),
+                 ),
                  p(strong("- Number of oysters harvested or to be harvested")
                  ),
                  p(strong("- Size of oysters at harvest")
@@ -113,11 +126,11 @@ ui <- fluidPage(
                  p(em("*We are actively seeking feedback from the aquaculture community on the inclusion of these factors, given the small effect that they had in our data analysis.")
                  ),
                  p("Farm location and period of harvest (1 day to 5 years) will be included as inputs for use in generating the report, but will not affect the calculation."
-                   ),
+                 ),
                  br(),
                  h2(strong("Summary")),
                  p("We have synthesized available literature for eastern oyster farms across the Northeast region (North Carolina to Maine), and applied methodology used by the Chesapeake Bay Program to calculate nutrient removal at harvest. Variability in oyster tissue and shell nutrient concentration was low, and an assessment of farm location, ploidy, and cultivation practice (with vs. without gear) suggested that a single average value could reasonably be applied across all farms."
-                   ),
+                 ),
                )
       ),
       
@@ -170,20 +183,20 @@ ui <- fluidPage(
       ),
       tabPanel("Disclaimer",
                h2(strong("Disclaimer")),
-                 p("This is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government."
-                   )
-               ),
+               p("This is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government."
+               )
+      ),
     )
   )
 )
-  
 
-  
+
+
 
 
 server <- function(input, output) {
   
-
+  
   output$mymap <- renderLeaflet({
     leaflet(height="50%") %>%
       addProviderTiles("Esri.OceanBasemap",group = "Ocean Basemap") %>%
@@ -219,108 +232,108 @@ server <- function(input, output) {
     )
   })
   
-
+  
+  
+  table <- reactive({
+    taval=1.42E-05
+    tbval=2.60727827
+    saval=0.00039042
+    sbval=2.579747757
+    tdw=taval*(input$hsize*25.4)^tbval
+    sdw=saval*(input$hsize*25.4)^sbval
     
-    table <- reactive({
-      taval=1.42E-05
-      tbval=2.60727827
-      saval=0.00039042
-      sbval=2.579747757
-      tdw=taval*(input$hsize*25.4)^tbval
-      sdw=saval*(input$hsize*25.4)^sbval
-      
-      #Convert dry weight of tissue and shell (g) to nutrients (g)
-      tNi=reactiveValues()
-      sNi=reactiveValues()
-      tNi=0.0796*tdw
-      sNi=0.0019*sdw
-      
-      #convert grams N to lbs or kg
-      cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
-      tN=reactiveValues()
-      tN=round((tNi*cnvrt*input$Num),1)
-      sN=reactiveValues()
-      sN=round((sNi*cnvrt*input$Num),1)
-      data.frame("Shell N"=sN, "Tissue N"=tN, "Total N"=sN+tN, "Units"=input$units)
-      })
+    #Convert dry weight of tissue and shell (g) to nutrients (g)
+    tNi=reactiveValues()
+    sNi=reactiveValues()
+    tNi=0.0796*tdw
+    sNi=0.0019*sdw
     
-    # estimate number of oysters required for N load
-    esttable <- reactive({
-      taval=1.42E-05
-      tbval=2.60727827
-      saval=0.00039042
-      sbval=2.579747757
-      tdw=taval*(input$hsize2*25.4)^tbval
-      sdw=saval*(input$hsize2*25.4)^sbval
-      
-      #Convert dry weight of tissue and shell (g) to nutrients (g)
-      tNi=reactiveValues()
-      sNi=reactiveValues()
-      tNi=0.0796*tdw
-      sNi=0.0019*sdw
-      
-      #convert grams N to lbs
-      cnvrt=0.00220462
-      # tN=reactiveValues()
-      tN=tNi*cnvrt
-      # sN=reactiveValues()
-      sN=sNi*cnvrt
-      ReNum=round(input$Nload/(sN+tN),-3)
-      data.frame("Total N load "=input$Nload, "Number of oyster to harvest"=ReNum)
+    #convert grams N to lbs or kg
+    cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+    tN=reactiveValues()
+    tN=round((tNi*cnvrt*input$Num),1)
+    sN=reactiveValues()
+    sN=round((sNi*cnvrt*input$Num),1)
+    data.frame("Shell N"=sN, "Tissue N"=tN, "Total N"=sN+tN, "Units"=input$units)
+  })
+  
+  # estimate number of oysters required for N load
+  esttable <- reactive({
+    taval=1.42E-05
+    tbval=2.60727827
+    saval=0.00039042
+    sbval=2.579747757
+    tdw=taval*(input$hsize2*25.4)^tbval
+    sdw=saval*(input$hsize2*25.4)^sbval
+    
+    #Convert dry weight of tissue and shell (g) to nutrients (g)
+    tNi=reactiveValues()
+    sNi=reactiveValues()
+    tNi=0.0796*tdw
+    sNi=0.0019*sdw
+    
+    #convert grams N to lbs
+    cnvrt=0.00220462
+    # tN=reactiveValues()
+    tN=tNi*cnvrt
+    # sN=reactiveValues()
+    sN=sNi*cnvrt
+    ReNum=round(input$Nload/(sN+tN),-3)
+    data.frame("Total N load "=input$Nload, "Number of oyster to harvest"=ReNum)
+  })
+  
+  plot <- reactive({
+    taval=1.42E-05
+    tbval=2.60727827
+    saval=0.00039042
+    sbval=2.579747757
+    tdw=taval*((input$hsize*25.4)^tbval)
+    sdw=saval*((input$hsize*25.4)^sbval)
+    
+    #Convert dry weight of tissue and shell (g) to nutrients (g)
+    # tNi=reactiveValues()
+    # sNi=reactiveValues()
+    tNi=(0.0796*tdw)*input$Num
+    sNi=(0.0019*sdw)*input$Num
+    
+    #convert grams N to lbs or kg
+    cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+    # tN=reactiveValues()
+    tN=round((tNi*cnvrt),1)
+    # sN=reactiveValues()
+    sN=round((sNi*cnvrt),1)
+    # barplot(c(tN, sN), col = 'lightgray', border = 'white', xlab="N removal", 
+    #         names.arg=c("Tissue N", "Shell N"), ylab=input$units)
+    # df=data.frame("Tissue N"=tN,"Shell N"=sN, "Total N"=sN+tN, "Units"=input$units)
+    df=data.frame(matrix(tN, nrow=1, ncol=1))
+    colnames(df)="N"
+    df$var="Tissue"
+    df=rbind(df, list(N=sN,var="Shell" ))
+    df=rbind(df, list(N=sN+tN,var="Total" ))
+    df$units=input$units
+    
+    P=ggplot(df, aes(x=var, y=N))+
+      geom_bar(stat="identity" , fill="steelblue", width = 0.65,)+
+      theme_minimal()+
+      ylab(input$units)+
+      xlab("Nitrogen Removed")
+    P
+  })
+  
+  
+  # Output Components
+  output$nutbplot <- 
+    renderPlot({
+      plot()
     })
-    
-    plot <- reactive({
-      taval=1.42E-05
-      tbval=2.60727827
-      saval=0.00039042
-      sbval=2.579747757
-      tdw=taval*((input$hsize*25.4)^tbval)
-      sdw=saval*((input$hsize*25.4)^sbval)
-      
-      #Convert dry weight of tissue and shell (g) to nutrients (g)
-      # tNi=reactiveValues()
-      # sNi=reactiveValues()
-      tNi=(0.0796*tdw)*input$Num
-      sNi=(0.0019*sdw)*input$Num
-      
-      #convert grams N to lbs or kg
-      cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
-      # tN=reactiveValues()
-      tN=round((tNi*cnvrt),1)
-      # sN=reactiveValues()
-      sN=round((sNi*cnvrt),1)
-      # barplot(c(tN, sN), col = 'lightgray', border = 'white', xlab="N removal", 
-      #         names.arg=c("Tissue N", "Shell N"), ylab=input$units)
-      # df=data.frame("Tissue N"=tN,"Shell N"=sN, "Total N"=sN+tN, "Units"=input$units)
-      df=data.frame(matrix(tN, nrow=1, ncol=1))
-      colnames(df)="N"
-      df$var="Tissue"
-      df=rbind(df, list(N=sN,var="Shell" ))
-      df=rbind(df, list(N=sN+tN,var="Total" ))
-      df$units=input$units
-      
-      P=ggplot(df, aes(x=var, y=N))+
-        geom_bar(stat="identity" , fill="steelblue")+
-        theme_minimal()+
-        ylab(input$units)+
-        xlab("Nitrogen Removed")
-      P
-      })
-    
-
-    # Output Components
-    output$nutbplot <- 
-      renderPlot({
-        plot()
-      })
-    output$mytable <-
-      renderTable({
-        table()
-      })
-    output$mytable2 <-
-      renderTable({
-        esttable()
-      })
+  output$mytable <-
+    renderTable({
+      table()
+    })
+  output$mytable2 <-
+    renderTable({
+      esttable()
+    })
   
   # observeEvent(input$add, {
   #   output_name <- paste0("out_", input$add)

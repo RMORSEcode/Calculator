@@ -8,61 +8,30 @@ wd="C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem
 s1=match("Poach et al. in prep 2023", Main$Data_Source) # start of Poach data (after end of CB)
 MainNoCB=Main[s1:dim(Main)[1],]
 RegionFarm=MainNoCB %>% filter(!(Waterbody_Region %in% c("Jamaica Bay", "Hudson River", "Raritan Bay")))
-
 ## fix second column name assignment for Tissue Carbon
 # test=as.matrix(RegionFarm$Tissue_TC_g_C_per_g_dw)
 # colnames(test)=NULL
 # RegionFarm=RegionFarm %>% dplyr::select(-Tissue_TC_g_C_per_g_dw)
 # RegionFarm$Tissue_TC_g_C_per_g_dw=test[,1]
-## reorder columns
-colnames(RegionFarm)
-RegionFarm=RegionFarm[,c(1:28,63,60)]
-outfile=RegionFarm %>% select(-c(Raw_Data_File, Number_ID))
+# ## reorder columns
+# colnames(RegionFarm)
+# RegionFarm=RegionFarm[,c(1:5,58,6:8,61,9:28,62,59,29:34,56,35:55,57,60)]
+outfile=RegionFarm %>% select(-c(Raw_Data_File, Number_ID,-Condition_Index:Shell_Wet_Weight_g))
 write.csv(outfile, file=paste(wd,'RegionFarm.csv', sep=''),row.names=FALSE)
 
-## Write out CB data for zenodo inclusion
+## Write out CB data for Zenodo inclusion
 CB2=Main[1:s1-1,]
-test=as.matrix(CB2$Tissue_TC_g_C_per_g_dw)
-colnames(test)=NULL
-CB2=CB2 %>% dplyr::select(-Tissue_TC_g_C_per_g_dw)
-CB2$Tissue_TC_g_C_per_g_dw=test[,1]
-outfile=CB2 %>% select(-(Volume_ml:Shell_Organic_C_Percent))
+# test=as.matrix(CB2$Tissue_TC_g_C_per_g_dw)
+# colnames(test)=NULL
+# CB2=CB2 %>% dplyr::select(-Tissue_TC_g_C_per_g_dw)
+# CB2$Tissue_TC_g_C_per_g_dw=test[,1]
+outfile=CB2 %>% select(-(c(Shell_Organic_C_Percent, Raw_Data_File, Number_ID,Location_Index,Site_within_Study,Month_Oysters_Removed,Year_Oysters_Removed,
+      Total_Shell_Height_Length_Inches , Waterbody_Region,Volume_ml:Gear_Class)))
+# cut=c("Raw_Data_File", "Number_ID","Location_Index","Site_within_Study","Month_Oysters_Removed","Year_Oysters_Removed",
+#       "Total_Shell_Height_Length_Inches" , "Waterbody_Region","Shell_Organic_C_Percent")
 write.csv(outfile, file=paste(wd,'CB2023oysterBMP.csv', sep=''),row.names=FALSE)
 
-## fix second column name assignment for Tissue Carbon in Main
-Main2=Main
-test=as.matrix(Main2$Tissue_TC_g_C_per_g_dw)
-colnames(test)=NULL
-Main2=Main2 %>% dplyr::select(-Tissue_TC_g_C_per_g_dw)
-Main2$Tissue_TC_g_C_per_g_dw=test[,1]
-## fix issue from NC with 'Tissue_TN_g_C_per_g_dw'
-# colnames(Main)
-test=Main[,c(30,57,29)]
-t2=complete.cases(test)
-# sum(t2)
-# t3=test[t2,]
-# View(t3)
-# NC=Main[complete.cases(Main$Tissue_TN_g_C_per_g_dw),]
-oldcolN.C=Main$Tissue_TN_g_C_per_g_dw # for NC this is gN/g sample
-oldcolN.N=Main$Tissue_TN_g_N_per_g_dw # for NC data this is sample N content (g)
-newcolN.N=oldcolN.N
-newcolN.N[t2]=oldcolN.C[t2] # replace bad values for NC with real values
-Main2$Tissue_TN_g_N_per_g_dw=newcolN.N
-# NC=Main2[complete.cases(Main2$Tissue_TN_g_C_per_g_dw),]
-# outfile=Main2 %>% select(-(Volume_ml:Shell_Organic_C_Percent))
-# write.csv(outfile, file=paste(wd,'Main2.csv', sep=''),row.names=FALSE)
-Main=Main2
-
-# Fix N and C spillover from Merge on Darrow_N
-Main2[which(Main2$st_abrv=="NC"),"Tissue_TN_g_N_per_g_dw"]=NA
-Main2[which(Main2$st_abrv=="NC"),"Tissue_N_Percent"]=NA
-Main2[which(Main2$st_abrv=="NC"),"Tissue_TC_g_C_per_g_dw"]=NA
-Main2[which(Main2$st_abrv=="NC"),"Tissue_C_Percent"]=NA
-Main2[which(Main2$st_abrv=="NC"),"Tissue_CN_molar"]=NA
-Main2=bind_rows(Main2, darx) # add 11 N and C values back
-Main=Main2 %>% select(-Tissue_TN_g_C_per_g_dw) # drop error column
-
-
+"Shell_Organic_C_Percent"
 
 
 
@@ -79,6 +48,26 @@ with(RegionFarm, table(complete.cases(Tissue_N_Percent), st_abrv))
 with(RegionFarm, table(complete.cases(Shell_N_Percent), Ploidy))
 with(RegionFarm, table(complete.cases(Shell_N_Percent), Gear_Class))
 with(RegionFarm, table(complete.cases(Shell_N_Percent), st_abrv))
+
+### summarize data for tables
+## state
+test=RegionFarm %>% select(st_abrv, Ploidy, Tissue_N_Percent, Shell_N_Percent) %>% 
+  group_by(st_abrv) %>%
+  summarise(mnNt=mean(Tissue_N_Percent, na.rm=T), sdNt=sd(Tissue_N_Percent, na.rm=T),
+            mnNs=mean(Shell_N_Percent, na.rm=T), sdNs=sd(Shell_N_Percent, na.rm=T))
+write.csv(test, file=paste(wd,"state_mean_N_",dat,".csv", sep=''))
+### ploidy
+test=RegionFarm %>% select(Ploidy, Tissue_N_Percent, Shell_N_Percent) %>% 
+  group_by(Ploidy) %>%
+  summarise(mnNt=mean(Tissue_N_Percent, na.rm=T), sdNt=sd(Tissue_N_Percent, na.rm=T),
+            mnNs=mean(Shell_N_Percent, na.rm=T), sdNs=sd(Shell_N_Percent, na.rm=T))
+write.csv(test, file=paste(wd,"ploidy_mean_N_",dat,".csv", sep=''))
+### gear
+test=RegionFarm %>% select(Gear_Class, Tissue_N_Percent, Shell_N_Percent) %>% 
+  group_by(Gear_Class) %>%
+  summarise(mnNt=mean(Tissue_N_Percent, na.rm=T), sdNt=sd(Tissue_N_Percent, na.rm=T),
+            mnNs=mean(Shell_N_Percent, na.rm=T), sdNs=sd(Shell_N_Percent, na.rm=T))
+write.csv(test, file=paste(wd,"gear_mean_N_",dat,".csv", sep=''))
 
 ### overlay with states
 ### regressions for gear
@@ -895,9 +884,23 @@ legend('topleft', bty='n',
 RegionFarm %>% ggplot(aes(x=Total_Shell_Height_Length_mm, y=Tissue_Dry_Weight_g)) +  labs(y='DW (g)', x='SH (mm)') + xlim(0,140) + ylim(0,7) +
   geom_point(aes(color=st_abrv))   
 
+### testing effect of removing data sources on Panel 
+CB2=Main[1:s1-1,] %>% filter(Data_Source!="Powell_Mann") 
+plot(RegionFarm$Tissue_Dry_Weight_g ~ RegionFarm$Total_Shell_Height_Length_mm, type='n', ylim=c(0,8), xlim=c(0,150), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
+points(CB$Tissue_Dry_Weight_g ~CB$Total_Shell_Height_Length_mm, pch=19, col='red')# rgb(red = 0.52, green = 0.52, blue = 0.52, alpha = 0.1))
+points(Main$Tissue_Dry_Weight_g[1:s1-1] ~Main$Total_Shell_Height_Length_mm[1:s1-1], pch=19, col='yellow')# rgb(red = 0.52, green = 0.52, blue = 0.52, alpha = 0.1))
+points(CB2$Tissue_Dry_Weight_g ~CB2$Total_Shell_Height_Length_mm, pch=19, col='gray70')# rgb(red = 0.52, green = 0.52, blue = 0.52, alpha = 0.1))
+legend('topleft', pch=c(19,19,19), col=c('red', 'yellow', 'gray70'), legend=c('All', '-K_H & K_O', '- P_M'), bty='n')
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = Main[1:s1-1,], start = list(a = 0.00037, b = 1.83359), tau=0.5)
+a=summary(qrxs99)$coefficients[1,1]
+b=summary(qrxs99)$coefficients[2,1]
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+lines(x, yval, col='red', lwd=2, lty=1)
+
 ## plot CB data with RegionFarm overlay
 plot(RegionFarm$Tissue_Dry_Weight_g ~ RegionFarm$Total_Shell_Height_Length_mm, type='n', ylim=c(0,8), xlim=c(0,150), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
-points(Main$Tissue_Dry_Weight_g[1:s1-1] ~Main$Total_Shell_Height_Length_mm[1:s1-1], pch=19, col='gray70')# rgb(red = 0.52, green = 0.52, blue = 0.52, alpha = 0.1))
+points(Main$Tissue_Dry_Weight_g[1:s1-1] ~Main$Total_Shell_Height_Length_mm[1:s1-1], pch=19, col='gray40')# rgb(red = 0.52, green = 0.52, blue = 0.52, alpha = 0.1))
 # points(RegionFarm$Tissue_Dry_Weight_g ~RegionFarm$Total_Shell_Height_Length_mm, pch=24, col=rgb(red = 1, green = 0, blue = 0, alpha = 0.2))
 points(RegionFarm$Tissue_Dry_Weight_g ~RegionFarm$Total_Shell_Height_Length_mm, pch=17, col=rgb(red = 1, green = 0, blue = 0, alpha = 0.2))
 legend('topleft', pch=c(19, 17), col=c('gray70',rgb(red = 1, green = 0, blue = 0, alpha = 0.2)), legend=c("CBP 2023", "This study"), bty='n')
@@ -909,7 +912,7 @@ a=summary(qrx)$coefficients[1,1]
 b=summary(qrx)$coefficients[2,1]
 x=seq(0, 150, length = 250)
 yval=(a*(x^b))
-lines(x, yval, col='black', lwd=2, lty=2)
+lines(x, yval, col='red', lwd=2, lty=1)
 qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = RegionFarm, start = list(a = 0.00037, b = 1.83359), tau=0.5)
 print(summary(qrx))
 a=summary(qrx)$coefficients[1,1]
@@ -949,6 +952,36 @@ yvalu=((a+ae)*(x^(b+be)))
 yvall=((a-ae)*(x^(b-be)))
 lines(x, yvalu, col='green', lwd=2, lty=2)
 lines(x, yvall, col='green', lwd=2, lty=2)
+
+legend('topleft', lty=c(1,2,1,2),col=c('red','red','black', 'black'), legend=c("99 no P-M","99 Full", "95 no P-M", "95 Full"), bty='n')
+
+
+## plot CB data with RegionFarm overlay (shells)
+plot(RegionFarm$Shell_Dry_Weight_g ~ RegionFarm$Total_Shell_Height_Length_mm, type='n', ylim=c(0,150), xlim=c(0,150), ylab="Shell dry weight (g)", xlab="Shell height (mm)", las=1)
+points(Main$Shell_Dry_Weight_g[1:s1-1] ~Main$Total_Shell_Height_Length_mm[1:s1-1], pch=19, col='gray70')# rgb(red = 0.52, green = 0.52, blue = 0.52, alpha = 0.1))
+# points(RegionFarm$Tissue_Dry_Weight_g ~RegionFarm$Total_Shell_Height_Length_mm, pch=24, col=rgb(red = 1, green = 0, blue = 0, alpha = 0.2))
+points(RegionFarm$Shell_Dry_Weight_g ~RegionFarm$Total_Shell_Height_Length_mm, pch=17, col=rgb(red = 1, green = 0, blue = 0, alpha = 0.2))
+legend('topleft', pch=c(19, 17), col=c('gray70',rgb(red = 1, green = 0, blue = 0, alpha = 0.2)), legend=c("CBP 2023", "This study"), bty='n')
+# text(25,6, labels=paste('Y=',round(a,6),'*X^',round(b,3),sep=''), cex=1)
+## plot 50th quantile for all data in each data set
+qrx=nlrq(Shell_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = Main[1:s1-1,], start = list(a = 0.0007, b = 2), tau=0.5)
+print(summary(qrx))
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+lines(x, yval, col='black', lwd=2, lty=2)
+qrx=nlrq(Shell_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = RegionFarm, start = list(a = 0.0007, b = 2), tau=0.5)
+print(summary(qrx))
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+lines(x, yval, col='black', lwd=2, lty=1)
+a2=round(a,6)
+b2=round(b,3)
+text(25,120, labels=bquote(Y==.(a2)*X^.(b2)), cex=1)
+
 # create scatter plot using ggplot() function
 plot <- ggplot(RegionFarm, aes(x=Total_Shell_Height_Length_mm, y=Tissue_Dry_Weight_g))+
   geom_point()+
