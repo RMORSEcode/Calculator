@@ -50,25 +50,30 @@ with(RegionFarm, table(complete.cases(Shell_N_Percent), Gear_Class))
 with(RegionFarm, table(complete.cases(Shell_N_Percent), st_abrv))
 
 ### summarize data for tables
+## overall
+test=RegionFarm[complete.cases(RegionFarm$Tissue_N_Percent),] %>% select(Tissue_N_Percent, Shell_N_Percent) %>% 
+    summarise(mnNt=mean(Tissue_N_Percent, na.rm=T), sdNt=sd(Tissue_N_Percent, na.rm=T), nNT=n(),
+            mnNs=mean(Shell_N_Percent, na.rm=T), sdNs=sd(Shell_N_Percent, na.rm=T), nNS=n())
+write.csv(test, file=paste(wd,"overall_mean_N_",dat,".csv", sep=''))
 ## state
-test=RegionFarm %>% select(st_abrv, Ploidy, Tissue_N_Percent, Shell_N_Percent) %>% 
+test=RegionFarm[complete.cases(RegionFarm$Tissue_N_Percent),] %>% select(st_abrv, Ploidy, Tissue_N_Percent, Shell_N_Percent) %>% 
   group_by(st_abrv) %>%
   summarise(mnNt=mean(Tissue_N_Percent, na.rm=T), sdNt=sd(Tissue_N_Percent, na.rm=T),
-            mnNs=mean(Shell_N_Percent, na.rm=T), sdNs=sd(Shell_N_Percent, na.rm=T))
+            nNT=n(), mnNs=mean(Shell_N_Percent, na.rm=T), sdNs=sd(Shell_N_Percent, na.rm=T))
 write.csv(test, file=paste(wd,"state_mean_N_",dat,".csv", sep=''))
 ### ploidy
-test=RegionFarm %>% select(Ploidy, Tissue_N_Percent, Shell_N_Percent) %>% 
+test=RegionFarm[complete.cases(RegionFarm$Tissue_N_Percent),] %>% select(Ploidy, Tissue_N_Percent, Shell_N_Percent) %>% 
   group_by(Ploidy) %>%
   summarise(mnNt=mean(Tissue_N_Percent, na.rm=T), sdNt=sd(Tissue_N_Percent, na.rm=T),
-            mnNs=mean(Shell_N_Percent, na.rm=T), sdNs=sd(Shell_N_Percent, na.rm=T))
+            nNT=n(), mnNs=mean(Shell_N_Percent, na.rm=T), sdNs=sd(Shell_N_Percent, na.rm=T))
 write.csv(test, file=paste(wd,"ploidy_mean_N_",dat,".csv", sep=''))
 ### gear
-test=RegionFarm %>% select(Gear_Class, Tissue_N_Percent, Shell_N_Percent) %>% 
+test=RegionFarm[complete.cases(RegionFarm$Tissue_N_Percent),] %>% select(Gear_Class, Tissue_N_Percent, Shell_N_Percent) %>% 
   group_by(Gear_Class) %>%
   summarise(mnNt=mean(Tissue_N_Percent, na.rm=T), sdNt=sd(Tissue_N_Percent, na.rm=T),
-            mnNs=mean(Shell_N_Percent, na.rm=T), sdNs=sd(Shell_N_Percent, na.rm=T))
+            nNT=n(), mnNs=mean(Shell_N_Percent, na.rm=T), sdNs=sd(Shell_N_Percent, na.rm=T))
 write.csv(test, file=paste(wd,"gear_mean_N_",dat,".csv", sep=''))
-
+with(RegionFarm[complete.cases(RegionFarm$Tissue_N_Percent),], table(st_abrv, Gear_Class))
 ### overlay with states
 ### regressions for gear
 ### regressions for states
