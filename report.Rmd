@@ -1,7 +1,7 @@
 ---
 title: |
   ![](noaa-emblem-rgb-sm2-2022.png){width=0.75in}
-  "US East Coast Oyster Nutrient Removal Calculator"
+  "Aquaculture Nutrient Removal Calculator"
 output: pdf_document
 date: "`r format(Sys.Date(),'%B %e, %Y')`"
 params: 

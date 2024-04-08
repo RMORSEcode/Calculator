@@ -21,6 +21,7 @@ write.csv(outfile, file=paste(wd,'RegionFarm.csv', sep=''),row.names=FALSE)
 
 ## Write out CB data for Zenodo inclusion
 CB2=Main[1:s1-1,]
+CB2=CB2 %>% filter(Data_Source!="Powell_Mann") # drop Powell_Mann ( Mann, Southworth, and Wesson unpubl.)
 # test=as.matrix(CB2$Tissue_TC_g_C_per_g_dw)
 # colnames(test)=NULL
 # CB2=CB2 %>% dplyr::select(-Tissue_TC_g_C_per_g_dw)
@@ -31,7 +32,7 @@ outfile=CB2 %>% select(-(c(Shell_Organic_C_Percent, Raw_Data_File, Number_ID,Loc
 #       "Total_Shell_Height_Length_Inches" , "Waterbody_Region","Shell_Organic_C_Percent")
 write.csv(outfile, file=paste(wd,'CB2023oysterBMP.csv', sep=''),row.names=FALSE)
 
-"Shell_Organic_C_Percent"
+
 
 
 
