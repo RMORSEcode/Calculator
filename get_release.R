@@ -13,7 +13,8 @@
 get_release <- function() {
   # Define repo information, pull release names from GH API
   repo <- 'https://api.github.com/repos/RMORSECode/Calculator/releases'
-  #repo <- 'https://api.github.com/repos/NOAA-EDAB/stocksmart/releases'
+  repo <- 'https://github.com/RMORSEcode/Calculator/releases/'
+  # repo <- 'https://api.github.com/repos/NOAA-EDAB/stocksmart/releases'
   # pull all releases and picks out a few of the components
   releaseNames <- jsonlite::fromJSON(repo)$name
   releaseTags <- jsonlite::fromJSON(repo)$tag_name

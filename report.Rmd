@@ -92,7 +92,7 @@ knitr::kable(params[["table"]],
              caption="N Removal")
 ```
 
-```{r, fig.dim = c(2, 4), echo=FALSE}
+```{r, fig.dim = c(4, 4), echo=FALSE}
 params[["plot"]]
 ```
 
@@ -109,8 +109,8 @@ RI: Suzy Ayvazian *EPA Narragansett*
 CT: Skylar Bayer, Matt Poach, Shannon Meseck, Julie Rose *NOAA Milford*  
 NY: Jeff Levinton, Daria Sebastiano *Stony Brook University*  
 NJ: Daphne Munroe, Janine Barr *Rutgers University*  
-MD: Matt Poach *NOAA Milford*, Julie Reichert-Nguyen *NOAA Chesapeake Bay Office*, Suzanne Bricker *NOAA Oxford*, Matt Parker *NOAA Oxford*  
-VA: Matt Poach *NOAA Milford*, Julie Reichert-Nguyen *NOAA Chesapeake Bay Office*, Suzanne Bricker *NOAA Oxford*, Matt Parker *NOAA Oxford*  
+MD: Matt Poach *NOAA Milford*, Julie Reichert-Nguyen *NOAA Chesapeake Bay Office*, Suzanne Bricker *NOAA Oxford*, Matt Parker *Maryland Sea Grant*  
+VA: Matt Poach *NOAA Milford*, Julie Reichert-Nguyen *NOAA Chesapeake Bay Office*, Suzanne Bricker *NOAA Oxford*, Matt Parker *Maryland Sea Grant*  
 NC: Beth Darrow, Jessica Kinsella *University of North Carolina Wilmington*  
   
   
@@ -127,4 +127,12 @@ NC: Beth Darrow, Jessica Kinsella *University of North Carolina Wilmington*
   
   
 # **Disclaimer**  
-This is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government.
+This is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government.  
+
+**Caclulator Version:**  
+```{r, echo=FALSE}
+releases <- gh("GET /repos/{owner}/{repo}/releases", 
+               owner = "RMORSEcode",
+               repo = "Calculator")
+releases[[1]][["name"]]
+```
