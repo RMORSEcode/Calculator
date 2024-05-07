@@ -1,4 +1,5 @@
-# https://connect.fisheries.noaa.gov/Oyster-Calculator/
+# https://test-connect.fisheries.noaa.gov/Calculator/ NOAA internal
+# https://connect.fisheries.noaa.gov/Oyster-Calculator/ open upon approval of MS
 library(shiny)
 library(leaflet)
 library(leaflet.extras)
@@ -12,7 +13,8 @@ ui <- fluidPage(
   ### Title ###
   # theme = bslib::bs_theme(bootswatch = "lux"),
   # shinythemes::themeSelector(),
-  theme = bslib::bs_theme(bootswatch = "superhero"),
+  # theme = bslib::bs_theme(bootswatch = "superhero"),
+  theme = bslib::bs_theme(bootswatch = "cerulean"),
   # tags$img(src='swooshgn2.png'),
   # titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
   # titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
@@ -246,7 +248,7 @@ server <- function(input, output) {
     
   output$mymap <- renderLeaflet({
     leaflet(height="50%") %>%
-      addProviderTiles("Esri.OceanBasemap",group = "Ocean Basemap") %>%
+      # addProviderTiles("Esri.OceanBasemap",group = "Ocean Basemap") %>%
       addTiles() %>%
       setView(lng = -70, lat = 40, zoom = 5) %>%
       addDrawToolbar(

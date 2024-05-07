@@ -26,14 +26,35 @@ CB2=CB2 %>% filter(Data_Source!="Powell_Mann") # drop Powell_Mann ( Mann, Southw
 # colnames(test)=NULL
 # CB2=CB2 %>% dplyr::select(-Tissue_TC_g_C_per_g_dw)
 # CB2$Tissue_TC_g_C_per_g_dw=test[,1]
-outfile=CB2 %>% select(-(c(Shell_Organic_C_Percent, Raw_Data_File, Number_ID,Location_Index,Site_within_Study,Month_Oysters_Removed,Year_Oysters_Removed,
+### fix entries
+CB2$Site[which(CB2$Site=="budder")]="budden"
+CB2$Subtidal_Intertidal_WaterColumn_Other[which(CB2$Subtidal_Intertidal_WaterColumn_Other=="Other")]=NA
+CB2$Hatchery_produced_or_Wild[which(CB2$Hatchery_produced_or_Wild=="?")]=NA
+CB2$Season_Oysters_Removed[which(CB2$Season_Oysters_Removed=="?")]=NA
+CB2$Oyster_Stock[which(CB2$Oyster_Stock=="?")]=NA
+
+outfile=CB2 %>% select(-(c(Near_Waterbody_General_Location, Shell_Organic_C_Percent, Raw_Data_File, Number_ID,Location_Index,Site_within_Study,Month_Oysters_Removed,Year_Oysters_Removed,
       Total_Shell_Height_Length_Inches , Waterbody_Region,Volume_ml:Gear_Class)))
-# cut=c("Raw_Data_File", "Number_ID","Location_Index","Site_within_Study","Month_Oysters_Removed","Year_Oysters_Removed",
-#       "Total_Shell_Height_Length_Inches" , "Waterbody_Region","Shell_Organic_C_Percent")
+outfile=outfile[,c(1:24,26,25,28,27,29,31,30,33,32,35,34,36:38)]
+colnames(outfile)
+colnames(outfile)[9]
+colnames(outfile)[9]="Subtidal_Intertidal_WaterColumn"
+outfile$Data_Source[which(outfile$Data_Source=="Parker-unpubl")]="Parker-Bricker"
 write.csv(outfile, file=paste(wd,'CB2023oysterBMP.csv', sep=''),row.names=FALSE)
 
 
-
+Main[1:s1-1,] %>% select(Total_Shell_Height_Length_mm, Tissue_Dry_Weight_g, ) %>% 
+  ggplot(aes(y=Tissue_N_Percent, x=st_abrv)) + 
+  geom_boxplot(color = "black", notch=T, fill="gray") +
+  theme_classic()+
+  labs(x='', y = 'Tissue N Percent') +
+  coord_cartesian(ylim = c(0, 15))+
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(legend.position = "none") +
+  theme(text = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 20)) 
 
 
 ## tables used in paper
@@ -49,6 +70,9 @@ with(RegionFarm, table(complete.cases(Tissue_N_Percent), st_abrv))
 with(RegionFarm, table(complete.cases(Shell_N_Percent), Ploidy))
 with(RegionFarm, table(complete.cases(Shell_N_Percent), Gear_Class))
 with(RegionFarm, table(complete.cases(Shell_N_Percent), st_abrv))
+
+with(RegionFarm[RegionFarm$st_abrv=="ME",], table(Site, Ploidy, st_abrv))
+
 
 ### summarize data for tables
 ## overall
@@ -79,6 +103,11 @@ with(RegionFarm[complete.cases(RegionFarm$Tissue_N_Percent),], table(st_abrv, Ge
 ### regressions for gear
 ### regressions for states
 ### compare N reduction with and w/o NY data
+with(RegionFarm[complete.cases(RegionFarm$Tissue_N_Percent),], table(Location_Index,st_abrv))
+with(RegionFarm[complete.cases(RegionFarm$Tissue_N_Percent),], table(Near_Waterbody_General_Location,st_abrv))
+with(RegionFarm[complete.cases(RegionFarm$Tissue_N_Percent),], table(Waterbody_Name,st_abrv))
+
+
 
 mcol=c('cyan','black', 'red', 'blue', 'orange', 'brown', 'yellow', 'purple', 'green', 'gray50', 'maroon')
 colrs=col2rgb(mcol)
@@ -99,22 +128,24 @@ t_col <- function(color, percent = 50, name = NULL) {
   ## Save the color
   invisible(t.col)
 }
-t.col=rgb(mcol, 50)
+t.col=t_col(mcol, 50)
 
 stt=sort(unique(RegionFarm$st_abrv))
 plot(RegionFarm$Tissue_Dry_Weight_g ~ RegionFarm$Total_Shell_Height_Length_mm, type='n', 
-     ylim=c(0,8), xlim=c(0,150), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
+     ylim=c(0,10), xlim=c(0,200), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
 for(i in 1:length(stt)){
   dataa2=RegionFarm[RegionFarm$st_abrv==stt[i],]
-  points(dataa2$Tissue_Dry_Weight_g ~dataa2$Total_Shell_Height_Length_mm, pch=19, col=mcol[i], ylim=c(0,8), xlim=c(0,200))
+  mcol2=data.frame(col2rgb(mcol))
+  colr=rgb(red = mcol2[1,i], green=mcol2[2,i], blue=mcol2[3,i], alpha=30, maxColorValue = 255)
+  points(dataa2$Tissue_Dry_Weight_g ~dataa2$Total_Shell_Height_Length_mm, pch=19, col=colr, ylim=c(0,8), xlim=c(0,200))
   qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = 0.00037, b = 1.83359), tau=0.5)
   a=summary(qrx)$coefficients[1,1]
   b=summary(qrx)$coefficients[2,1]
   x=seq(0, 150, length = 250)
   yval=(a*(x^b))
-  # lines(x, yval, col=ifelse(summary(qrx)$coefficients[1,4]<0.05, mcol[i], mcol[i]), lwd=ifelse(summary(qrx)$coefficients[1,4]<0.05, 2, 0))
+  lines(x, yval, col=ifelse(summary(qrx)$coefficients[1,4]<0.05, mcol[i], mcol[i]), lwd=ifelse(summary(qrx)$coefficients[1,4]<0.05, 2, 0))
   # lines(x, yval, col=mcol[i], lwd=2)
-  # text(180,yval[250], labels=ifelse(summary(qrx)$coefficients[1,4]<0.05, paste(stt[i],'*', sep=' '),''), col=mcol[i])
+  text(180,yval[250], labels=ifelse(summary(qrx)$coefficients[1,4]<0.05, paste(stt[i],'*', sep=' '),''), col=mcol[i])
   # text(180,yval[250], labels=ifelse(summary(qrx)$coefficients[1,4]<0.05, paste('Y=',round(a,6),'*X^',round(b,3),sep=''),''), cex=.75)
   
 }
@@ -123,7 +154,7 @@ legend('topleft', bty='n',
        text.col=mcol)
 
 plot(RegionFarm$Shell_Dry_Weight_g ~ RegionFarm$Total_Shell_Height_Length_mm, type='n', 
-     ylim=c(0,150), xlim=c(0,150), ylab="Shell dry weight (g)", xlab="Shell height (mm)", las=1)
+     ylim=c(0,200), xlim=c(0,200), ylab="Shell dry weight (g)", xlab="Shell height (mm)", las=1)
 for(i in c(1,3:6,9:length(stt))){
   dataa2=RegionFarm[RegionFarm$st_abrv==stt[i],]
   points(dataa2$Shell_Dry_Weight_g ~dataa2$Total_Shell_Height_Length_mm, pch=19, col=mcol[i], ylim=c(0,200), xlim=c(0,200))
@@ -132,15 +163,36 @@ for(i in c(1,3:6,9:length(stt))){
   b=summary(qrx)$coefficients[2,1]
   x=seq(0, 150, length = 250)
   yval=(a*(x^b))
-  # lines(x, yval, col=ifelse(summary(qrx)$coefficients[1,4]<0.05, mcol[i], mcol[i]), lwd=ifelse(summary(qrx)$coefficients[1,4]<0.05, 2, 1))
+  lines(x, yval, col=ifelse(summary(qrx)$coefficients[1,4]<0.05, mcol[i], mcol[i]), lwd=ifelse(summary(qrx)$coefficients[1,4]<0.05, 2, 1))
   # lines(x, yval, col=mcol[i], lwd=2)
-  # text(180,yval[250], labels=ifelse(summary(qrx)$coefficients[1,4]<0.05, paste(stt[i],'*', sep=' '),''), col=mcol[i])
+  text(180,yval[250], labels=ifelse(summary(qrx)$coefficients[1,4]<0.05, paste(stt[i],'*', sep=' '),''), col=mcol[i])
   # text(180,yval[250], labels=ifelse(summary(qrx)$coefficients[1,4]<0.05, paste('Y=',round(a,6),'*X^',round(b,3),sep=''),''), cex=.75)
   
 }
 legend('topleft', bty='n', 
        legend = stt, 
        text.col=mcol)
+
+
+## compare diploid and triploid in ME, floating gear
+plot(RegionFarm$Tissue_Dry_Weight_g ~ RegionFarm$Total_Shell_Height_Length_mm, ylim=c(0,10), xlim=c(0,200), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1, type='n')
+dataa2=RegionFarm %>% filter(Site=="Pemaquid Oyster Company",Ploidy=="Diploid", st_abrv=="ME")
+points(dataa2$Tissue_Dry_Weight_g ~dataa2$Total_Shell_Height_Length_mm, pch=19, col='pink', ylim=c(0,8), xlim=c(0,200))
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+lines(x, yval, col='red', lwd=2)
+dataa2=RegionFarm %>% filter(Site=="Pemaquid Oyster Company", Ploidy=="Triploid", st_abrv=="ME")
+points(dataa2$Tissue_Dry_Weight_g ~dataa2$Total_Shell_Height_Length_mm, pch=19, col='gray30', ylim=c(0,8), xlim=c(0,200))
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = dataa2, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+lines(x, yval, col='black', lwd=2)
+
 
 ### Gear Class w/ polygons for Tissue###
 ### add polygons of upper and lower fit (change tau for upper and lower)
@@ -320,7 +372,6 @@ points(Main$Tissue_Dry_Weight_g ~Main$Total_Shell_Height_Length_mm, pch=19, col=
 
 
 
-
 ### Ploidy Tissue
 plot(RegionFarm$Tissue_Dry_Weight_g ~ RegionFarm$Total_Shell_Height_Length_mm, type='n', 
      ylim=c(0,8), xlim=c(0,150), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
@@ -356,6 +407,9 @@ lines(x, yval, col=rgb(red = 1, green = 0, blue = 0, alpha = 0.9), lwd=2)
 legend('topleft', pch=19, col=c('blue', 'red'), legend=c("Diploid", "Triploid"), bty='n')
 # text(180,yval[250], labels=paste('Y=',round(a,6),'*X^',round(b,3),sep=''), cex=.75)
 # text(180,yval[250], labels="Triploid")
+abline(v=63.5, lty=2)
+abline(v=88.9, lty=2)
+
 
 table(RegionFarm$st_abrv[RegionFarm$Ploidy=="Triploid"])
 table(RegionFarm$st_abrv[RegionFarm$Ploidy=="Diploid"])
@@ -383,6 +437,8 @@ x=seq(0, 150, length = 250)
 yval=(a*(x^b))
 lines(x, yval, col=rgb(red = 1, green = 0, blue = 0, alpha = 0.9), lwd=2)
 legend('topleft', pch=19, col=c('blue', 'red'), legend=c("Diploid", "Triploid"), bty='n')
+abline(v=63.5, lty=2)
+abline(v=88.9, lty=2)
 # text(180,yval[250], labels=paste('Y=',round(a,6),'*X^',round(b,3),sep=''), cex=.75)
 
 # plot(Main$Tissue_Dry_Weight_g ~ Main$Total_Shell_Height_Length_mm, type='n', 
@@ -837,7 +893,7 @@ library(marmap)
 nesbath=getNOAA.bathy(lon1=-79,lon2=-68,lat1=31,lat2=45, resolution=10, keep=F)
 data(stateMapEnv)
 wd="C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/"
-stations=readxl::read_xlsx(paste(wd, "Location_data.xlsx", sep=''),sheet='final2')
+stations=readxl::read_xlsx(paste(wd, "Location_data.xlsx", sep=''),sheet='final2', range='A1:F33')
 
 par(mar = c(0,0,0,0))
 par(oma = c(0,0,0,0))
@@ -858,6 +914,29 @@ map.axes(las=1)
 map('state', fill = F, add=T) # add state lines
 points(stations$Longitude, stations$Latitude, pch=19, col='red')
 points(stations$Longitude, stations$Latitude, pch=21, col='black', bg='red', cex=1.15)
+
+# plot stations with N in different color
+stations2=stations %>% filter(Waterbody_Name %in% RegionFarm$Waterbody_Name[complete.cases(RegionFarm$Tissue_N_Percent)])
+stations3=stations %>% filter(!(Waterbody_Name %in% RegionFarm$Waterbody_Name[complete.cases(RegionFarm$Tissue_N_Percent)]))
+
+sta1=!(stations2 %in% stations)
+par(mar = c(0,0,0,0))
+par(oma = c(0,0,0,0))
+map("worldHires", xlim=c(-79,-68),ylim=c(33,45), fill=T,border=0,col="gray90")
+map('lakes', add=TRUE, fill=TRUE, col='white', boundary='black')
+map.axes(las=1)
+map('state', fill = F, add=T) # add state lines
+# points(stations$Longitude, stations$Latitude, pch=19, col='orange')
+# points(stations$Longitude, stations$Latitude, pch=21, col='black', bg='orange', cex=1.15)
+# points(stations2$Longitude, stations2$Latitude, pch=19, col='lightblue')
+# points(stations2$Longitude, stations2$Latitude, pch=21, col='black', bg='lightblue', cex=1.15)
+# points(stations2$Longitude, stations2$Latitude, pch=19, col='pink')
+# points(stations2$Longitude, stations2$Latitude, pch=21, col='black', bg='pink', cex=1.15)
+# points(stations$Longitude, stations$Latitude, pch=19, col='darkorange')
+points(stations3$Longitude, stations3$Latitude, pch=21, col='black', bg='darkorange', cex=1.15)
+# points(stations2$Longitude, stations2$Latitude, pch=19, col='lightgreen')
+points(stations2$Longitude, stations2$Latitude, pch=21, col='black', bg='purple', cex=1.15)
+legend(-75,36, pch=c(21,21), col='black', pt.bg=c('darkorange','purple'), legend=c('Morphometric data', 'Morphometric + N'), bty='n')
 
 RegionFarm %>% ggplot(aes(y=Tissue_Dry_Weight_g, x=Total_Shell_Height_Length_mm, color=Oyster_Growth_Location_Type))+ 
   geom_point()+
@@ -889,6 +968,43 @@ legend('topleft', bty='n',
        text.col=mcol)
 RegionFarm %>% ggplot(aes(x=Total_Shell_Height_Length_mm, y=Tissue_Dry_Weight_g)) +  labs(y='DW (g)', x='SH (mm)') + xlim(0,140) + ylim(0,7) +
   geom_point(aes(color=st_abrv))   
+
+### compare mid-Atlantic vs New England
+newEng=RegionFarm %>% filter(st_abrv %in% c("ME", "NH", "MA", "RI", "CT"))
+midAtl=RegionFarm %>% filter(!(st_abrv %in% c("ME", "NH", "MA", "RI", "CT")))
+###
+plot(RegionFarm$Tissue_Dry_Weight_g ~ RegionFarm$Total_Shell_Height_Length_mm, type='n', 
+     ylim=c(0,8), xlim=c(0,150), ylab="Tissue dry weight (g)", xlab="Shell height (mm)", las=1)
+points(newEng$Tissue_Dry_Weight_g ~newEng$Total_Shell_Height_Length_mm, pch=19, col='gray30', ylim=c(0,8), xlim=c(0,200))
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = newEng, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+points(midAtl$Tissue_Dry_Weight_g ~midAtl$Total_Shell_Height_Length_mm, pch=19, col=azul, ylim=c(0,8), xlim=c(0,200))
+lines(x, yval, col='black', lwd=2)
+qrx=nlrq(Tissue_Dry_Weight_g ~ a*Total_Shell_Height_Length_mm^b, data = midAtl, start = list(a = 0.00037, b = 1.83359), tau=0.5)
+a=summary(qrx)$coefficients[1,1]
+b=summary(qrx)$coefficients[2,1]
+x=seq(0, 150, length = 250)
+yval=(a*(x^b))
+lines(x, yval, col='blue', lwd=2)
+legend('topleft', pch=c(19,19), lty=c(1,1), lwd=2, col=c('gray30',azul),  legend=c("New England","Mid-Atlantic"), bty='n')
+legend('topleft', pch=c(NA,NA), lty=c(1,1), lwd=2, col=c('black', 'blue'), legend=c("New England","Mid-Atlantic"), bty='n')
+abline(v=63.5, lty=2)
+abline(v=88.9, lty=2)
+  
+col=rgb(red = 1, green = 0, blue = 0, alpha = 0.1)
+
+"#00AFBB"
+col2rgb(azul, alpha = T)
+col2rgb('gray30', alpha = T)
+
+rgb(0, 175/255, 187/255)
+"#00AFBB"
+rgb(77/255, 77/255, 77/255)
+"#4D4D4D"
+
 
 ### testing effect of removing data sources on Panel 
 CB2=Main[1:s1-1,] %>% filter(Data_Source!="Powell_Mann") 

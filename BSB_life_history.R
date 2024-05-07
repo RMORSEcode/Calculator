@@ -11,11 +11,39 @@ survdat <- survey$survdat
 
 # Load GoPro data
 gpd=read.csv(paste(wd,"/Habitat/2018-Bsb-MaxN-LHS.csv", sep=''))
+dens=readxl::read_xlsx(paste(wd,"/Habitat/FINALBSBDATA.xlsx", sep=''), sheet='BSB Data - original') # energy density
 gpd$DateTime=as_date(gpd$DateTime, format = "%m/%d/%Y")
 gpd$month=month(gpd$DateTime)
 gpd2=gpd %>% filter(MaxN>0)
 boxplot(gpd2$MaxN ~ gpd2$Treatment)
 boxplot(gpd$MaxN ~ gpd$Treatment)
+
+dens %>% select(`Farm/Reef`, `Energy Density (kJ/g)`) %>%
+  ggplot(aes(y=`Energy Density (kJ/g)`, x=`Farm/Reef`)) + 
+  geom_boxplot(color = "black", notch=T, fill="gray") +
+  theme_classic()+
+  labs(x='', y = 'Energy Density') +
+  coord_cartesian(ylim = c(4, 6))+
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(legend.position = "none") +
+  theme(text = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 20))
+
+plot(dens$`Total Length`~dens$`NOAA WW (g)`, type='p', pch=19)
+plot(dens$`NOAA WW (g)`~dens$`Total Length`, type='p', pch=19, col=ifelse(dens$`Farm/Reef`=='F', 'red', 'blue'))
+plot(log1p(dens$`NOAA WW (g)`)~log1p(dens$`Total Length`), type='p', pch=19, col=ifelse(dens$`Farm/Reef`=='F', 'red', 'blue'))
+dens$logL=log1p(dens$`Total Length`/10)
+dens$logW=log1p(dens$`NOAA WW (g)`)
+
+lm1=lm(logW~logL, data=dens)
+abline(lm1, col='black', lw=1)
+lm1=lm(logW~logL, data=dens[dens$`Farm/Reef`=="F",])
+abline(lm1, col='red', lw=1)
+lm1=lm(logW~logL, data=dens[dens$`Farm/Reef`=="R",])
+abline(lm1, col='blue', lw=1)
+
 
 ## summary stats
 gpd %>% 
