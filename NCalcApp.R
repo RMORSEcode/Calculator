@@ -1,6 +1,7 @@
 # https://test-connect.fisheries.noaa.gov/Calculator/ NOAA internal
 # https://connect.fisheries.noaa.gov/Oyster-Calculator/ open upon approval of MS
 library(shiny)
+library(shinyWidgets)
 library(leaflet)
 library(leaflet.extras)
 library(shinyscreenshot)
@@ -21,13 +22,16 @@ ui <- fluidPage(
   helpText(strong("Calculator Version:")),
   textOutput("githubversion"),
   helpText(br()),
+  setBackgroundImage(src='background1.png'),
   
   mainPanel(
     tabsetPanel(
       type = "tabs",
       tabPanel("About", 
                # tags$img(src='swooshgn2.png'),
-               tags$img(src='gn_swoosh_shellfish3.png'),
+               # tags$img(src='gn_swoosh_shellfish3.png'),
+               tags$img(src='transparent_650pxH.png', width = "100%"),
+               # tags$img(src='Copy of youngoysters_StellaMar.jpg', style = 'position: absolute'),
                titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
                titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
                helpText(br()),
@@ -61,7 +65,8 @@ ui <- fluidPage(
       ),
       tabPanel("Calculator", 
                # tags$img(src='swooshgn2.png'),
-               tags$img(src='gn_swoosh_shellfish3.png'),
+               # tags$img(src='gn_swoosh_shellfish3.png'),
+               tags$img(src='transparent_650pxH_3.png', width = "100%"),
                titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
                titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
                helpText(br()),
@@ -135,7 +140,8 @@ ui <- fluidPage(
       
       tabPanel("Harvest Estimator",
                # tags$img(src='swooshgn2.png'),
-               tags$img(src='gn_swoosh_shellfish3.png'),
+               # tags$img(src='gn_swoosh_shellfish3.png'),
+               tags$img(src='transparent_650pxH_2.png', width = "100%"),
                titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
                titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
                helpText(br()),
@@ -162,7 +168,8 @@ ui <- fluidPage(
       
       tabPanel("Data Sources", 
                # tags$img(src='swooshgn2.png'),
-               tags$img(src='gn_swoosh_shellfish3.png'),
+               # tags$img(src='gn_swoosh_shellfish3.png'),
+               tags$img(src='transparent_650pxH_white.png', width = "100%"),
                titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
                titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
                helpText(br()),
@@ -190,10 +197,12 @@ ui <- fluidPage(
                  )
                ),
                tags$img(src='Fig1.png'),
+               leafletOutput("contmap", width="70%", height=400),
       ),
       tabPanel("References", 
                # tags$img(src='swooshgn2.png'),
-               tags$img(src='gn_swoosh_shellfish3.png'),
+               # tags$img(src='gn_swoosh_shellfish3.png'),
+               tags$img(src='transparent_650pxH_4.png', width = "100%"),
                titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
                titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
                helpText(br()),
@@ -220,7 +229,8 @@ ui <- fluidPage(
       ),
       tabPanel("Disclaimer",
                # tags$img(src='swooshgn2.png'),
-               tags$img(src='gn_swoosh_shellfish3.png'),
+               # tags$img(src='gn_swoosh_shellfish3.png'),
+               tags$img(src='transparent_460pxH_horiz.png', width = "100%"),
                titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
                titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
                helpText(br()),
@@ -237,6 +247,7 @@ ui <- fluidPage(
 
 
 server <- function(input, output) {
+  stations=readxl::read_xlsx("Location_data.xlsx",sheet='final2', range='A1:F33')
   
  # Add github version to top of page
   output$githubversion <- renderText({
@@ -281,8 +292,14 @@ server <- function(input, output) {
     )
   })
   
-  
-  
+  # add  data contributor map
+  output$contmap <- renderLeaflet({
+    leaflet(height="100%") %>%
+      addTiles() %>%
+      setView(lng = -70, lat = 40, zoom = 5) %>%
+      addMarkers(stations$Longitude, stations$Latitude, popup = stations$Waterbody_Name, label =stations$Waterbody_Name )
+  })
+
   table <- reactive({
     taval=1.42E-05
     tbval=2.60727827

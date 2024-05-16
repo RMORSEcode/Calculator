@@ -17,6 +17,7 @@ RegionFarm=MainNoCB %>% filter(!(Waterbody_Region %in% c("Jamaica Bay", "Hudson 
 # colnames(RegionFarm)
 # RegionFarm=RegionFarm[,c(1:5,58,6:8,61,9:28,62,59,29:34,56,35:55,57,60)]
 outfile=RegionFarm %>% select(-c(Raw_Data_File, Number_ID,-Condition_Index:Shell_Wet_Weight_g))
+# colnames(outfile)[15]="Total_Shell_Height_mm"
 write.csv(outfile, file=paste(wd,'RegionFarm.csv', sep=''),row.names=FALSE)
 
 ## Write out CB data for Zenodo inclusion
@@ -33,14 +34,16 @@ CB2$Hatchery_produced_or_Wild[which(CB2$Hatchery_produced_or_Wild=="?")]=NA
 CB2$Season_Oysters_Removed[which(CB2$Season_Oysters_Removed=="?")]=NA
 CB2$Oyster_Stock[which(CB2$Oyster_Stock=="?")]=NA
 
-outfile=CB2 %>% select(-(c(Near_Waterbody_General_Location, Shell_Organic_C_Percent, Raw_Data_File, Number_ID,Location_Index,Site_within_Study,Month_Oysters_Removed,Year_Oysters_Removed,
-      Total_Shell_Height_Length_Inches , Waterbody_Region,Volume_ml:Gear_Class)))
-outfile=outfile[,c(1:24,26,25,28,27,29,31,30,33,32,35,34,36:38)]
-colnames(outfile)
-colnames(outfile)[9]
-colnames(outfile)[9]="Subtidal_Intertidal_WaterColumn"
-outfile$Data_Source[which(outfile$Data_Source=="Parker-unpubl")]="Parker-Bricker"
-write.csv(outfile, file=paste(wd,'CB2023oysterBMP.csv', sep=''),row.names=FALSE)
+### See CBzenodo.R for updated file handling for Zenodo submission 20240516
+# outfile=CB2 %>% select(-(c(Near_Waterbody_General_Location, Shell_Organic_C_Percent, Raw_Data_File, Number_ID,Location_Index,Site_within_Study,Month_Oysters_Removed,Year_Oysters_Removed,
+#       Total_Shell_Height_Length_Inches , Waterbody_Region,Volume_ml:Gear_Class)))
+# outfile=outfile[,c(1:24,26,25,28,27,29,31,30,33,32,35,34,36:38)]
+# colnames(outfile)
+# colnames(outfile)[9]
+# colnames(outfile)[9]="Subtidal_Intertidal_WaterColumn"
+# outfile$Data_Source[which(outfile$Data_Source=="Parker-unpubl")]="Parker-Bricker"
+# colnames(outfile)[15]="Total_Shell_Height_mm"
+# write.csv(outfile, file=paste(wd,'CB2023oysterBMP.csv', sep=''),row.names=FALSE)
 
 
 Main[1:s1-1,] %>% select(Total_Shell_Height_Length_mm, Tissue_Dry_Weight_g, ) %>% 

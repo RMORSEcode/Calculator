@@ -2,6 +2,8 @@ library(tidyverse)
 library(FSA)
 library(car)
 library(lubridate)
+library(ggpubr)
+library(gplots)
 ### Bottom trawl survey strata shapefile
 bts=sf::read_sf("C:/Users/ryan.morse/Desktop/shapefiles/BTS/BTS_Strata.shp")
 ## load bottom trawl survey data
@@ -152,6 +154,7 @@ plot(bsb.sp2$INDWT~bsb.sp2$LENGTH, ylab='Wet weight (kg)', xlab='Length (cm)', m
 plot((bsb.sp2$INDWT*2.205)~bsb.sp2$LENGTH, ylab='Wet weight (lbs)', xlab='Length (cm)', main='BSB Spring',col='black')
 plot((bsb.fl2$INDWT*2.205)~bsb.fl2$LENGTH, ylab='Wet weight (lbs)', xlab='Length (cm)', main='BSB Fall',col='black')
 
+
 # weight-Length relationship (both sexes)
 bsb.sp3=bsb.sp2 %>% filter(INDWT>0)
 bsb.sp3$logW=log(bsb.sp3$INDWT)
@@ -184,11 +187,11 @@ text(2, -1, labels=paste("b= ", lm1$coefficients[2], sep=''))
 ## spatial view of high abundance strata
 bts.s=bts %>% filter(STRATA %in% t2.s$STRATUM)
 bts.f=bts %>% filter(STRATA %in% t2.f$STRATUM)
-plot(bts[2], axes=T, reset = FALSE, main="Spring Strata")
+plot(bts[1:152,2], axes=T, reset = FALSE, main="Spring Strata")
 plot(bts.s[2], add=T, col='red')
 plot(bts.s[[8]][[1]], add=T, col='green')
-plot(bts[2], axes=T, reset = FALSE, main="Fall Strata")
-plot(bts.f[2], add=T, col='red')
+plot(bts[1:152,2], axes=T, reset = FALSE, main="Fall Strata")
+plot(bts.f[1:2,2], add=T, col='red')
 
 test=bsb %>% count(YEAR, SEASON)
 
@@ -211,6 +214,51 @@ boxplot(LENGTH~AGE,data=bsb.fl[which(bsb.fl$YEAR==2015),], main="BSB Fall 2015",
 
 boxplot(LENGTH~AGE,data=bsb.sp, main="BSB Spring", ylim=c(0,60), xlim=c(0,10))
 boxplot(LENGTH~AGE,data=bsb.fl, main="BSB Fall", ylim=c(0,60), xlim=c(0,10))
+
+# plot size of age-0 and age-1
+boxplot(LENGTH~AGE,data=bsb.fl[which(bsb.fl$AGE==0),], main="BSB Fall age-0", ylim=c(0,20))
+boxplot(LENGTH~AGE,data=bsb.sp[which(bsb.sp$AGE==1),], main="BSB Spr age-1", ylim=c(0,20))
+
+## filter to strata:
+# 3020 - most inshore, landward of 1050, small
+# 1050 - large, seaward of 3020 (spans RI-CT)
+bsb.sp[which(bsb.sp$AGE==1),] %>% 
+  # filter(STRATUM==3020 | STRATUM==1050) %>%
+  select(YEAR, LENGTH, STRATUM) %>% 
+  group_by(YEAR) %>% 
+  ggboxplot(y='LENGTH', x='YEAR', ylim=c(0,20))
+
+bsb.fl[which(bsb.fl$AGE==0),] %>% 
+  # filter(STRATUM==3020 | STRATUM==1050) %>%
+  select(YEAR, LENGTH, STRATUM) %>% 
+  group_by(YEAR) %>% 
+  ggboxplot(y='LENGTH', x='YEAR', ylim=c(0,20))
+bsb.fl.sum=bsb.fl[which(bsb.fl$AGE==0),] %>% 
+  filter(STRATUM==3020 | STRATUM==1050) %>%
+  group_by(YEAR) %>%
+  summarize(
+    mn=min(LENGTH, na.rm = T),
+    mx=max(LENGTH, na.rm=T),
+    av=mean(LENGTH, na.rm=T),
+    md=median(LENGTH, na.rm=T),
+    n=n()
+    
+  )
+plot(bsb.fl.sum$av~bsb.fl.sum$YEAR, type='b', ylim=c(0,20), ylab='BSB age-0 size (cm)', xlab='', main='Strata 1050,3020')
+lines(bsb.fl.sum$mx~bsb.fl.sum$YEAR, lty=2)
+lines(bsb.fl.sum$mn~bsb.fl.sum$YEAR, lty=2)
+lines(bsb.fl.sum$md~bsb.fl.sum$YEAR, lty=1)
+lines(bsb.fl.sum$av~bsb.fl.sum$YEAR, lty=1, col='red')
+points(bsb.fl$LENGTH[which(bsb.fl$AGE==0 & bsb.fl$STRATUM %in% c(1050, 3020))]~bsb.fl$YEAR[which(bsb.fl$AGE==0 & bsb.fl$STRATUM%in% c(1050, 3020))])  
+points(bsb.fl$LENGTH[which(bsb.fl$AGE==0)]~bsb.fl$YEAR[which(bsb.fl$AGE==0)])  
+legend('topleft', lty=c(1,1), col=c('red','black'), legend=c('mean', 'median'), bty='n')
+
+with(bsb.fl[which(bsb.fl$AGE==0),], table(STRATUM, YEAR))
+with(bsb.fl[which(bsb.fl$AGE==0),], table(STRATUM, YEAR))
+with(bsb.fl[which(bsb.fl$AGE==0),], heatmap(table(STRATUM, YEAR)))
+with(bsb.fl[which(bsb.fl$AGE==0),], heatmap.2(table(STRATUM, YEAR), Rowv = NA, Colv=NA,col=bluered, scale="none", tracecol="#303030" ,dendrogram="none", key=T))
+colorbar(terrain.colors(256))
+
 
 agesum <- group_by(bsb,SEX) %>%
   summarize(minage=min(AGE, na.rm = T),maxage=max(AGE, na.rm = T))
@@ -245,6 +293,15 @@ preds1 <- data.frame(ages,
                      predict(f.fit.sp,data.frame(AGE=ages)),
                      confint(f.boot2))
 preds2 <- filter(preds1,AGE>=agesum$minage[2],AGE<=agesum$maxage[2])
+
+### trying with WEIGHT instead of length for M estimates
+f.starts.sp <- vbStarts(INDWT~AGE,data=bsb.fl2[complete.cases(bsb.fl2$INDWT),]) 
+f.fit.sp <- nls(INDWT~vb(AGE,Linf,K,t0),data=bsb.fl2[complete.cases(bsb.fl2$INDWT),],start=f.starts.sp)
+coef(f.fit.sp)
+ages <- seq(-1,10,by=0.2)
+ages <-c(0.5, seq(1,10,by=1))
+f.boot1.sp <- Boot(f.fit.sp)  # Be aware of some non-convergence
+confint(f.boot1.sp)
 
 ### Estimate M with input from above fits using:
 ## http://barefootecologist.com.au/shiny_m.html
