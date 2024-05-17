@@ -22,11 +22,87 @@ ui <- fluidPage(
   helpText(strong("Calculator Version:")),
   textOutput("githubversion"),
   helpText(br()),
-  setBackgroundImage(src='background1.png'),
+  # setBackgroundImage(src='background1.png'),
   
   mainPanel(
     tabsetPanel(
       type = "tabs",
+      tabPanel("Calculator", 
+               # tags$img(src='swooshgn2.png'),
+               # tags$img(src='gn_swoosh_shellfish3.png'),
+               tags$img(src='transparent_650pxH_3.png', width = "100%"),
+               titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
+               titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
+               helpText(br()),
+               ### Farm Practices ###
+               helpText(h3("Farm Practices")),
+               helpText("Please enter the name of the oyster farm"),
+               # textInput("farmname", strong("Project Name:"), value = "", width = NULL, placeholder = NULL),
+               textAreaInput("farmname", strong("Project Name:"), value = "", width = NULL, rows=2, placeholder = NULL),
+               
+               # helpText("Please enter the name of the water body where the oysters were harvested from"),
+               # textInput("projloc", strong("Harvest Location:"), value = "", width = NULL, placeholder = NULL),
+               # 
+               helpText("Select the gear type primarily used for growing oysters, or select 'On-Bottom' for no gear"),
+               selectInput("gear", strong("Culture Method (does not affect calculation):"),c("Floating", "Off-bottom", "On-Bottom", "Multiple methods used")),
+               
+               helpText("Please select the ploidy of the oysters that were harvested"),
+               selectInput("ploidy", strong("Oyster Ploidy (does not affect calculation):"),c("Diploid", "Triploid", "Combination")),
+               
+               # textInput("farmloc", "Farm Location - City, State", value = "", width = NULL, placeholder = NULL),
+               helpText(h3("Farm Location")),
+               
+               helpText("Please enter the name of the water body where the oysters were harvested from"),
+               # textInput("projloc", strong("Harvest Location:"), value = "", width = NULL, placeholder = NULL),
+               textAreaInput("projloc", strong("Harvest Location (does not affect calculation):"), value = "", width = NULL, rows=2, placeholder = NULL),
+               
+               helpText(h6("Approximate Coordinates: "),"Please scroll or pinch to zoom to the harvest location, then click once on the marker pin and select the site to record the coordinates"),
+               leafletOutput("mymap", width="70%", height=400),
+               
+               tableOutput('loctable'),
+               helpText(br()),
+               
+               ### Harvest Details ###
+               helpText(h3("Harvest Details")),
+               helpText("Please drag the slider to select the average size of the oysters that were harvested"),
+               sliderInput(
+                 "hsize",
+                 strong("Average oyster size at harvest (Inches):"),
+                 2.0,
+                 5.0,
+                 3.0,
+                 step = 0.1,
+                 round = FALSE,
+                 ticks = TRUE,
+                 animate = FALSE,
+                 width = NULL,
+                 sep = ",",
+                 dragRange = TRUE
+               ),
+               
+               helpText("Please enter the total number of oysters harvested at the selected size"),
+               numericInput("Num", strong("Number of oysters at harvest:"), 0, min=0, max=NA),
+               
+               dateRangeInput("Htime", strong("Period of harvest (yyyy-mm-dd) (does not affect calculation):"), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month"),
+               
+               helpText("Units for nutrient removal:"),
+               # selectInput("units", strong("Units:"),c("Pounds (lbs)", "Kilograms (kg)")),
+               radioButtons(
+                 "units",
+                 strong("Units:"),
+                 choices =c("Pounds (lbs)", "Kilograms (kg)"),
+                 selected ="Pounds (lbs)",
+                 inline = T),
+               helpText(br()),
+               
+               plotOutput("nutbplot", width="50%"), 
+               tableOutput("mytable"), 
+               actionButton("go", "Screenshot"),
+               downloadButton(
+                 outputId = "downloader",
+                 label = "Download PDF"
+               )
+      ),
       tabPanel("About", 
                # tags$img(src='swooshgn2.png'),
                # tags$img(src='gn_swoosh_shellfish3.png'),
@@ -63,82 +139,7 @@ ui <- fluidPage(
                  ),
                )
       ),
-      tabPanel("Calculator", 
-               # tags$img(src='swooshgn2.png'),
-               # tags$img(src='gn_swoosh_shellfish3.png'),
-               tags$img(src='transparent_650pxH_3.png', width = "100%"),
-               titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
-               titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
-               helpText(br()),
-               ### Farm Practices ###
-               helpText(h3("Farm Practices")),
-               helpText("Please enter the name of the oyster farm"),
-               textInput("farmname", strong("Project Name:"), value = "", width = NULL, placeholder = NULL),
-               
-               # helpText("Please enter the name of the water body where the oysters were harvested from"),
-               # textInput("projloc", strong("Harvest Location:"), value = "", width = NULL, placeholder = NULL),
-               # 
-               helpText("Select the gear type primarily used for growing oysters, or select 'On-Bottom' for no gear"),
-               selectInput("gear", strong("Culture Method:"),c("Floating", "Off-bottom", "On-Bottom")),
-               
-               helpText("Please select the ploidy of the oysters that were harvested"),
-               selectInput("ploidy", strong("Oyster Ploidy:"),c("Diploid", "Triploid", "Combination")),
-               
-               # textInput("farmloc", "Farm Location - City, State", value = "", width = NULL, placeholder = NULL),
-               helpText(h3("Farm Location")),
-               
-               helpText("Please enter the name of the water body where the oysters were harvested from"),
-               textInput("projloc", strong("Harvest Location:"), value = "", width = NULL, placeholder = NULL),
-               
-               helpText(h6("Approximate Coordinates: "),"Please scroll or pinch to zoom to the harvest location, then click once on the marker pin and select the site to record the coordinates"),
-               leafletOutput("mymap", width="70%", height=400),
-               
-               tableOutput('loctable'),
-               helpText(br()),
-               
-               ### Harvest Details ###
-               helpText(h3("Harvest Details")),
-               helpText("Please drag the slider to select the average size of the oysters that were harvested"),
-               sliderInput(
-                 "hsize",
-                 strong("Average oyster size at harvest (Inches):"),
-                 2.0,
-                 5.0,
-                 3.0,
-                 step = 0.1,
-                 round = FALSE,
-                 ticks = TRUE,
-                 animate = FALSE,
-                 width = NULL,
-                 sep = ",",
-                 dragRange = TRUE
-               ),
-               
-               helpText("Please enter the total number of oysters harvested at the selected size"),
-               numericInput("Num", strong("Number of oysters at harvest:"), 0, min=0, max=NA),
-               
-               dateRangeInput("Htime", strong("Period of harvest (yyyy-mm-dd):"), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month"),
-               
-               helpText("Units for nutrient removal:"),
-               # selectInput("units", strong("Units:"),c("Pounds (lbs)", "Kilograms (kg)")),
-               radioButtons(
-                 "units",
-                 strong("Units:"),
-                 choices =c("Pounds (lbs)", "Kilograms (kg)"),
-                 selected ="Pounds (lbs)",
-                 inline = T),
-               helpText(br()),
-               
-               plotOutput("nutbplot", width="50%"), 
-               tableOutput("mytable"), 
-               actionButton("go", "Screenshot"),
-               downloadButton(
-                 outputId = "downloader",
-                 label = "Download PDF"
-               )
-      ),
-      
-      tabPanel("Harvest Estimator",
+      tabPanel("Reverse Calculator",
                # tags$img(src='swooshgn2.png'),
                # tags$img(src='gn_swoosh_shellfish3.png'),
                tags$img(src='transparent_650pxH_2.png', width = "100%"),
@@ -166,7 +167,7 @@ ui <- fluidPage(
                
       ),
       
-      tabPanel("Data Sources", 
+      tabPanel("Data and References", 
                # tags$img(src='swooshgn2.png'),
                # tags$img(src='gn_swoosh_shellfish3.png'),
                tags$img(src='transparent_650pxH_white.png', width = "100%"),
@@ -198,14 +199,14 @@ ui <- fluidPage(
                ),
                tags$img(src='Fig1.png'),
                leafletOutput("contmap", width="70%", height=400),
-      ),
-      tabPanel("References", 
-               # tags$img(src='swooshgn2.png'),
-               # tags$img(src='gn_swoosh_shellfish3.png'),
-               tags$img(src='transparent_650pxH_4.png', width = "100%"),
-               titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
-               titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
-               helpText(br()),
+      # ),
+      # # tabPanel("References", 
+      #          # tags$img(src='swooshgn2.png'),
+      #          # tags$img(src='gn_swoosh_shellfish3.png'),
+      #          tags$img(src='transparent_650pxH_4.png', width = "100%"),
+      #          titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
+      #          titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
+      #          helpText(br()),
                tags$p(
                  h4("References"),
                  p("Cornwell, J., Rose, J., Kellogg, L., Luckenbach, M., Bricker, S., Paynter, K., Moore, C., Parker, M., Sanford, L., Wolinski, B., Lacatell, A., Fegley, L., and Hudson, K. (2016). Panel Recommendations on the Oyster BMP Nutrient and Suspended Sediment Reduction Effectiveness Determination Decision Framework and Nitrogen and Phosphorus Assimilation in Oyster Tissue Reduction Effectiveness for Oyster Aquaculture Practices. (Report to the Chesapeake Bay Program.  Available online at http://www.chesapeakebay.net/documents/Oyster_BMP_1st_Report_Final_Approved_2016-12-19.pdf).")
@@ -249,14 +250,14 @@ ui <- fluidPage(
 server <- function(input, output) {
   stations=readxl::read_xlsx("Location_data.xlsx",sheet='final2', range='A1:F33')
   
- # Add github version to top of page
+  # Add github version to top of page
   output$githubversion <- renderText({
     releases <- gh("GET /repos/{owner}/{repo}/releases", 
                    owner = "RMORSEcode",
                    repo = "Calculator")
     releases[[1]][["name"]]
-    })
-    
+  })
+  
   output$mymap <- renderLeaflet({
     leaflet(height="50%") %>%
       # addProviderTiles("Esri.OceanBasemap",group = "Ocean Basemap") %>%
@@ -299,7 +300,7 @@ server <- function(input, output) {
       setView(lng = -70, lat = 40, zoom = 5) %>%
       addMarkers(stations$Longitude, stations$Latitude, popup = stations$Waterbody_Name, label =stations$Waterbody_Name )
   })
-
+  
   table <- reactive({
     taval=1.42E-05
     tbval=2.60727827
