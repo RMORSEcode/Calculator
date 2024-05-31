@@ -1,7 +1,7 @@
 ---
 title: |
   ![](noaa-emblem-rgb-sm2-2022.png){width=0.75in}
-  "Aquaculture Nutrient Removal Calculator"
+  Aquaculture Nutrient Removal Calculator
 output: pdf_document
 date: "`r format(Sys.Date(),'%B %e, %Y')`"
 params: 
@@ -100,6 +100,10 @@ params[["plot"]]
 # **Summary**  
 Shellfish incorporate nutrients into their tissues and shell as they grow. At harvest, these nutrients are permanently removed from the coastal environment, providing a benefit to water quality in the form of excess nutrient reduction. The harvest of `r params[["Number"]]` oysters at an average size of `r  params[["hsize"]]` inches is expected to result in the removal of a total of `r round(params[["plot"]]$data$N[3], 2)` pounds (lbs) of N during the harvest period.  
   
+# **Federal Regulatory Nexus:**  
+Public Interest Factor(s): (1)Water Quality; (2)General Environmental Concerns; (3) Fish and wildlife values.  
+
+Rivers and Harbors Act Section 10 public interest review factors related to water quality, general environmental concerns and fish and wildlife values. Clean Water Act Section 303 provisions related to managing nutrient pollution in the Waters of the U.S.; Magnuson-Stevens Act provisions related to Essential Fish Habitat; The Fish and Wildlife Coordination Act provisions related to the development of measures to protect, develop, and improve wildlife and their habitat.  
   
 # **Data Contributors**  
 ME: Damian Brady, Tom Kiffney *University of Maine*  

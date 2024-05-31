@@ -4,47 +4,127 @@ library(car)
 library(lubridate)
 library(ggpubr)
 library(gplots)
+library(maps)
+library(mapdata)
+library(marmap)
+
 ### Bottom trawl survey strata shapefile
+wd="C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/"
 bts=sf::read_sf("C:/Users/ryan.morse/Desktop/shapefiles/BTS/BTS_Strata.shp")
+
+### EFH shapefiles from Mid-Atlantic and New England Councils FMP
+# https://www.habitat.noaa.gov/application/efhinventory/
+NEWENGefh=sf::read_sf(paste(wd,"/Habitat/EFH/neweng_efh/neweng_efh.shp",sep=''))
+MIDATLefh=sf::read_sf(paste(wd,"/Habitat/EFH/midatl_efh/midatl_efh.shp",sep=''))
+MIDefh=st_transform(MIDATLefh, "WGS84")
+NEWefh=st_transform(NEWENGefh, "WGS84")
+map("worldHires", xlim=c(-78,-68),ylim=c(36.5,45), fill=T,border=0,col="gray70")
+map.axes(las=1)
+plot(MIDefh$geometry[39], col='green', add=T) #BSB Juv
+plot(MIDefh$geometry[40], col='blue', add=T) #BSB adult
+plot(MIDefh$geometry[3], col='red', add=T) # BSB eggs
+
+# Load Barrett et al 2022 data
+Barrett=readxl::read_xlsx(paste(wd, "Habitat/Barrett_2022_suppl3.xlsx", sep=''), sheet = 'fish abundance data')
+
+
 ## load bottom trawl survey data
-load("C:/Users/ryan.morse/Downloads/NEFSC_BTS_2021.RData")
-load("C:/Users/ryan.morse/Downloads/SurvdatBio.RData")
+# load ("C:/Users/ryan.morse/Downloads/NEFSC_BTS_2021.RData")
+# load ("C:/Users/ryan.morse/Downloads/SurvdatBio.RData") 2018 is last year
+## load survdat 2024 https://github.com/NOAA-EDAB/ecodata/blob/master/data-raw/survdat.rds
+survey=readRDS("C:/Users/ryan.morse/Downloads/survdat.rds")
 survdat <- survey$survdat
+## load survdat.bio from Andy 2024
+survey.bio=readRDS("C:/Users/ryan.morse/Downloads/SurvdatBio.rds")
+survdat.bio <- survey$survdat
+
+survdat <- survey$survdat
+
+### Species List ###
+## black sea bass - 141
+## scup - 143
+## cunner - 176
+## tautog - 177
+
+### Load energy density data
+dens=readxl::read_xlsx(paste(wd,"/Habitat/FINALBSBDATA.xlsx", sep=''), sheet='BSB Data - original') # energy density
+colnames(dens)
+colnames(dens)[2]="Farm_Reef"
+colnames(dens)[5]="NOAA_WW_g"
+colnames(dens)[6]="Total_Length_mm" 
+colnames(dens)[20]="Energy_Density_kJ_g"
+dens$Total_Length_cm=dens$Total_Length_mm/10
+dens$logL=log(dens$Total_Length_cm) # now in cm
+dens$logW=log(dens$NOAA_WW_g/1000) # now in kg
 
 # Load GoPro data
 gpd=read.csv(paste(wd,"/Habitat/2018-Bsb-MaxN-LHS.csv", sep=''))
-dens=readxl::read_xlsx(paste(wd,"/Habitat/FINALBSBDATA.xlsx", sep=''), sheet='BSB Data - original') # energy density
 gpd$DateTime=as_date(gpd$DateTime, format = "%m/%d/%Y")
 gpd$month=month(gpd$DateTime)
 gpd2=gpd %>% filter(MaxN>0)
 boxplot(gpd2$MaxN ~ gpd2$Treatment)
 boxplot(gpd$MaxN ~ gpd$Treatment)
 
-dens %>% select(`Farm/Reef`, `Energy Density (kJ/g)`) %>%
-  ggplot(aes(y=`Energy Density (kJ/g)`, x=`Farm/Reef`)) + 
-  geom_boxplot(color = "black", notch=T, fill="gray") +
+
+with(dens, table(Farm_Reef, SITE))
+
+dens[dens$Total_Length_mm>57,] %>% select(Farm_Reef, SITE, Energy_Density_kJ_g) %>%
+  # ggplot(aes(y=Energy_Density_kJ_g, x=Farm_Reef)) +
+  # geom_boxplot(color = "black", notch=T, fill="gray") +
+  ggplot(aes(y=Energy_Density_kJ_g, x=SITE,fill=Farm_Reef)) +
+  geom_boxplot(color = "black", notch=F) +
   theme_classic()+
-  labs(x='', y = 'Energy Density') +
+  labs(x='', y = 'Energy Density (kJ/g)') +
   coord_cartesian(ylim = c(4, 6))+
-  stat_summary(fun.y=mean, geom="point", shape=18, size=4)+ 
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4, position = position_dodge(width = .75))+ 
   theme(strip.background = element_blank(),
         strip.text.y = element_blank())+
   theme(legend.position = "none") +
   theme(text = element_text(size = 20)) +
   theme(legend.text = element_text(size = 20))
 
-plot(dens$`Total Length`~dens$`NOAA WW (g)`, type='p', pch=19)
-plot(dens$`NOAA WW (g)`~dens$`Total Length`, type='p', pch=19, col=ifelse(dens$`Farm/Reef`=='F', 'red', 'blue'))
-plot(log1p(dens$`NOAA WW (g)`)~log1p(dens$`Total Length`), type='p', pch=19, col=ifelse(dens$`Farm/Reef`=='F', 'red', 'blue'))
-dens$logL=log1p(dens$`Total Length`/10)
-dens$logW=log1p(dens$`NOAA WW (g)`)
+my_comparisons=list( c("F", "R"))
+dens %>% select(Farm_Reef, SITE, Energy_Density_kJ_g) %>% 
+  ggboxplot(y='Energy_Density_kJ_g', x='SITE', fill='Farm_Reef', ylab = 'Energy Density (kJ/g)', xlab='', ylim=c(4,6)) + 
+  stat_compare_means(label = "p.signif", method = "wilcox.test", ref.group = ".all.") +
+  stat_compare_means(comparisons = my_comparisons, method = "anova", label.y = c(5.5),label= "p.signif") #+
 
-lm1=lm(logW~logL, data=dens)
-abline(lm1, col='black', lw=1)
-lm1=lm(logW~logL, data=dens[dens$`Farm/Reef`=="F",])
-abline(lm1, col='red', lw=1)
-lm1=lm(logW~logL, data=dens[dens$`Farm/Reef`=="R",])
-abline(lm1, col='blue', lw=1)
+
+plot(dens$Total_Length_mm/10~dens$NOAA_WW_g, type='p', pch=19)
+plot(dens$NOAA_WW_g~ dens$Total_Length_cm, 
+     type='p', 
+     pch=19, 
+     col=ifelse(dens$Farm_Reef=='F', 'red', 'blue'), 
+     ylab='Wet weight (g)', 
+     xlab='Length (cm)'
+     )
+legend('topleft', legend=c('Farm', "Reef"), pch=19, col=c('red', 'blue'), bty='n')
+
+plot(log(dens$NOAA_WW_g)~log(dens$Total_Length_mm), 
+     type='p', 
+     pch=19, 
+     col=ifelse(dens$Farm_Reef=='F', 'red', 'blue'),
+     ylab='log wet weight (g)', 
+     xlab='log length (cm)'
+     )
+legend('topleft', legend=c('Farm', "Reef"), pch=19, col=c('red', 'blue'), bty='n')
+
+plot(dens$logW~dens$logL, 
+     type='p', 
+     col=ifelse(dens$Farm_Reef=='F', 'red', 'blue'),
+     ylab='log wet weight (kg)', 
+     xlab='log length (cm)'
+     )
+lm1=lm(logW~logL, data=dens[dens$Farm_Reef=="F",])
+abline(lm1, col='red', lw=2)
+text(2.2, -3, labels=paste("a= ", round(exp(lm1$coefficients[1]),7), sep=''))
+text(2.2, -3.5, labels=paste("b= ", round(lm1$coefficients[2],3), sep=''))
+lm1=lm(logW~logL, data=dens[dens$Farm_Reef=="R",])
+abline(lm1, col='blue', lw=2)
+text(2.5, -5, labels=paste("a= ", round(exp(lm1$coefficients[1]),7), sep=''))
+text(2.5, -5.5, labels=paste("b= ", round(lm1$coefficients[2],3), sep=''))
+legend('topleft', legend=c('Farm', "Reef"), lty=1,lwd=2, col=c('red', 'blue'), bty='n')
+
 
 
 ## summary stats
@@ -312,7 +392,3 @@ confint(f.boot1.sp)
 # K     0.2775499  0.2616433  0.2944722
 # t0    0.2725081  0.2410798  0.3035582
 M=load("C:/Users/ryan.morse/Downloads/M_parms_values_byage_out2023-09-27 13_25_33.DMP")
-
-
-
-

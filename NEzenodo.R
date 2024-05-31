@@ -16,6 +16,8 @@ RegionFarm$Data_Source[which(RegionFarm$Data_Source=="Bayer et al. in prep. 2023
 RegionFarm$Data_Source[which(RegionFarm$Data_Source=="Levinton J, et al. 2011 PLoS ONE 6(4)")]="Levinton et al. 2011"
 RegionFarm$Data_Source[which(RegionFarm$Data_Source=="Poach et al. in prep 2023")]="Poach et al. 2024"
 RegionFarm$Data_Source[which(RegionFarm$Data_Source=="Tom Kiffney unpublished, in prep")]="Kiffney et al. unpublished"
+RegionFarm$Oyster_Stock[which(RegionFarm$Data_Source=="Reitsma et al. 2017" & RegionFarm$Hatchery_produced_or_Wild=="wild")]="Wild"
+
 # Bayer, S.R., Cubillo, A.M., Rose, J.M., Ferreira, J.G., Dixon, M., Alvarado, A., Barr, J., Bernatchez, G., Meseck, S., Poach, M., Pousse, E., Wikfors, G.H., Bricker, S., 2024. Refining the Farm Aquaculture Resource Management Model for Shellfish Nitrogen Removal at the Local Scale. Estuaries and Coasts. doi 10.1007/s12237-024-01354-7
 # 
 # Barr, J.M., Munroe, D., Rose, J.M., Calvo, L., Cheng, K.M., Bayer, S., Kreeger, D., 2023. Seasonal Feeding Behavior of Aquaculture Eastern Oysters (Crassostrea virginica) in the Mid-Atlantic. Estuaries and Coasts. doi 10.1007/s12237-023-01293-9
@@ -28,17 +30,38 @@ outfile=RegionFarm %>% select(-c(Raw_Data_File, Representative_Aquaculture_Oyste
                                  Tissue_TP_Percent, Tissue_TP_g_P_per_g_dw, Shell_TP_Percent:Habitat_Group,
                                  Volume_ml:Panel))
 colnames(outfile)[10]="Total_Shell_Height_mm"
-outfile=outfile[,c(1:8,29,28, 9:27)]
+outfile=outfile[,c(1:8,29,28, 9:19,21,20,22,25,23,24,27,26)]
 
 ## add lat long
 stations=readxl::read_xlsx(paste(wd, "Location_data.xlsx", sep=''),sheet='final2')
-JR=JRstat %>% filter(!(Raw_Data_File %in% c("Powell_Mann", "Kellogg-Harris", "Kellogg-Onancock"))) # drop data not included in zenodo 20240508
-JR2=JR %>% select(Data_Source, Waterbody_Name, Site, `Latitude_Decimal Degree`, `Longitude_Decimal Degree`, `Salinity classification`)
-colnames(JR2)[4]="Latitude"
-colnames(JR2)[5]="Longitude"
-test=left_join(CB2, JR2, by=c("Data_Source", "Waterbody_Name", "Site"))
-
+sta=stations %>% select(Waterbody_Name, st_abrv, Latitude, Longitude)
+sta2=sta[!duplicated(sta$Waterbody_Name),]
+## remove repeats, merge on first 2 columns, then fix repeats for NY and ME, NH
+test=left_join(outfile, sta2, by=c("Waterbody_Name", "st_abrv"))
+sum(is.na(test$Latitude))
+test$Latitude[which(test$st_abrv=="NY" & test$Site=="GSBW")]=40.660075
+test$Latitude[which(test$st_abrv=="NY" & test$Site=="GSBC")]=40.717588
+test$Latitude[which(test$st_abrv=="NY" & test$Site=="GSBE")]=40.742127
+test$Longitude[which(test$st_abrv=="NY" & test$Site=="GSBW")]=-73.278951
+test$Longitude[which(test$st_abrv=="NY" & test$Site=="GSBC")]=-73.104576
+test$Longitude[which(test$st_abrv=="NY" & test$Site=="GSBE")]=-72.953976
+test$Latitude[which(test$st_abrv=="ME" & test$Site=="Pemaquid Oyster Company")]=43.95824
+test$Latitude[which(test$st_abrv=="ME" & test$Site=="Darling Marine Center")]=43.935007
+test$Longitude[which(test$st_abrv=="ME" & test$Site=="Pemaquid Oyster Company")]=-69.570455
+test$Longitude[which(test$st_abrv=="ME" & test$Site=="Darling Marine Center")]=-69.5812
+test$Latitude[which(test$st_abrv=="NH" & test$Waterbody_Name=="Little Bay")]=43.120057
+test$Longitude[which(test$st_abrv=="NH" & test$Waterbody_Name=="Little Bay")]=-70.859828
+sum(is.na(test$Latitude))
+outfile$Latitude=test$Latitude
+outfile$Longitude=test$Longitude
+outfile=outfile[,c(1:7,30,31,8:29)]
 colnames(outfile)
+
+# fix Oyster_Stock issue -> Source of oysters instead
+colnames(outfile)[12]="Oyster_Source"
+# outfile$Oyster_Source[which(RegionFarm$Data_Source=="Reitsma et al. 2017" & RegionFarm$Hatchery_produced_or_Wild=="wild")]="Wild"
+
+
 dt=lubridate::now()
 dat=format(dt,"%Y%m%d")
 write.csv(outfile, file=paste(wd,dat,'RegionFarm.csv', sep=''),row.names=FALSE)
