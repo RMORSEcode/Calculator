@@ -36,9 +36,8 @@ survey=readRDS("C:/Users/ryan.morse/Downloads/survdat.rds")
 survdat <- survey$survdat
 ## load survdat.bio from Andy 2024
 survey.bio=readRDS("C:/Users/ryan.morse/Downloads/SurvdatBio.rds")
-survdat.bio <- survey$survdat
+survdat.bio <- survey.bio$survdat
 
-survdat <- survey$survdat
 
 ### Species List ###
 ## black sea bass - 141
@@ -216,6 +215,7 @@ boxplot(LENGTH~AGE,data=bsb.sp, main="BSB Spring", ylim=c(0,60), xlim=c(0,12))
 boxplot(LENGTH~AGE,data=bsb.fl, main="BSB Fall", ylim=c(0,60), xlim=c(0,12))
 
 ## drop missing data
+bsb.both=survdat.bio %>% dplyr::filter(SVSPP==141) %>% dplyr::filter(complete.cases(AGE))
 bsb.sp2=bsb.sp[complete.cases(bsb.sp$AGE),]
 bsb.fl2=bsb.fl[complete.cases(bsb.fl$AGE),]
 
@@ -256,14 +256,19 @@ bsb.fl3$logL=log(bsb.fl3$LENGTH)
 sp2=bsb.fl3[complete.cases(bsb.fl3$logW),]
 sp3=sp2[complete.cases(sp2$logL),]
 lm1=lm(logW~logL, data=sp3)
-plot(sp3$logW~sp3$logL, type='p', pch=21, xlab="log length", ylab="log weight")
+plot(sp3$logW~sp3$logL, type='p', pch=21, xlab="Log length (cm)", ylab="Log weight (kg)", las=1)#, main="Fall Black Sea Bass")
 abline(lm1, col='red', lw=2)
 summary(lm1)
 # text(2, -7, labels=paste("a= ", exp(lm1$coefficients[1]), sep=''))
 # text(2, -8, labels=paste("b= ", lm1$coefficients[2], sep=''))
-text(2, 0, labels=paste("a= ", exp(lm1$coefficients[1]), sep=''))
-text(2, -1, labels=paste("b= ", lm1$coefficients[2], sep=''))
-
+# text(2, 0, labels=paste("a= ", round(exp(lm1$coefficients[1]),6), sep=''),pos = 2)
+# text(2, -1, labels=paste("b= ", round(lm1$coefficients[2],3), sep=''),pos = 2)
+legend('topleft', legend = c("Fall bottom trawl survey",
+                             "Black sea bass",
+                             "Length-weight:",
+                             paste("a= ", round(exp(lm1$coefficients[1]),6), sep=''),
+                             paste("b= ", round(lm1$coefficients[2],3), sep='')),
+                             bty = 'n')
 ## spatial view of high abundance strata
 bts.s=bts %>% filter(STRATA %in% t2.s$STRATUM)
 bts.f=bts %>% filter(STRATA %in% t2.f$STRATUM)
@@ -292,12 +297,31 @@ boxplot(LENGTH~AGE,data=bsb.sp[which(bsb.sp$YEAR==2016),], main="BSB Spring 2016
 boxplot(LENGTH~AGE,data=bsb.fl[which(bsb.fl$YEAR==2015),], main="BSB Fall 2015", ylim=c(0,60), xlim=c(0,12))
 
 
-boxplot(LENGTH~AGE,data=bsb.sp, main="BSB Spring", ylim=c(0,60), xlim=c(0,10))
-boxplot(LENGTH~AGE,data=bsb.fl, main="BSB Fall", ylim=c(0,60), xlim=c(0,10))
+boxplot(LENGTH~AGE,data=bsb.sp, main="BSB Spring", ylim=c(0,70), xlim=c(0,10), las=1)
+boxplot(LENGTH~AGE,data=bsb.fl, ylim=c(0,70), xlim=c(0,10), las=1, ylab = 'Length (cm)', xlab='Age')
+legend('topleft', legend = c("Fall bottom trawl survey",
+                             "Black sea bass",
+                             "Length-at-age"
+                             ),
+       bty = 'n') 
+bsb.fl %>% 
+  select(AGE, LENGTH, STRATUM) %>%
+  filter(STRATUM==3020 | STRATUM==1050) %>%
+  filter(!is.na(AGE)) %>%
+  select(AGE, LENGTH) %>% 
+  ggboxplot(y='LENGTH', x='AGE', ylim=c(0,70))+
+  # ggplot(aes(y=LENGTH, x=AGE)) +
+  # geom_boxplot(color = "black", notch=T) +
+  # theme_classic()+
+  labs(x='Age (yrs)', y = 'Length (cm)') +
+  # coord_cartesian(ylim = c(0, 70))+
+  # theme(strip.background = element_blank(),
+  #       strip.text.y = element_blank())+
+  theme(text = element_text(size = 20)) 
 
-# plot size of age-0 and age-1
+  # plot size of age-0 and age-1
 boxplot(LENGTH~AGE,data=bsb.fl[which(bsb.fl$AGE==0),], main="BSB Fall age-0", ylim=c(0,20))
-boxplot(LENGTH~AGE,data=bsb.sp[which(bsb.sp$AGE==1),], main="BSB Spr age-1", ylim=c(0,20))
+boxplot(LENGTH~AGE,data=bsb.sp[which(bsb.sp$AGE==1),], main="BSB Spr age-1", ylim=c(0,20), las=1)
 
 ## filter to strata:
 # 3020 - most inshore, landward of 1050, small
@@ -309,7 +333,7 @@ bsb.sp[which(bsb.sp$AGE==1),] %>%
   ggboxplot(y='LENGTH', x='YEAR', ylim=c(0,20))
 
 bsb.fl[which(bsb.fl$AGE==0),] %>% 
-  # filter(STRATUM==3020 | STRATUM==1050) %>%
+  filter(STRATUM==3020 | STRATUM==1050) %>%
   select(YEAR, LENGTH, STRATUM) %>% 
   group_by(YEAR) %>% 
   ggboxplot(y='LENGTH', x='YEAR', ylim=c(0,20))
@@ -339,13 +363,21 @@ with(bsb.fl[which(bsb.fl$AGE==0),], heatmap(table(STRATUM, YEAR)))
 with(bsb.fl[which(bsb.fl$AGE==0),], heatmap.2(table(STRATUM, YEAR), Rowv = NA, Colv=NA,col=bluered, scale="none", tracecol="#303030" ,dendrogram="none", key=T))
 colorbar(terrain.colors(256))
 
-
-agesum <- group_by(bsb,SEX) %>%
+### Description of the sex code field. Only 0, 1, 2 are valid entries for fscs tables.
+# 0=Unsexed, unknown, or sex not observed; Since the summer 1995 Gulf of Maine Trawl Survey forgot to look for American Lobster;
+# 1=Male;
+# 2=Female; Female Stage I for Northern Shrimp; Since the summer 1995 Gulf of Maine Trawl Survey Female (no eggs, no notch) for American Lobster;
+# 3=Female Stage II for Northern Shrimp; Since the summer 1995 Gulf of Maine Trawl Survey Female, with eggs, no notch for American Lobster;
+# 4=Transitional for Northern Shrimp; Since the summer 1995 Gulf of Maine Trawl Survey Female, with notch, no eggs for American Lobster;
+# 5=Ovigerous for Northern Shrimp; Since the summer 1995 Gulf of Maine Trawl Survey Female, with notch and eggs for American Lobster;
+# 6=Non-spawning Female for Northern Shrimp;
+# 7=Female for Northern Shrimp not staged (stage I or II not determined)
+agesum <- group_by(bsb.sp2,SEX) %>%
   summarize(minage=min(AGE, na.rm = T),maxage=max(AGE, na.rm = T))
 agesum
 
 
-agesum <- group_by(bsb,SEX) %>%
+agesum <- group_by(bsb.fl2,SEX) %>%
   summarize(minage=min(AGE, na.rm = T),maxage=max(AGE, na.rm = T))
 agesum
 
@@ -354,19 +386,19 @@ vb <- vbFuns(param="Typical")
 f.starts.sp <- vbStarts(LENGTH~AGE,data=bsb.fl2) 
 f.fit.sp <- nls(LENGTH~vb(AGE,Linf,K,t0),data=bsb.fl2,start=f.starts.sp)
 coef(f.fit.sp)
-ages <- seq(-1,10,by=0.2)
+ages <- seq(0,10,by=0.5)
 ages <-c(0.5, seq(1,10,by=1))
 f.boot1.sp <- Boot(f.fit.sp)  # Be aware of some non-convergence
 confint(f.boot1.sp)
 
-lp=predict2(f.fit.sp)
+lp=predict(f.fit.sp)
 plot(lp~ages, type='b', ylab='Length (cm)', xlab="Age", las=1, lwd=2, pch=19)
 
-predict(f.fit.sp,data.frame(AGE=1:12))
+predict(f.fit.sp,data.frame(AGE=1:10))
 predict2 <- function(x) predict(x,data.frame(AGE=ages))
-ages <- 0.5:12
+ages <- 0.5:10
 predict2(f.fit.sp)  
-ages <- seq(-1,12,by=0.2)
+ages <- seq(0,10,by=0.5)
 f.boot2 <- Boot(f.fit.sp,f=predict2)
 
 preds1 <- data.frame(ages,

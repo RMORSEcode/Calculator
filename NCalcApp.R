@@ -10,7 +10,7 @@ library(formatR)
 library(tinytex)
 library(gh)
 
-ui <- fluidPage(
+ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
   ### Title ###
   # theme = bslib::bs_theme(bootswatch = "lux"),
   # shinythemes::themeSelector(),
@@ -35,11 +35,11 @@ ui <- fluidPage(
                # titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
                helpText(br()),
                
-               ### add text box with black border ###
-               div( style = "border-style: solid; border-color: gray;",
-                    p("The Calculator predicts harvest-based nitrogen removal from an eastern oyster farm located within the geographic range of North Carolina to Maine, USA.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:15px;"),
-                    p("To use the tool, please fill in all information in sections 1-3 below.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:15px;"),
-                    p("To download a report, click on ",strong("Generate PDF Report")," at the bottom", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:15px;")),
+               ### add text box with black border ### #5761C0  style = "border-style: solid; border-color: #C6E6F0#5EB6D9; background-color: #5EB6D9;",
+               div( style = "border-style: solid; border-color: #0085CA; background-color: #0085CA;",
+                    p("This calculator predicts the amount of nitrogen farmed eastern oysters remove from the water when harvested, a key environmental benefit that oysters provide. This tool applies to oyster farms located within the geographic range of North Carolina to Maine, USA.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px;color: white"),
+                    p("To use the tool, please fill in information about your farm in sections 1-3 below.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white"),
+                    p("To download a report, click on ",strong("Generate PDF Report")," at the bottom", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white")),
                helpText(br()),
                
                ### 1 FARM PRACTICES ###
@@ -47,17 +47,17 @@ ui <- fluidPage(
                ## Name
                # helpText("Please enter the name of the oyster farm", style = "font-size:18px;"),
                # textInput("farmname", strong("Project Name:"), value = "", width = NULL, placeholder = NULL),
-               textAreaInput("farmname", div(strong("Project Name:"), " Please enter the name of the oyster farm"),value = "", width = NULL, rows=2, placeholder = NULL),
+               textAreaInput("farmname", div(strong("Project Name:"), " Please enter the name of the oyster farm"),value = "", width="100%", rows=2, placeholder = NULL),
                # helpText("Please enter the name of the water body where the oysters were harvested from"),
                # textInput("projloc", strong("Harvest Location:"), value = "", width = NULL, placeholder = NULL),
                helpText(br()),
                ## Culture Method
                # helpText("Select the gear type primarily used for growing oysters, or select 'On-Bottom' for no gear", style = "font-size:18px;"),
-               selectInput("gear", div(strong("Culture Method:")," Select the gear type primarily used for growing oysters, or select 'On-Bottom' for no gear", em("(will not affect calculation)")),c("Floating", "Off-bottom", "On-Bottom", "Multiple methods used")),
+               selectInput("gear", div(strong("Culture Method:")," Select the gear type primarily used for growing oysters, or select 'On-Bottom' for no gear", em("(will not affect calculation)")),c("Floating", "Off-bottom", "On-Bottom", "Multiple methods used"), width="100%"),
                helpText(br()),
                ## Ploidy
                # helpText("Please select the ploidy of the oysters that were harvested", style = "font-size:18px;"),
-               selectInput("ploidy", div(strong("Oyster Ploidy:")," Please select the ploidy of the oysters that were harvested", em("(will not affect calculation)")),c("Diploid", "Triploid", "Combination")),
+               selectInput("ploidy", div(strong("Oyster Ploidy:")," Please select the ploidy of the oysters that were harvested", em("(will not affect calculation)")),c("Diploid", "Triploid", "Combination"), width="100%"),
                helpText(br()),
                # textInput("farmloc", "Farm Location - City, State", value = "", width = NULL, placeholder = NULL),
                
@@ -65,10 +65,10 @@ ui <- fluidPage(
                helpText(h3("2) Farm Location")),
                # helpText("Please enter the name of the water body where the oysters were harvested from", style = "font-size:18px;"),
                # textInput("projloc", strong("Harvest Location:"), value = "", width = NULL, placeholder = NULL),
-               textAreaInput("projloc", div(strong("Harvest Location:"), " Please enter the name of the water body where the oysters were harvested from", em("(will not affect calculation)")), value = "", width = NULL, rows=2, placeholder = NULL),
+               textAreaInput("projloc", div(strong("Harvest Location:"), " Please enter the name of the water body where the oysters were harvested from", em("(will not affect calculation)")), value = "", width ="100%", rows=2, placeholder = NULL),
                helpText(br()),
                helpText(h6("Approximate Coordinates: "),"Please scroll or pinch to zoom to the harvest location, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
-               leafletOutput("mymap", width="70%", height=400),
+               leafletOutput("mymap", width="100%", height=400),
                ## Location table
                tableOutput('loctable'),
                helpText(br()),
@@ -87,17 +87,17 @@ ui <- fluidPage(
                  round = FALSE,
                  ticks = TRUE,
                  animate = FALSE,
-                 width = NULL,
+                 width = "100%",
                  sep = ",",
                  dragRange = TRUE
                ),
                helpText(br()),
                ## Number
                # helpText("Please enter the total number of oysters harvested at the selected size", style = "font-size:18px;"),
-               numericInput("Num", div(strong("Number of oysters at harvest:")," Please enter the total number of oysters harvested at the selected size"), 0, min=0, max=NA),
+               numericInput("Num", div(strong("Number of oysters at harvest:")," Please enter the total number of oysters harvested at the selected size"), 0, min=0, max=NA, width="100%"),
                helpText(br()),
                ## Dates
-               dateRangeInput("Htime", div(strong("Period of harvest (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month"),
+               dateRangeInput("Htime", div(strong("Period of harvest (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month", width="100%"),
                helpText(br()),
                ## Units
                # helpText("Units for nutrient removal:", style = "font-size:18px;"),
@@ -107,7 +107,8 @@ ui <- fluidPage(
                  div(strong("Units:")," Select the units for nutrient removal"),
                  choices =c("Pounds (lbs)", "Kilograms (kg)"),
                  selected ="Pounds (lbs)",
-                 inline = T),
+                 inline = T,
+                 width="100%"),
                helpText(br()),
                
                plotOutput("nutbplot", width="50%"), 
@@ -131,17 +132,17 @@ ui <- fluidPage(
                titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
                # titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
                helpText(br()),
-               ### add text box with black border ###
-               div( style = "border-style: solid; border-color: gray;",
-                    p("The Reverse Calculator predicts the number of eastern oysters needed to harvest in order to offset a specified nitrogen load at a farm located within the geographic range of North Carolina to Maine, USA.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:15px;"),
-                    p("To use the tool, please enter a nitrogen load and the average size of oyters at harvest.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:15px;")),
+               ### add text box with black border ### "border-style: solid; border-color: gray; background-color: #838B8B;"
+               div( style = "border-style: solid; border-color: #0085CA; background-color: #0085CA;",
+                    p("The Reverse Calculator predicts the number of eastern oysters needed to harvest in order to offset a specified nitrogen load at a farm located within the geographic range of North Carolina to Maine, USA.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;"),
+                    p("To use the tool, please enter a nitrogen load and the average size of oyters at harvest.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;")),
                # p("To download a report, click on ",strong("Generate PDF Report")," at the bottom", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:15px;")),
                helpText(br()),
                
                helpText(br()),
                helpText(h3("Harvest Estimator For Nitrogen (N) Load Removal")),
                # helpText("This will estimate the number of oysters required for harvest in order to offset a specified N load", style = "font-size:18px;"),
-               numericInput("Nload", strong("Nitrogen load into waterbody (lbs N)"), 0, min=0, max=NA),
+               numericInput("Nload", strong("Nitrogen load into waterbody (lbs N)"), 0, min=0, max=NA, width="100%"),
                helpText(br()),
                sliderInput(
                  "hsize2",
@@ -153,7 +154,7 @@ ui <- fluidPage(
                  round = FALSE,
                  ticks = TRUE,
                  animate = FALSE,
-                 width = NULL,
+                 width = "100%",
                  sep = ",",
                  dragRange = TRUE
                ),
@@ -172,16 +173,16 @@ ui <- fluidPage(
                # tags$img(src='Copy of youngoysters_StellaMar.jpg', style = 'position: absolute'),
                titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
                helpText(br()),
-               div( style = "border-style: solid; border-color: gray;",
-                    p("About the Calculator:", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:20px;"),
-                    p("The Aquaculture Nutrient Removal Calculator can be used for new permit applications based on estimated production value, or to provide information on existing farms from actual harvest numbers. The grower provides information on:", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:15px;"),
+               div( style = "border-style: solid; border-color: #0085CA; background-color: #0085CA;",
+                    p("About the Calculator:", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:20px; color: white;"),
+                    p("The Aquaculture Nutrient Removal Calculator can be used for new permit applications based on estimated production value, or to provide information on existing farms from actual harvest numbers. The grower provides information on:", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;"),
                     # p("Calculator Inputs:", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:20px;"),
-                    p(strong("- Number of oysters harvested or to be harvested"), style="text-align:justify; padding-left:10px; padding-right:10px; font-size:15px;"),
-                    p(strong("- Size of oysters at harvest"), style="text-align:justify; padding-left:10px; padding-right:10px; font-size:15px;"),
-                    p("- Culture method (floating gear vs. off-bottom gear vs. on-bottom)*", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:15px;"),
-                    p("- Ploidy (diploid, triploid, or a combination)*", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:15px;"),
-                    p("- Farm location and period of harvest (1 day to 5 years) will be included as inputs for use in generating the report, but will not affect the calculation.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:15px;"),
-                    p(em("*We are actively seeking feedback from the aquaculture community on the inclusion of these factors, given the small effect that they had in our data analysis."), style="text-align:justify; padding-left:10px; padding-right:10px; font-size:15px;")),
+                    p(strong("- Number of oysters harvested or to be harvested"), style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;"),
+                    p(strong("- Size of oysters at harvest"), style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;"),
+                    p("- Culture method (floating gear vs. off-bottom gear vs. on-bottom)*", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;"),
+                    p("- Ploidy (diploid, triploid, or a combination)*", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;"),
+                    p("- Farm location and period of harvest (1 day to 5 years) will be included as inputs for use in generating the report, but will not affect the calculation.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;"),
+                    p(em("*We are actively seeking feedback from the aquaculture community on the inclusion of these factors, given the small effect that they had in our data analysis."), style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;")),
                # titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
                helpText(br()),
                tags$p(
@@ -254,7 +255,7 @@ ui <- fluidPage(
                # tags$img(src='Fig1.png'),
                h4("Location of Eastern oyster", em("(Crassostrea virginica)"), "samples from aquaculture farm sites used to develop the calculator"
                ),
-               leafletOutput("contmap", width="70%", height=400),
+               leafletOutput("contmap", width="100%", height=400),
                # ),
                # # tabPanel("References", 
                #          # tags$img(src='swooshgn2.png'),
@@ -433,10 +434,9 @@ server <- function(input, output) {
     tN=tNi*cnvrt
     # sN=reactiveValues()
     sN=sNi*cnvrt
-    ReNum=round(input$Nload/(sN+tN),-3)
+    ReNum=prettyNum(round(input$Nload/(sN+tN),-4),big.mark=",")
     df3=data.frame("Total_N_load"=input$Nload, "Num"=ReNum)
-    # formatC(df3, big.mark=",", scientific=FALSE)
-    colnames(df3)=c("Total N Load", "Number of Oysters to Harvest")
+    colnames(df3)=c("Total N Load (lbs)", "Number of Oysters to Harvest")
     df3
   })
   
