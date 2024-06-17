@@ -61,6 +61,11 @@ colnames(outfile)
 colnames(outfile)[12]="Oyster_Source"
 # outfile$Oyster_Source[which(RegionFarm$Data_Source=="Reitsma et al. 2017" & RegionFarm$Hatchery_produced_or_Wild=="wild")]="Wild"
 
+# Update Suzy Ayvazian data from unpublished to sources:
+# Ayvazian SG, Ray NE, Gerber-Williams A, Grabbert S, Pimenta A, Hancock B, Cobb D, Strobel C, Fulweiler RW. Evaluating connections between nitrogen cycling and the macrofauna in native oyster beds in a New England estuary. Estuaries and Coasts. 2022 Jan;45(1):196-212.
+# Humphries AT, Ayvazian SG, Carey JC, Hancock BT, Grabbert S, Cobb D, Strobel CJ, Fulweiler RW. Directly measured denitrification reveals oyster aquaculture and restored oyster reefs remove nitrogen at comparable high rates. Frontiers in Marine Science. 2016 May 12;3:74.
+outfile$Data_Source[outfile$Waterbody_Name=="Green Hill Pond"]="Ayvazian et al. 2021"
+outfile$Data_Source[outfile$Waterbody_Name=="Ninigret Pond"]="Humphries et al. 2016"
 
 dt=lubridate::now()
 dat=format(dt,"%Y%m%d")

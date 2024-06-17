@@ -1,5 +1,5 @@
 # https://test-connect.fisheries.noaa.gov/Calculator/ NOAA internal
-# https://connect.fisheries.noaa.gov/Oyster-Calculator/ open upon approval of MS
+# https://connect.fisheries.noaa.gov/ANRC/ open upon approval of MS
 library(shiny)
 library(shinyWidgets)
 library(leaflet)
@@ -31,8 +31,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                # tags$img(src='swooshgn2.png'),
                # tags$img(src='gn_swoosh_shellfish3.png'),
                tags$img(src='white_swoosh_cage_500pxH.png', width = "100%"),
-               titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
-               # titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
+               titlePanel(h1("Aquaculture Nutrient Removal Calculator"), windowTitle = "Aquaculture Nutrient Removal Calculator"),
                helpText(br()),
                
                ### add text box with black border ### #5761C0  style = "border-style: solid; border-color: #C6E6F0#5EB6D9; background-color: #5EB6D9;",
@@ -129,8 +128,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                tags$img(src='white_swoosh_orange_bin_500pxH.png', width = "100%"),
                # tags$img(src='gn_swoosh_shellfish3.png'),
                # tags$img(src='transparent_650pxH_2.png', width = "100%"),
-               titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
-               # titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
+               titlePanel(h1("Aquaculture Nutrient Removal Calculator"), windowTitle = "Aquaculture Nutrient Removal Calculator"),
                helpText(br()),
                ### add text box with black border ### "border-style: solid; border-color: gray; background-color: #838B8B;"
                div( style = "border-style: solid; border-color: #0085CA; background-color: #0085CA;",
@@ -171,7 +169,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                tags$img(src='white_swoosh_hand_left2_500pxH.png', width = "100%"),
                # tags$img(src='white_swoosh_bins_500pxH.png', width = "100%"),
                # tags$img(src='Copy of youngoysters_StellaMar.jpg', style = 'position: absolute'),
-               titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
+               titlePanel(h1("Aquaculture Nutrient Removal Calculator"), windowTitle = "Aquaculture Nutrient Removal Calculator"),
                helpText(br()),
                div( style = "border-style: solid; border-color: #0085CA; background-color: #0085CA;",
                     p("About the Calculator:", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:20px; color: white;"),
@@ -183,7 +181,6 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                     p("- Ploidy (diploid, triploid, or a combination)*", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;"),
                     p("- Farm location and period of harvest (1 day to 5 years) will be included as inputs for use in generating the report, but will not affect the calculation.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;"),
                     p(em("*We are actively seeking feedback from the aquaculture community on the inclusion of these factors, given the small effect that they had in our data analysis."), style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;")),
-               # titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
                helpText(br()),
                tags$p(
                  h4("Background"),
@@ -520,7 +517,7 @@ server <- function(input, output) {
   
   output$downloader <- 
     downloadHandler(
-      "results_from_shiny.pdf",
+      "Oyster_Farm_Nitrogen_Report.pdf",
       content = 
         function(file)
         {

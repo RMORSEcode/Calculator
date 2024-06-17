@@ -14,9 +14,9 @@ survdat.bio <- survey.bio$survdat
 ### Choose season ###
 Season="Spring" # Spring | Fall | Combined
 ### Choose species ###
-# Species="Black sea bass"; snum=141 
+Species="Black sea bass"; snum=141
 # Species="Scup"; snum=143
-Species="Cunner"; snum=176
+# Species="Cunner"; snum=176
 # Species="Tautog"; snum=177
 
 spp.sp=survdat.bio %>% 
@@ -35,7 +35,8 @@ if(Season=="Spring"){
   dataX=spp.fl
 } else {
   dataX=spp.both
-  }
+}
+# 1=Male 2=Female;
 spp.fl4=dataX %>% filter(SEX==1 | SEX==2)
 agesum <- group_by(spp.fl4,SEX) %>%
   summarize(minage=min(AGE),maxage=max(AGE))
@@ -76,8 +77,8 @@ makeVBEqnLabel <- function(fit) {
 vbFitPlot <- ggplot() + 
   geom_ribbon(data=preds2,aes(x=AGE,ymin=LCI,ymax=UCI),fill="gray90") +
   geom_point(data=dataX,aes(y=LENGTH,x=AGE),size=2,alpha=0.1) +
-  geom_line(data=preds1,aes(y=fit,x=AGE),size=1,linetype=2) +
-  geom_line(data=preds2,aes(y=fit,x=AGE),size=1) +
+  geom_line(data=preds1,aes(y=fit,x=AGE),linewidth=1,linetype=2) +
+  geom_line(data=preds2,aes(y=fit,x=AGE),linewidth=1) +
   scale_y_continuous(name="Length (cm)",limits=c(0,round(max(dataX$LENGTH*1.2),-1)),expand=c(0,0)) +
   scale_x_continuous(name="Age (years)",expand=c(0,0),
                      limits=c(-1,12),breaks=seq(0,12,2)) +

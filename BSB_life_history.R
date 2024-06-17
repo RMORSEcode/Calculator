@@ -250,13 +250,15 @@ summary(lm1)
 text(2, 0, labels=paste("a= ", exp(lm1$coefficients[1]), sep=''))
 text(2, -1, labels=paste("b= ", lm1$coefficients[2], sep=''))
 
+
+
 bsb.fl3=bsb.fl2 %>% filter(INDWT>0)
-bsb.fl3$logW=log(bsb.fl3$INDWT)
-bsb.fl3$logL=log(bsb.fl3$LENGTH)
+bsb.fl3$logW=log(bsb.fl3$INDWT*1000) #grams
+bsb.fl3$logL=log(bsb.fl3$LENGTH) #cm
 sp2=bsb.fl3[complete.cases(bsb.fl3$logW),]
 sp3=sp2[complete.cases(sp2$logL),]
 lm1=lm(logW~logL, data=sp3)
-plot(sp3$logW~sp3$logL, type='p', pch=21, xlab="Log length (cm)", ylab="Log weight (kg)", las=1)#, main="Fall Black Sea Bass")
+plot(sp3$logW~sp3$logL, type='p', pch=21, xlab="Log length (cm)", ylab="Log weight (g)", las=1)#, main="Fall Black Sea Bass")
 abline(lm1, col='red', lw=2)
 summary(lm1)
 # text(2, -7, labels=paste("a= ", exp(lm1$coefficients[1]), sep=''))
