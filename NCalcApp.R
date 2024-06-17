@@ -14,11 +14,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
   ### Title ###
   # theme = bslib::bs_theme(bootswatch = "lux"),
   # shinythemes::themeSelector(),
-  # theme = bslib::bs_theme(bootswatch = "superhero"),
   theme = bslib::bs_theme(bootswatch = "cerulean"),
-  # tags$img(src='swooshgn2.png'),
-  # titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
-  # titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
   helpText(strong("Calculator Version:", style = "font-size:18px;")),
   textOutput("githubversion"),
   helpText(br()),
@@ -44,26 +40,17 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                ### 1 FARM PRACTICES ###
                helpText(h3("1) Farm Practices")),
                ## Name
-               # helpText("Please enter the name of the oyster farm", style = "font-size:18px;"),
-               # textInput("farmname", strong("Project Name:"), value = "", width = NULL, placeholder = NULL),
                textAreaInput("farmname", div(strong("Project Name:"), " Please enter the name of the oyster farm"),value = "", width="100%", rows=2, placeholder = NULL),
-               # helpText("Please enter the name of the water body where the oysters were harvested from"),
-               # textInput("projloc", strong("Harvest Location:"), value = "", width = NULL, placeholder = NULL),
                helpText(br()),
                ## Culture Method
-               # helpText("Select the gear type primarily used for growing oysters, or select 'On-Bottom' for no gear", style = "font-size:18px;"),
                selectInput("gear", div(strong("Culture Method:")," Select the gear type primarily used for growing oysters, or select 'On-Bottom' for no gear", em("(will not affect calculation)")),c("Floating", "Off-bottom", "On-Bottom", "Multiple methods used"), width="100%"),
                helpText(br()),
                ## Ploidy
-               # helpText("Please select the ploidy of the oysters that were harvested", style = "font-size:18px;"),
                selectInput("ploidy", div(strong("Oyster Ploidy:")," Please select the ploidy of the oysters that were harvested", em("(will not affect calculation)")),c("Diploid", "Triploid", "Combination"), width="100%"),
                helpText(br()),
-               # textInput("farmloc", "Farm Location - City, State", value = "", width = NULL, placeholder = NULL),
-               
+
                ### 2 LOCATION ###
                helpText(h3("2) Farm Location")),
-               # helpText("Please enter the name of the water body where the oysters were harvested from", style = "font-size:18px;"),
-               # textInput("projloc", strong("Harvest Location:"), value = "", width = NULL, placeholder = NULL),
                textAreaInput("projloc", div(strong("Harvest Location:"), " Please enter the name of the water body where the oysters were harvested from", em("(will not affect calculation)")), value = "", width ="100%", rows=2, placeholder = NULL),
                helpText(br()),
                helpText(h6("Approximate Coordinates: "),"Please scroll or pinch to zoom to the harvest location, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
@@ -75,7 +62,6 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                ### 3 HARVEST DETAILS ###
                helpText(h3("3) Harvest Details")),
                ## Size
-               # helpText("Please drag the slider to select the average size of the oysters that were harvested", style = "font-size:18px;"),
                sliderInput(
                  "hsize",
                  div(strong("Average oyster size at harvest (Inches):"), " Please drag the slider to select the average size of the oysters that were harvested"),
@@ -92,15 +78,12 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                ),
                helpText(br()),
                ## Number
-               # helpText("Please enter the total number of oysters harvested at the selected size", style = "font-size:18px;"),
                numericInput("Num", div(strong("Number of oysters at harvest:")," Please enter the total number of oysters harvested at the selected size"), 0, min=0, max=NA, width="100%"),
                helpText(br()),
                ## Dates
                dateRangeInput("Htime", div(strong("Period of harvest (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month", width="100%"),
                helpText(br()),
                ## Units
-               # helpText("Units for nutrient removal:", style = "font-size:18px;"),
-               # selectInput("units", strong("Units:"),c("Pounds (lbs)", "Kilograms (kg)")),
                radioButtons(
                  "units",
                  div(strong("Units:")," Select the units for nutrient removal"),
@@ -126,8 +109,6 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
       
       tabPanel("Reverse Calculator",
                tags$img(src='white_swoosh_orange_bin_500pxH.png', width = "100%"),
-               # tags$img(src='gn_swoosh_shellfish3.png'),
-               # tags$img(src='transparent_650pxH_2.png', width = "100%"),
                titlePanel(h1("Aquaculture Nutrient Removal Calculator"), windowTitle = "Aquaculture Nutrient Removal Calculator"),
                helpText(br()),
                ### add text box with black border ### "border-style: solid; border-color: gray; background-color: #838B8B;"
@@ -139,7 +120,6 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                
                helpText(br()),
                helpText(h3("Harvest Estimator For Nitrogen (N) Load Removal")),
-               # helpText("This will estimate the number of oysters required for harvest in order to offset a specified N load", style = "font-size:18px;"),
                numericInput("Nload", strong("Nitrogen load into waterbody (lbs N)"), 0, min=0, max=NA, width="100%"),
                helpText(br()),
                sliderInput(
@@ -164,11 +144,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                ),
       ),
       tabPanel("About", 
-               # tags$img(src='swooshgn2.png'),
-               # tags$img(src='gn_swoosh_shellfish3.png'), 'white_swoosh_bins_500pxH.png'
                tags$img(src='white_swoosh_hand_left2_500pxH.png', width = "100%"),
-               # tags$img(src='white_swoosh_bins_500pxH.png', width = "100%"),
-               # tags$img(src='Copy of youngoysters_StellaMar.jpg', style = 'position: absolute'),
                titlePanel(h1("Aquaculture Nutrient Removal Calculator"), windowTitle = "Aquaculture Nutrient Removal Calculator"),
                helpText(br()),
                div( style = "border-style: solid; border-color: #0085CA; background-color: #0085CA;",
@@ -196,71 +172,10 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                  ),
                  p("We have synthesized available literature for eastern oyster farms across the Northeast region (North Carolina to Maine), and applied methodology used by the Chesapeake Bay Program to calculate nutrient removal at harvest. Variability in oyster tissue and shell nutrient concentration was low, and an assessment of farm location, ploidy, and cultivation practice (with vs. without gear) suggested that a single average value could reasonably be applied across all farms."
                  ),
-                 # br(),
-                 # h4("Calculator Inputs"),
-                 # p("The Aquaculture Nutrient Removal Calculator can be used for new permit applications based on estimated production value or to provide information on existing farms from actual harvest numbers. The grower provides information on:"
-                 # ),
-                 # p(strong("- Number of oysters harvested or to be harvested")
-                 # ),
-                 # p(strong("- Size of oysters at harvest")
-                 # ),
-                 # p("- Culture method (floating gear vs. off-bottom gear vs. on-bottom)*"
-                 # ),
-                 # p("- Ploidy (diploid, triploid, or a combination)*"
-                 # ),
-                 # p(em("*We are actively seeking feedback from the aquaculture community on the inclusion of these factors, given the small effect that they had in our data analysis.")
-                 # ),
-                 # p("Farm location and period of harvest (1 day to 5 years) will be included as inputs for use in generating the report, but will not affect the calculation."
-                 # ),
-                 # h4("Summary"),
-                 # p("We have synthesized available literature for eastern oyster farms across the Northeast region (North Carolina to Maine), and applied methodology used by the Chesapeake Bay Program to calculate nutrient removal at harvest. Variability in oyster tissue and shell nutrient concentration was low, and an assessment of farm location, ploidy, and cultivation practice (with vs. without gear) suggested that a single average value could reasonably be applied across all farms."
-                 # ),
-                 # helpText(br()),
-                 # )
-                 # ),
-                 # tabPanel("Data and References", 
-                 #          # tags$img(src='swooshgn2.png'),
-                 #          # tags$img(src='gn_swoosh_shellfish3.png'),
-                 #          # tags$img(src='transparent_650pxH_white.png', width = "100%"),
-                 #          tags$img(src='white_swoosh_bins_500pxH.png', width = "100%"),
-                 #          titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
-                 #          titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
-                 #          helpText(br()),
-                 # tags$p(
-                 #   h4("Data Contributors"),
-                 #   p("ME: Damian Brady and Tom Kiffney - University of Maine"
-                 #   ),
-                 #   p("NH: Ray Grizzle and Krystin Ward - University of New Hampshire"
-                 #   ),
-                 #   p("MA: Josh Reitsma - Cape Cod Cooperative Extension"
-                 #   ),
-                 #   p("RI: Suzy Ayvazian - EPA Narragansett"
-                 #   ),
-                 #   p("CT: Skylar Bayer, Matt Poach, Shannon Meseck, and Julie Rose - NOAA Milford"
-                 #   ),
-                 #   p("NY: Jeff Levinton and Daria Sebastiano - Stony Brook University"
-                 #   ),
-                 #   p("NJ: Daphne Munroe and Janine Barr - Rutgers University"
-                 #   ),
-                 #   p("MD: Matt Poach - NOAA Milford; Julie Reichert-Nguyen - NOAA Chesapeake Bay Office; Suzanne Bricker - NOAA Oxford, and Matt Parker - Maryland Sea Grant"
-                 #   ),
-                 #   p("VA: Matt Poach - NOAA Milford; Julie Reichert-Nguyen - NOAA Chesapeake Bay Office; Suzanne Bricker - NOAA Oxford, and Matt Parker - Maryland Sea Grant"
-                 #   ),
-                 #   p("NC: Beth Darrow and Jessica Kinsella - University of North Carolina Wilmington"
-                 #   )
                ),
-               # tags$img(src='Fig1.png'),
                h4("Location of Eastern oyster", em("(Crassostrea virginica)"), "samples from aquaculture farm sites used to develop the calculator"
                ),
                leafletOutput("contmap", width="100%", height=400),
-               # ),
-               # # tabPanel("References", 
-               #          # tags$img(src='swooshgn2.png'),
-               #          # tags$img(src='gn_swoosh_shellfish3.png'),
-               #          tags$img(src='transparent_650pxH_4.png', width = "100%"),
-               #          titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
-               #          titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
-               #          helpText(br()),
                br(),
                tags$p(
                  h4("Data Contributors:"),
@@ -285,7 +200,6 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                  p("NC: Beth Darrow and Jessica Kinsella - University of North Carolina Wilmington"
                  )
                ),
-               # helpText(br()),
                tags$p(
                  h4("References:"),
                  p("Barr, J.M., Munroe, D., Rose, J.M., Calvo, L., Cheng, K.M., Bayer, S., & D. Kreeger. (2023). Seasonal Feeding Behavior of Aquaculture Eastern Oysters (Crassostrea virginica) in the Mid-Atlantic. Estuaries and Coasts. doi 10.1007/s12237-023-01293-9"
@@ -310,15 +224,6 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                ),
                p("Sebastiano, D., Levinton, J.S., Doall, M., & S. Kamath. (2015). Using a Shellfish Harvest Strategy to Extract High Nitrogen Inputs in Urban and Suburban Coastal Bays: Practical and Economic Implications. Journal of Shellfish Research 34, 573-583, 511."
                ),
-               # br(),
-               # ),
-               # tabPanel("Disclaimer",
-               #          tags$img(src='white_swoosh_hand_right_500pxH.png', width = "100%"),
-               #          # tags$img(src='gn_swoosh_shellfish3.png'),
-               #          # tags$img(src='transparent_460pxH_horiz.png', width = "100%"),
-               #          titlePanel(h1("Aquaculture Nutrient Removal Calculator")),
-               #          titlePanel(h6(em("Oyster nutrient removal data coverage ranges from ME to NC"))),
-               #          helpText(br()),
                h4("Disclaimer:"),
                p("This is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government."
                ),
