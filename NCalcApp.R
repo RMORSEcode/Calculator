@@ -1,5 +1,5 @@
 # https://test-connect.fisheries.noaa.gov/Calculator/ NOAA internal
-# https://connect.fisheries.noaa.gov/ANRC/ open upon approval of MS
+# https://connect.fisheries.noaa.gov/ANRC/ open 20240617 v0.1.0-beta -> v1.0.0 upon approval of MS
 library(shiny)
 library(shinyWidgets)
 library(leaflet)
