@@ -27,6 +27,9 @@ plot(MIDefh$geometry[3], col='red', add=T) # BSB eggs
 # Load Barrett et al 2022 data
 Barrett=readxl::read_xlsx(paste(wd, "Habitat/Barrett_2022_suppl3.xlsx", sep=''), sheet = 'fish abundance data')
 
+## rfishbase data
+fb.results=rfishbase::popgrowth(species_list = c("Tautogolabrus adspersus", "Centropristis striata", "Tautoga onitis", "Stenotomus chrysops"))
+
 
 ## load bottom trawl survey data
 # load ("C:/Users/ryan.morse/Downloads/NEFSC_BTS_2021.RData")

@@ -4,7 +4,7 @@ library(shiny)
 library(shinyWidgets)
 library(leaflet)
 library(leaflet.extras)
-library(shinyscreenshot)
+# library(shinyscreenshot)
 library(ggplot2)
 library(formatR)
 library(tinytex)
@@ -26,7 +26,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
       tabPanel("Calculator", 
                # tags$img(src='swooshgn2.png'),
                # tags$img(src='gn_swoosh_shellfish3.png'),
-               tags$img(src='white_swoosh_cage_500pxH.png', width = "100%", alt=""),
+               tags$img(src='white_swoosh_cage_500pxH.png', width = "100%", alt="NOAA branding, NOAA Fisheries Logo, and multiple oysters on and in cage"),
                titlePanel(h1("Aquaculture Nutrient Removal Calculator"), windowTitle = "Aquaculture Nutrient Removal Calculator"),
                helpText(br()),
                
@@ -108,7 +108,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
       ),
       
       tabPanel("Reverse Calculator",
-               tags$img(src='white_swoosh_orange_bin_500pxH.png', width = "100%", alt=""),
+               tags$img(src='white_swoosh_orange_bin_500pxH.png', width = "100%", alt="NOAA branding, NOAA Fisheries Logo, and oysters in orange basket."),
                titlePanel(h1("Aquaculture Nutrient Removal Calculator"), windowTitle = "Aquaculture Nutrient Removal Calculator"),
                helpText(br()),
                ### add text box with black border ### "border-style: solid; border-color: gray; background-color: #838B8B;"
@@ -144,7 +144,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                ),
       ),
       tabPanel("About", 
-               tags$img(src='white_swoosh_hand_left2_500pxH.png', width = "100%", alt=""),
+               tags$img(src='white_swoosh_hand_left2_500pxH.png', width = "100%", alt="NOAA branding, NOAA Fisheries Logo, and five oysters being held in palm, with additional oysters in the background."),
                titlePanel(h1("Aquaculture Nutrient Removal Calculator"), windowTitle = "Aquaculture Nutrient Removal Calculator"),
                helpText(br()),
                div( style = "border-style: solid; border-color: #0085CA; background-color: #0085CA;",
@@ -163,7 +163,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                  helpText(strong("Excess nutrients in coastal waters"), style = "font-size:18px;"),
                  p("Nitrogen (N) and phosphorous (P) are essential nutrients, but excess levels of these nutrients in coastal waters can lead to algal blooms, low oxygen concentrations, and other detrimental effects. Shellfish incorporate nutrients into their tissues and shell as they grow. At harvest, these nutrients are permanently removed from the coastal environment, providing a benefit to water quality in the form of excess nutrient reduction."
                  ),
-                 tags$img(src='EcosystemServices2.png', width = "100%", alt="There are many sources of excess nitrogen to the coastal waters. Phytoplankton take up that nitrogen to grow and multiply. Oysters feed on the phytoplankton and assimilate the nitrogen into their shell and tissue. Growers remove that nitrogen from the sytem when they harvest theri oysters"),
+                 tags$img(src='EcosystemServices2.png', width = "100%", alt="Infographic depicting the sources of excess nitrogen, phytoplankton growth, and shellfish consumption of phytoplankton. There are many sources of excess nitrogen to the coastal waters. Phytoplankton take up that nitrogen to grow and multiply. Oysters feed on the phytoplankton and assimilate the nitrogen into their shell and tissue. Growers remove that nitrogen from the sytem when they harvest their oysters"),
                  helpText(br()),
                  helpText(strong("The Aquaculture Nutrient Removal Calculator"), style = "font-size:18px;"),
                  p("The calculator is a tool designed for resource managers to inform shellfish aquaculture permitting. Resource managers have expressed interest in easy-to-use tools that produce location and operation-appropriate values for beneficial services, and they need the values to be produced in a format that aligns with their permitting process."
