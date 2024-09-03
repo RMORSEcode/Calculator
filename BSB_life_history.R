@@ -30,6 +30,65 @@ Barrett=readxl::read_xlsx(paste(wd, "Habitat/Barrett_2022_suppl3.xlsx", sep=''),
 ## rfishbase data
 fb.results=rfishbase::popgrowth(species_list = c("Tautogolabrus adspersus", "Centropristis striata", "Tautoga onitis", "Stenotomus chrysops"))
 
+### predict lengths and weights
+x.a=0.015372
+x.b=2.96
+# estimate Fall BSB BTS
+x.loo=52.6
+x.lk=0.219
+x.lt=-0.805
+x.Mlinf=0.229372
+x.yrs=c(0.5,seq(from=1, to=12,1))
+x.len=x.loo*(1-exp(-x.lk*(x.yrs-x.lt))) #length cm
+x.wgt=x.a*(x.len^x.b) # weight g
+x.Mlorenz=x.Mlinf*((1-exp(-x.lk*(x.yrs-x.lt)))^-1)
+L.his=data.frame(x.yrs); colnames(L.his)="Age"
+L.his$L_cm=x.len
+L.his$W_g=x.wgt
+L.his$M_lorenzen=x.Mlorenz
+x.mnAbnFarm=6.038795
+x.mnAbnRef=0.22
+x.enAbn=x.mnAbnFarm-x.mnAbnRef
+x.cageArea=1.1148 #m2
+L.his$Ni=NA #Ni per m2
+L.his$Ni[1]=(x.enAbn/x.cageArea)*exp(-L.his$M_lorenzen[1])
+for(i in 2:13){
+L.his$Ni[i]=L.his$Ni[i-1]*exp(-L.his$M_lorenzen[i])
+}
+L.his$B=L.his$Ni*L.his$W_g
+# lower CI
+x.loo=51.04
+x.lk=0.2068
+x.lt=-0.837
+x.len=x.loo*(1-exp(-x.lk*(x.yrs-x.lt))) #length cm
+x.wgt=x.a*(x.len^x.b) # weight g
+x.Mlorenz_lower=x.Mlinf*((1-exp(-x.lk*(x.yrs-x.lt)))^-1)
+L.his$L_cm_lower=x.len
+L.his$W_g_lower=x.wgt
+L.his$M_lorenzen_lower=x.Mlorenz_lower
+L.his$Ni_lower=NA #Ni per m2
+L.his$Ni_lower[1]=(x.enAbn/x.cageArea)*exp(-L.his$M_lorenzen_lower[1])
+for(i in 2:13){
+  L.his$Ni_lower[i]=L.his$Ni[i-1]*exp(-L.his$M_lorenzen_lower[i])
+}
+L.his$B_lower=L.his$Ni_lower*L.his$W_g_lower
+# upper CI
+x.loo=54.46
+x.lk=0.2318
+x.lt=-0.774
+x.len=x.loo*(1-exp(-x.lk*(x.yrs-x.lt))) #length cm
+x.wgt=x.a*(x.len^x.b) # weight g
+x.Mlorenz_upper=x.Mlinf*((1-exp(-x.lk*(x.yrs-x.lt)))^-1)
+L.his$L_cm_upper=x.len
+L.his$W_g_upper=x.wgt
+L.his$M_lorenzen_upper=x.Mlorenz_upper
+L.his$Ni_upper=NA #Ni per m2
+L.his$Ni_upper[1]=(x.enAbn/x.cageArea)*exp(-L.his$M_lorenzen_upper[1])
+for(i in 2:13){
+  L.his$Ni_upper[i]=L.his$Ni[i-1]*exp(-L.his$M_lorenzen_upper[i])
+}
+L.his$B_upper=L.his$Ni_upper*L.his$W_g_upper
+write.csv(L.his, file=paste0(wd,'Habitat/BSB_production_CI_Milford_20240814.csv'))
 
 ## load bottom trawl survey data
 # load ("C:/Users/ryan.morse/Downloads/NEFSC_BTS_2021.RData")
@@ -49,7 +108,8 @@ survdat.bio <- survey.bio$survdat
 ## tautog - 177
 
 ### Load energy density data
-dens=readxl::read_xlsx(paste(wd,"/Habitat/FINALBSBDATA.xlsx", sep=''), sheet='BSB Data - original') # energy density
+# dens=readxl::read_xlsx(paste(wd,"/Habitat/FINALBSBDATA.xlsx", sep=''), sheet='BSB Data - original') # energy density
+dens=readxl::read_xlsx(paste(wd,"/Habitat/BSB_Dry_Weights_Final.xlsx", sep=''), sheet='Energy Density BSB') # energy density
 colnames(dens)
 colnames(dens)[2]="Farm_Reef"
 colnames(dens)[5]="NOAA_WW_g"
@@ -58,6 +118,36 @@ colnames(dens)[20]="Energy_Density_kJ_g"
 dens$Total_Length_cm=dens$Total_Length_mm/10
 dens$logL=log(dens$Total_Length_cm) # now in cm
 dens$logW=log(dens$NOAA_WW_g/1000) # now in kg
+dens.wgt=readxl::read_xlsx(paste(wd,"/Habitat/BSB_Dry_Weights_Final.xlsx", sep=''), sheet='BSB Data') # energy density
+colnames(dens.wgt)
+colnames(dens.wgt)[2]="TL_mm"
+colnames(dens.wgt)[3]="SL_mm"
+colnames(dens.wgt)[4]="Wet_wgt_g"
+colnames(dens.wgt)[19]="Dry_wgt_g"
+test=substr(dens.wgt$`Unique ID`,1,1)
+dens.wgt$Site=test
+dens.wgt$Site[which(dens.wgt$Site=="F")]="M" # F is for cages from Milford, vs traps and cages
+dens.wgt$Farm_Reef=NA
+test=substr(dens.wgt$`Unique ID`,3,3)
+t1=as.numeric(test)
+dens.wgt$Farm_Reef[which(is.na(t1))]=test[which(is.na(t1))]
+test1=substr(dens.wgt$`Unique ID`,4,4)
+t2=as.numeric(test1)
+dens.wgt$Farm_Reef[which(is.na(t2))]=test1[which(is.na(t2))]
+table(dens.wgt$Farm_Reef)
+dens.wgt$TL_cm=dens.wgt$TL_mm/10
+dens.wgt$logL=log(dens.wgt$TL_cm) # now in cm
+dens.wgt$logW=log(dens.wgt$Wet_wgt_g/1000) # now in kg
+dens.wgt$Wcalc=0.015372*(dens.wgt$TL_cm^2.96) # Calculated weights from W-L fall BTS all data
+dens.wgt$Kn=dens.wgt$Wet_wgt_g/dens.wgt$Wcalc
+dens.wgt$TotalEnergy=(20.265*dens.wgt$Dry_wgt_g)-0.4825 # y=20.265x-0.4825 R2=0.998
+dens.wgt$Energy_Density_kJ_g=dens.wgt$TotalEnergy/dens.wgt$Wet_wgt_g
+
+## checking
+t1=NA
+t1=dens.wgt$Dry_wgt_g[dens.wgt$TL_mm>57]/dens.wgt$Wet_wgt_g[dens.wgt$TL_mm>57]
+test=(25.85*(t1))-1.37
+plot(dens.wgt$Energy_Density_kJ_g[dens.wgt$TL_mm>57]~test[dens.wgt$TL_mm>57], ylim=c(3.8, 5.8), xlim=c(3.8, 5.8), col=ifelse(dens.wgt$`Shipped to SMAST`==1, 'red', 'black'))
 
 # Load GoPro data
 gpd=read.csv(paste(wd,"/Habitat/2018-Bsb-MaxN-LHS.csv", sep=''))
@@ -74,9 +164,22 @@ dens[dens$Total_Length_mm>57,] %>% select(Farm_Reef, SITE, Energy_Density_kJ_g) 
   # ggplot(aes(y=Energy_Density_kJ_g, x=Farm_Reef)) +
   # geom_boxplot(color = "black", notch=T, fill="gray") +
   ggplot(aes(y=Energy_Density_kJ_g, x=SITE,fill=Farm_Reef)) +
-  geom_boxplot(color = "black", notch=F) +
+  geom_boxplot(color = "black", notch=T) +
   theme_classic()+
   labs(x='', y = 'Energy Density (kJ/g)') +
+  coord_cartesian(ylim = c(4, 6))+
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4, position = position_dodge(width = .75))+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(legend.position = "top") +
+  theme(text = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 20))
+
+dens.wgt[dens.wgt$TL_mm>57,] %>% select(Farm_Reef, Site, Energy_Density_kJ_g) %>%
+  ggplot(aes(y=Energy_Density_kJ_g, x=Site, fill=Farm_Reef)) +
+  geom_boxplot(color = "black", notch=T) +
+  theme_classic()+
+  labs(x='', y = 'Energy density (kJ/g)') +
   coord_cartesian(ylim = c(4, 6))+
   stat_summary(fun.y=mean, geom="point", shape=18, size=4, position = position_dodge(width = .75))+ 
   theme(strip.background = element_blank(),
@@ -85,15 +188,127 @@ dens[dens$Total_Length_mm>57,] %>% select(Farm_Reef, SITE, Energy_Density_kJ_g) 
   theme(text = element_text(size = 20)) +
   theme(legend.text = element_text(size = 20))
 
+dens.wgt[dens.wgt$TL_mm>57,] %>% select(Farm_Reef, Site, Kn) %>%
+  ggplot(aes(y=Kn, x=Site,fill=Farm_Reef)) +
+  geom_boxplot(color = "black", notch=T) +
+  theme_classic()+
+  labs(x='', y = 'Condition factor Kn') +
+  coord_cartesian(ylim = c(0.5, 1.5))+
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4, position = position_dodge(width = .75))+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(legend.position = "top") +
+  theme(text = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 20))
+dens.wgt[dens.wgt$TL_mm>57,] %>% select(Farm_Reef, Kn) %>%
+  ggplot(aes(y=Kn, x=Farm_Reef)) +
+  geom_boxplot(color = "black", notch=T) +
+  theme_classic()+
+  labs(x='', y = 'Condition factor Kn') +
+  coord_cartesian(ylim = c(0.5, 1.5))+
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4, position = position_dodge(width = .75))+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(legend.position = "top") +
+  theme(text = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 20))
+dens.wgt[dens.wgt$TL_mm>57,] %>% select(Site, Kn) %>%
+  ggplot(aes(y=Kn, x=Site)) +
+  geom_boxplot(color = "black", notch=T) +
+  theme_classic()+
+  labs(x='', y = 'Condition factor Kn') +
+  coord_cartesian(ylim = c(0.5, 1.5))+
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4, position = position_dodge(width = .75))+ 
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(legend.position = "top") +
+  theme(text = element_text(size = 20)) +
+  theme(legend.text = element_text(size = 20))
+# dens.wgt[dens.wgt$TL_mm>57,] %>% select(Farm_Reef, Site, Energy_Density_kJ_g) %>%
+#   ggplot(aes(y=Energy_Density_kJ_g, x=Site,fill=Farm_Reef)) +
+#   geom_boxplot(color = "black", notch=T) +
+#   theme_classic()+
+#   labs(x='', y = 'Energy Density (kJ/g)') +
+#   coord_cartesian(ylim = c(4, 6))+
+#   stat_summary(fun.y=mean, geom="point", shape=18, size=4, position = position_dodge(width = .75))+ 
+#   theme(strip.background = element_blank(),
+#         strip.text.y = element_blank())+
+#   theme(legend.position = "top") +
+#   theme(text = element_text(size = 20)) +
+#   theme(legend.text = element_text(size = 20))
+
 my_comparisons=list( c("F", "R"))
 dens %>% select(Farm_Reef, SITE, Energy_Density_kJ_g) %>% 
   ggboxplot(y='Energy_Density_kJ_g', x='SITE', fill='Farm_Reef', ylab = 'Energy Density (kJ/g)', xlab='', ylim=c(4,6)) + 
   stat_compare_means(label = "p.signif", method = "wilcox.test", ref.group = ".all.") +
   stat_compare_means(comparisons = my_comparisons, method = "anova", label.y = c(5.5),label= "p.signif") #+
+# my_comparisons=list( c("F", "R"))
+dens.wgt %>% select(Farm_Reef, Energy_Density_kJ_g) %>%
+  filter(complete.cases(Energy_Density_kJ_g))%>%
+  ggboxplot(y='Energy_Density_kJ_g', x='Farm_Reef', ylab = 'Energy Density (kJ/g)', xlab='', ylim=c(4,6)) +
+  stat_compare_means(label = "p.signif", method = "wilcox.test", ref.group = ".all.") +
+  stat_compare_means(comparisons = my_comparisons, method = "wilcox.test", label.y = c(5.5),label= "p.signif") #+
+my_comparisons=list( c("C", "M"))
+dens.wgt %>% select(Site, Energy_Density_kJ_g) %>%
+  filter(complete.cases(Energy_Density_kJ_g))%>%
+  ggboxplot(y='Energy_Density_kJ_g', x='Site', ylab = 'Energy Density (kJ/g)', xlab='', ylim=c(4,6)) +
+  stat_compare_means(label = "p.signif", method = "wilcox.test", ref.group = ".all.") +
+  stat_compare_means(comparisons = my_comparisons, method = "wilcox.test", label.y = c(5.5),label= "p.signif") #+
 
+df1=dens.wgt %>%
+  select(Farm_Reef, Site, Energy_Density_kJ_g) %>%
+  group_by(Farm_Reef, Site) %>%
+  summarize(mean=mean(Energy_Density_kJ_g, na.rm=T), sd=sd(Energy_Density_kJ_g, na.rm=T), med=median(Energy_Density_kJ_g, na.rm=T), num=n()) #%>%
+  # group_map(~ t.test(Energy_Density_kJ_g ~ Site, .x, paired = TRUE))
+df2=dens.wgt %>%
+  select(Farm_Reef, Site, Energy_Density_kJ_g) %>%
+  group_by(Farm_Reef) %>%
+  summarize(mean=mean(Energy_Density_kJ_g, na.rm=T), sd=sd(Energy_Density_kJ_g, na.rm=T), med=median(Energy_Density_kJ_g, na.rm=T), num=n()) #%>%
+df3=dens.wgt %>%
+  select(Farm_Reef, Site, Energy_Density_kJ_g) %>%
+  group_by(Site) %>%
+  summarize(mean=mean(Energy_Density_kJ_g, na.rm=T), sd=sd(Energy_Density_kJ_g, na.rm=T), med=median(Energy_Density_kJ_g, na.rm=T), num=n()) #%>%
+df4=rbind(df1, df2)
+df4=rbind(df4,df3)
+write.csv(df4, file=paste0(wd,'BSB_energy_density_summary.csv'))
+
+kruskal.test(Energy_Density_kJ_g ~ Farm_Reef, data =dens.wgt[complete.cases(dens.wgt$Energy_Density_kJ_g),])
+# Kruskal-Wallis rank sum test
+# data:  Energy_Density_kJ_g by Farm_Reef
+# Kruskal-Wallis chi-squared = 0.17287, df = 1, p-value = 0.6776
+kruskal.test(Energy_Density_kJ_g ~ Site, data =dens.wgt[complete.cases(dens.wgt$Energy_Density_kJ_g),])
+# Kruskal-Wallis rank sum test
+# data:  Energy_Density_kJ_g by Site
+# Kruskal-Wallis chi-squared = 0.051786, df = 1, p-value = 0.82
+
+df1=dens.wgt %>%
+  select(Farm_Reef, Site, Kn) %>%
+  group_by(Farm_Reef, Site) %>%
+  summarize(mean=mean(Kn, na.rm=T), sd=sd(Kn, na.rm=T), med=median(Kn, na.rm=T), num=n()) #%>%
+# group_map(~ t.test(Kn ~ Site, .x, paired = TRUE))
+df2=dens.wgt %>%
+  select(Farm_Reef, Site, Kn) %>%
+  group_by(Farm_Reef) %>%
+  summarize(mean=mean(Kn, na.rm=T), sd=sd(Kn, na.rm=T), med=median(Kn, na.rm=T), num=n()) #%>%
+df3=dens.wgt %>%
+  select(Farm_Reef, Site, Kn) %>%
+  group_by(Site) %>%
+  summarize(mean=mean(Kn, na.rm=T), sd=sd(Kn, na.rm=T), med=median(Kn, na.rm=T), num=n()) #%>%
+df4=rbind(df1, df2)
+df4=rbind(df4,df3)
+write.csv(df4, file=paste0(wd,'BSB_Kn_summary.csv'))
+
+kruskal.test(Kn ~ Farm_Reef, data =dens.wgt[complete.cases(dens.wgt$Kn),])
+# Kruskal-Wallis rank sum test
+# data:  Kn by Farm_Reef
+# Kruskal-Wallis chi-squared = 1.6008, df = 1, p-value = 0.2058
+kruskal.test(Kn ~ Site, data =dens.wgt[complete.cases(dens.wgt$Kn),])
+# Kruskal-Wallis rank sum test
+# data:  Kn by Site
+# Kruskal-Wallis chi-squared = 2.7391, df = 1, p-value = 0.09792
 
 plot(dens$Total_Length_mm/10~dens$NOAA_WW_g, type='p', pch=19)
-plot(dens$NOAA_WW_g~ dens$Total_Length_cm, 
+plot(dens.wgt$Wet_wgt_g ~ dens.wgt$TL_cm, 
      type='p', 
      pch=19, 
      col=ifelse(dens$Farm_Reef=='F', 'red', 'blue'), 
@@ -110,6 +325,32 @@ plot(log(dens$NOAA_WW_g)~log(dens$Total_Length_mm),
      xlab='log length (cm)'
      )
 legend('topleft', legend=c('Farm', "Reef"), pch=19, col=c('red', 'blue'), bty='n')
+lm1=lm(log(dens$NOAA_WW_g)~log(dens$Total_Length_mm), data=dens[dens$Farm_Reef=="F",])
+abline(lm1, col='red', lw=2)
+lm1=lm(log(dens$NOAA_WW_g)~log(dens$Total_Length_mm), data=dens[dens$Farm_Reef=="R",])
+abline(lm1, col='blue', lw=2)
+
+plot(log(dens.wgt$Wet_wgt_g)~log(dens.wgt$TL_mm/10), 
+     type='p', 
+     #pch=19, 
+     col=ifelse(dens$Farm_Reef=='F', 'red', 'blue'),
+     ylab='log wet weight (g)', 
+     xlab='log length (cm)',
+     las=1
+)
+x=log(dens.wgt$Wet_wgt_g[dens.wgt$Farm_Reef=="F"])
+y=log(dens.wgt$TL_mm[dens.wgt$Farm_Reef=="F"]/10)
+lm1=lm(x~y)
+text(2.2, 3.5, labels=paste("a= ", round(exp(lm1$coefficients[1]),7), sep=''))
+text(2.2, 3, labels=paste("b= ", round(lm1$coefficients[2],3), sep=''))
+abline(lm1, col='red', lw=2)
+x=log(dens.wgt$Wet_wgt_g[dens.wgt$Farm_Reef=="R"])
+y=log(dens.wgt$TL_mm[dens.wgt$Farm_Reef=="R"]/10)
+lm1=lm(x~y)
+abline(lm1, col='blue', lw=2)
+text(2.4, 2, labels=paste("a= ", round(exp(lm1$coefficients[1]),7), sep=''))
+text(2.4, 1.5, labels=paste("b= ", round(lm1$coefficients[2],3), sep=''))
+legend('topleft', legend=c('Farm', "Reef"), lty=1,lwd=2, col=c('red', 'blue'), bty='n')
 
 plot(dens$logW~dens$logL, 
      type='p', 
@@ -128,6 +369,21 @@ text(2.5, -5.5, labels=paste("b= ", round(lm1$coefficients[2],3), sep=''))
 legend('topleft', legend=c('Farm', "Reef"), lty=1,lwd=2, col=c('red', 'blue'), bty='n')
 
 
+plot(dens.wgt$logW~dens.wgt$logL, 
+     type='p', 
+     col=ifelse(dens.wgt$Farm_Reef=='F', 'red', 'blue'),
+     ylab='log wet weight (kg)', 
+     xlab='log length (cm)'
+)
+lm1=lm(logW~logL, data=dens.wgt[dens.wgt$Farm_Reef=="F",])
+abline(lm1, col='red', lw=2)
+text(2.2, -3, labels=paste("a= ", round(exp(lm1$coefficients[1]),7), sep=''))
+text(2.2, -3.5, labels=paste("b= ", round(lm1$coefficients[2],3), sep=''))
+lm1=lm(logW~logL, data=dens.wgt[dens.wgt$Farm_Reef=="R",])
+abline(lm1, col='blue', lw=2)
+text(2.5, -5, labels=paste("a= ", round(exp(lm1$coefficients[1]),7), sep=''))
+text(2.5, -5.5, labels=paste("b= ", round(lm1$coefficients[2],3), sep=''))
+legend('topleft', legend=c('Farm', "Reef"), lty=1,lwd=2, col=c('red', 'blue'), bty='n')
 
 ## summary stats
 gpd %>% 
@@ -412,8 +668,9 @@ preds1 <- data.frame(ages,
 preds2 <- filter(preds1,AGE>=agesum$minage[2],AGE<=agesum$maxage[2])
 
 ### trying with WEIGHT instead of length for M estimates
-f.starts.sp <- vbStarts(INDWT~AGE,data=bsb.fl2[complete.cases(bsb.fl2$INDWT),]) 
-f.fit.sp <- nls(INDWT~vb(AGE,Linf,K,t0),data=bsb.fl2[complete.cases(bsb.fl2$INDWT),],start=f.starts.sp)
+bsb.fl2$INDWTG=bsb.fl2$INDWT*1000 # grams
+f.starts.sp <- vbStarts(INDWTG~AGE,data=bsb.fl2[complete.cases(bsb.fl2$INDWT),]) 
+f.fit.sp <- nls(INDWTG~vb(AGE,Linf,K,t0),data=bsb.fl2[complete.cases(bsb.fl2$INDWT),],start=f.starts.sp)
 coef(f.fit.sp)
 ages <- seq(-1,10,by=0.2)
 ages <-c(0.5, seq(1,10,by=1))

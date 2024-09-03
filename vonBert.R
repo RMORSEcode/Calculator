@@ -12,9 +12,9 @@ survey.bio=readRDS("C:/Users/ryan.morse/Downloads/SurvdatBio.rds")
 survdat.bio <- survey.bio$survdat
 
 ### Choose season ###
-Season="Spring" # Spring | Fall | Combined
+Season="Fall" # Spring | Fall | Combined
 ### Choose species ###
-Species="Black sea bass"; snum=141
+Species="Black sea bass"; snum=141 # Centropristis striata
 # Species="Scup"; snum=143
 # Species="Cunner"; snum=176
 # Species="Tautog"; snum=177
