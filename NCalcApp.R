@@ -103,9 +103,9 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              ),
                              helpText(br()),
                              br(),
-                             h6(tags$a(href="https://doi.org/10.5281/zenodo.11966672",
+                             h6(tags$a(target="_blank", href="https://doi.org/10.5281/zenodo.11966672",
                                        "Data used to create this tool are publicly available here>")),
-                             h6(tags$a(href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062",
+                             h6(tags$a(target="_blank", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062",
                                        "Methods used to create this tool are described here >")),
                              br(),
                              h4("Disclaimer"),
@@ -230,14 +230,14 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                p("The nutrient removal calculations are based on relationships of oyster dry weight-to-length and the average nitrogen concentrations in oyster shell and tissue. First, we estimate the weight of the oysters based on the typical size of oysters harvested on a farm. The weight estimates are based on non-linear quantile regressions of oyster shell height and dry-weight for both tissue and shell. Next, the nitrogen portion of total oyster weight is calculated using the average nitrogen concentration value for both shell and tissue. Adding the tissue and shell nitrogen yields the total weight of nitrogen per oyster. This result is scaled to the total number of oysters harvested, as input by the user."
                                ),
                                p("We have synthesized available literature for eastern oyster farms across the Northeast region, from North Carolina to Maine, and applied methodology used by the Chesapeake Bay Program to calculate nutrient removal at harvest ",
-                                 tags$a(style="font-weight:bold", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062",
+                                 tags$a(style="font-weight:bold", target="_blank", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062",
                                         "(Rose et al. 2024)."),
                                         " Variability in oyster tissue and shell nutrient concentration was low, and an assessment of farm location, ploidy, and cultivation practice (with vs. without gear) suggested that a single average value could reasonably be applied across all farms."
                                ),
                                # p("We have synthesized available literature for eastern oyster farms across the Northeast region (North Carolina to Maine), and applied methodology used by the Chesapeake Bay Program to calculate nutrient removal at harvest. Variability in oyster tissue and shell nutrient concentration was low, and an assessment of farm location, ploidy, and cultivation practice (with vs. without gear) suggested that a single average value could reasonably be applied across all farms."
                                # ),
                              ),
-                             h6(tags$a(href="https://doi.org/10.5281/zenodo.11966672",
+                             h6(tags$a(target="_blank", href="https://doi.org/10.5281/zenodo.11966672",
                                        "Data used to create this tool are publicly available here >")
                              ),
                              br(),
@@ -286,7 +286,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              p("Lindahl, O., Hart, R., Hernroth, B., Kollberg, S., Loo, L.-O., Olrog, L., Rehnstam-Holm, A.-S., Svensson, J., Svensson, S., & U. Syversen. (2005). Improving marine water quality by mussel farming - a profitable solution for Swedish society. Ambio 34, 129-136."
                              ),
                              p("Morse, R., Rose, J., Schillaci, C., Ayvazian, S., Barr, J., Bayer, S., Brady, D., Bricker, S., Darrow, E., Doall, M., Grizzle, R., Kiffney, T., Kinsella, J., Levinton, J., Meseck, S., Munroe, D., Parker, M., Poach, M., Reichert-Nguyen, J., … Ward, K. (2024). Morphometrics and nutrient concentration of farmed eastern oysters (Crassostrea virginica) from the US Northeast Region [Data set]. In PLOS ONE. Zenodo.",
-                               tags$a(href="https://doi.org/10.5281/zenodo.11966672", "https://doi.org/10.5281/zenodo.11966672"),
+                               tags$a(target="_blank", href="https://doi.org/10.5281/zenodo.11966672", "https://doi.org/10.5281/zenodo.11966672"),
                              ),
                              p("Poach, M., Morse, R., Meseck, S.L., Alvarado, A., Reichert-Nguyen, J., McFarland, K., Elliott, H., Kellogg, M.L., Luckenbach, M.W., & J.M. Rose. (2024). Nutrient reduction by eastern oysters exhibits low variability associated with reproduction, ploidy, and farm location. Marine Pollution Bulletin 202, 116286. doi 10.1016/j.marpolbul.2024.116286"
                              ),
@@ -295,7 +295,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              p("Rose, J.M., Bricker, S.B., Tedesco, M.A., & G.H. Wikfors. (2014). A Role for Shellfish Aquaculture in Coastal Nitrogen Management. Environmental Science & Technology 48, 2519-2525."
                              ),
                              p("Rose, J.M., Morse, R.E., and C. Schillaci. (2024). Development and application of an online tool to quantify nitrogen removal associated with harvest of cultivated eastern oysters. PLoS ONE 19(9): e0310062.",
-                               tags$a(href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062", "https://doi.org/10.1371/journal.pone.0310062")
+                               tags$a(target="_blank", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062", "https://doi.org/10.1371/journal.pone.0310062")
                              ),
                              p("Sebastiano, D., Levinton, J.S., Doall, M., & S. Kamath. (2015). Using a Shellfish Harvest Strategy to Extract High Nitrogen Inputs in Urban and Suburban Coastal Bays: Practical and Economic Implications. Journal of Shellfish Research 34, 573-583, 511."
                              ),
