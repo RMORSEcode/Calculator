@@ -7,6 +7,7 @@ library(gplots)
 library(maps)
 library(mapdata)
 library(marmap)
+library(readxl)
 
 ### Bottom trawl survey strata shapefile
 wd="C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/"
@@ -138,10 +139,17 @@ table(dens.wgt$Farm_Reef)
 dens.wgt$TL_cm=dens.wgt$TL_mm/10
 dens.wgt$logL=log(dens.wgt$TL_cm) # now in cm
 dens.wgt$logW=log(dens.wgt$Wet_wgt_g/1000) # now in kg
+# Calculated weights from W-L fall BTS all data
 dens.wgt$Wcalc=0.015372*(dens.wgt$TL_cm^2.96) # Calculated weights from W-L fall BTS all data
 dens.wgt$Kn=dens.wgt$Wet_wgt_g/dens.wgt$Wcalc
-dens.wgt$TotalEnergy=(20.265*dens.wgt$Dry_wgt_g)-0.4825 # y=20.265x-0.4825 R2=0.998
+# Calculate total energy for those with dry weights
+dens.wgt$TotalEnergy=NA
+dens.wgt$TotalEnergy[which(!(is.na(dens.wgt$Dry_wgt_g)))]=(20.265*dens.wgt$Dry_wgt_g[which(!(is.na(dens.wgt$Dry_wgt_g)))])-0.4825 # y=20.265x-0.4825 R2=0.998
 dens.wgt$Energy_Density_kJ_g=dens.wgt$TotalEnergy/dens.wgt$Wet_wgt_g
+
+## clean up, remove bad values, excludes, outliers
+# dens.wgt2=dens.wgt %>% filter(Dry_wgt_g >0)
+dens.wgt=dens.wgt %>% filter(!(`Unique ID` %in% c('M9R17', 'C8F66', 'M8F74', 'C9F19')))
 
 ## checking
 t1=NA
@@ -157,6 +165,11 @@ gpd2=gpd %>% filter(MaxN>0)
 boxplot(gpd2$MaxN ~ gpd2$Treatment)
 boxplot(gpd$MaxN ~ gpd$Treatment)
 
+# read all sheets and concatenate
+gp2018sheets=excel_sheets(paste0(wd,"Habitat/bsb 2021/2018 farm raw data compiled.xlsx"))
+gp2018all=lapply(gp2018sheets, function(x) read_excel(paste0(wd,"/Habitat/bsb 2021/2018 farm raw data compiled.xlsx"), sheet=x))
+str(gp2018all)
+gpd2018=plyr::rbind.fill(gp2018all)
 
 with(dens, table(Farm_Reef, SITE))
 
@@ -239,6 +252,7 @@ dens.wgt[dens.wgt$TL_mm>57,] %>% select(Site, Kn) %>%
 
 my_comparisons=list( c("F", "R"))
 dens %>% select(Farm_Reef, SITE, Energy_Density_kJ_g) %>% 
+  filter(complete.cases(Energy_Density_kJ_g)) %>%
   ggboxplot(y='Energy_Density_kJ_g', x='SITE', fill='Farm_Reef', ylab = 'Energy Density (kJ/g)', xlab='', ylim=c(4,6)) + 
   stat_compare_means(label = "p.signif", method = "wilcox.test", ref.group = ".all.") +
   stat_compare_means(comparisons = my_comparisons, method = "anova", label.y = c(5.5),label= "p.signif") #+
@@ -254,6 +268,56 @@ dens.wgt %>% select(Site, Energy_Density_kJ_g) %>%
   ggboxplot(y='Energy_Density_kJ_g', x='Site', ylab = 'Energy Density (kJ/g)', xlab='', ylim=c(4,6)) +
   stat_compare_means(label = "p.signif", method = "wilcox.test", ref.group = ".all.") +
   stat_compare_means(comparisons = my_comparisons, method = "wilcox.test", label.y = c(5.5),label= "p.signif") #+
+
+## check normality
+shapiro.test(subset(dens.wgt, Site == "C")$Energy_Density_kJ_g)
+shapiro.test(subset(dens.wgt, Site == "M")$Energy_Density_kJ_g)
+shapiro.test(subset(dens.wgt, Site == "C")$Kn)
+shapiro.test(subset(dens.wgt, Site == "M")$Kn)
+hist(subset(dens.wgt, Site == "C")$Energy_Density_kJ_g,
+     main = "Clinton",
+     xlab = "Energy Dens"
+)
+hist(subset(dens.wgt, Site == "M")$Energy_Density_kJ_g,
+     main = "Milford",
+     xlab = "Energy Dens"
+)
+hist(subset(dens.wgt, Site == "C")$Kn,
+     main = "Clinton",
+     xlab = "Kn"
+)
+hist(subset(dens.wgt, Site == "M")$Kn,
+     main = "Milford",
+     xlab = "Kn"
+)
+
+shapiro.test(subset(dens.wgt, Farm_Reef == "F")$Energy_Density_kJ_g)
+shapiro.test(subset(dens.wgt, Farm_Reef == "R")$Energy_Density_kJ_g)
+shapiro.test(subset(dens.wgt, Farm_Reef == "F")$Kn)
+shapiro.test(subset(dens.wgt, Farm_Reef == "R")$Kn)
+hist(subset(dens.wgt, Farm_Reef == "F")$Energy_Density_kJ_g,
+     main = "Farm",
+     xlab = "Energy Dens"
+)
+hist(subset(dens.wgt, Farm_Reef == "R")$Energy_Density_kJ_g,
+     main = "Reef",
+     xlab = "Energy Dens"
+)
+hist(subset(dens.wgt, Farm_Reef == "F")$Kn,
+     main = "Farm",
+     xlab = "Kn"
+)
+hist(subset(dens.wgt, Farm_Reef == "R")$Kn,
+     main = "Reef",
+     xlab = "Kn"
+)
+
+# use non-parametric tests -> Wilcoxon rank sum test
+compare_means(Energy_Density_kJ_g ~ Site,  data = dens.wgt)
+compare_means(Energy_Density_kJ_g ~ Farm_Reef,  data = dens.wgt)
+compare_means(Kn ~ Site,  data = dens.wgt)
+compare_means(Kn ~ Farm_Reef,  data = dens.wgt)
+
 
 df1=dens.wgt %>%
   select(Farm_Reef, Site, Energy_Density_kJ_g) %>%
@@ -272,14 +336,9 @@ df4=rbind(df1, df2)
 df4=rbind(df4,df3)
 write.csv(df4, file=paste0(wd,'BSB_energy_density_summary.csv'))
 
-kruskal.test(Energy_Density_kJ_g ~ Farm_Reef, data =dens.wgt[complete.cases(dens.wgt$Energy_Density_kJ_g),])
-# Kruskal-Wallis rank sum test
-# data:  Energy_Density_kJ_g by Farm_Reef
-# Kruskal-Wallis chi-squared = 0.17287, df = 1, p-value = 0.6776
-kruskal.test(Energy_Density_kJ_g ~ Site, data =dens.wgt[complete.cases(dens.wgt$Energy_Density_kJ_g),])
-# Kruskal-Wallis rank sum test
-# data:  Energy_Density_kJ_g by Site
-# Kruskal-Wallis chi-squared = 0.051786, df = 1, p-value = 0.82
+kruskal.test(Energy_Density_kJ_g ~ Farm_Reef, data =dens.wgt)
+kruskal.test(Energy_Density_kJ_g ~ Site, data =dens.wgt)
+
 
 df1=dens.wgt %>%
   select(Farm_Reef, Site, Kn) %>%
@@ -511,7 +570,7 @@ text(2, -1, labels=paste("b= ", lm1$coefficients[2], sep=''))
 
 
 
-bsb.fl3=bsb.fl2 %>% filter(INDWT>0)
+bsb.fl3=bsb.fl2 %>% filter(INDWT>0)#,STRATUM==1050)
 bsb.fl3$logW=log(bsb.fl3$INDWT*1000) #grams
 bsb.fl3$logL=log(bsb.fl3$LENGTH) #cm
 sp2=bsb.fl3[complete.cases(bsb.fl3$logW),]

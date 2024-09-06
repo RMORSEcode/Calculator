@@ -102,6 +102,12 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                label = "Generate PDF Report"
                              ),
                              helpText(br()),
+                             br(),
+                             h6(tags$a(href="https://doi.org/10.5281/zenodo.11966672",
+                                       "Data used to create this tool are publicly available here>")),
+                             h6(tags$a(href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062",
+                                       "Methods used to create this tool are described here >")),
+                             br(),
                              h4("Disclaimer"),
                              p("This is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government."
                              ),
@@ -216,18 +222,28 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                p("Nitrogen (N) and phosphorous (P) are essential nutrients, but excess levels of these nutrients in coastal waters can lead to algal blooms, low oxygen concentrations, and other detrimental effects. Shellfish incorporate nutrients into their tissues and shell as they grow. At harvest, these nutrients are permanently removed from the coastal environment, providing a benefit to water quality in the form of excess nutrient reduction."
                                ),
                                # tags$img(src='EcosystemServices2.png', width = "100%", alt="Infographic depicting the sources of excess nitrogen, phytoplankton growth, and shellfish consumption of phytoplankton. There are many sources of excess nitrogen to the coastal waters. Phytoplankton take up that nitrogen to grow and multiply. Oysters feed on the phytoplankton and assimilate the nitrogen into their shell and tissue. Growers remove that nitrogen from the system when they harvest their oysters"),
-                               tags$img(src='WaterQuality.png', width = "100%", alt="Infographic depicting runoff from the land leading to increased algae in coastal waters. Increased algae can cause environmental problems, but oysters eat the algae. When farmers harvest the oysters, they remove nutrients from the system and improve the water quality"),
+                               tags$img(src='OysterFarmsWaterQuality.png', width = "100%", alt="Infographic depicting runoff from the land leading to increased algae in coastal waters. Increased algae can cause environmental problems, but oysters eat the algae. When farmers harvest the oysters, they remove nutrients from the system and improve the water quality"),
                                helpText(br()),
                                helpText(strong("The Aquaculture Nutrient Removal Calculator"), style = "font-size:18px;"),
-                               p("The calculator is a tool designed for resource managers to inform shellfish aquaculture permitting. Resource managers have expressed interest in easy-to-use tools that produce location and operation-appropriate values for beneficial services, and they need the values to be produced in a format that aligns with their permitting process."
+                               p("The calculator is a tool designed for shellfish growers and resource managers to inform shellfish aquaculture permitting. Resource managers have expressed interest in easy-to-use tools that produce location and operation-appropriate values for the environmental benefits, or ecosystem services, shellfish farms provide. The calculator provides estimated values for nutrient removal in a format that aligns with the shellfish aquaculture permitting process."
+                                 ),
+                               p("The nutrient removal calculations are based on relationships of oyster dry weight-to-length and the average nitrogen concentrations in oyster shell and tissue. First, we estimate the weight of the oysters based on the typical size of oysters harvested on a farm. The weight estimates are based on non-linear quantile regressions of oyster shell height and dry-weight for both tissue and shell. Next, the nitrogen portion of total oyster weight is calculated using the average nitrogen concentration value for both shell and tissue. Adding the tissue and shell nitrogen yields the total weight of nitrogen per oyster. This result is scaled to the total number of oysters harvested, as input by the user."
                                ),
-                               p("The nutrient removal calculations are based on relationships of oyster dry weight-to-length and the average nitrogen (N) concentrations in shell and tissue material. First, we estimate the weight of the oysters based on the typical size of oysters harvested on a farm. The weight estimates are based on non-linear quantile regressions of oyster shell height and dry-weight for both tissue and shell material. Next, the N portion of total oyster weight is calculated using the average N concentration value for both shell and tissue. Adding the tissue and shell nitrogen yields the total weight of  N per oyster. This result is scaled to the total number of oysters harvested, as input by the user."
+                               p("We have synthesized available literature for eastern oyster farms across the Northeast region, from North Carolina to Maine, and applied methodology used by the Chesapeake Bay Program to calculate nutrient removal at harvest ",
+                                 tags$a(style="font-weight:bold", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062",
+                                        "(Rose et al. 2024)."),
+                                        " Variability in oyster tissue and shell nutrient concentration was low, and an assessment of farm location, ploidy, and cultivation practice (with vs. without gear) suggested that a single average value could reasonably be applied across all farms."
                                ),
-                               p("We have synthesized available literature for eastern oyster farms across the Northeast region (North Carolina to Maine), and applied methodology used by the Chesapeake Bay Program to calculate nutrient removal at harvest. Variability in oyster tissue and shell nutrient concentration was low, and an assessment of farm location, ploidy, and cultivation practice (with vs. without gear) suggested that a single average value could reasonably be applied across all farms."
-                               ),
+                               # p("We have synthesized available literature for eastern oyster farms across the Northeast region (North Carolina to Maine), and applied methodology used by the Chesapeake Bay Program to calculate nutrient removal at harvest. Variability in oyster tissue and shell nutrient concentration was low, and an assessment of farm location, ploidy, and cultivation practice (with vs. without gear) suggested that a single average value could reasonably be applied across all farms."
+                               # ),
                              ),
+                             h6(tags$a(href="https://doi.org/10.5281/zenodo.11966672",
+                                       "Data used to create this tool are publicly available here >")
+                             ),
+                             br(),
                              h4("Location of Eastern oyster", em("(Crassostrea virginica)"), "samples from aquaculture farm sites used to develop the calculator"
                              ),
+                             br(),
                              leafletOutput("contmap", width="100%", height=400),
                              br(),
                              tags$p(
@@ -269,13 +285,17 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              ),
                              p("Lindahl, O., Hart, R., Hernroth, B., Kollberg, S., Loo, L.-O., Olrog, L., Rehnstam-Holm, A.-S., Svensson, J., Svensson, S., & U. Syversen. (2005). Improving marine water quality by mussel farming - a profitable solution for Swedish society. Ambio 34, 129-136."
                              ),
-                             p("Morse, R., Rose, J., Schillaci, C., Ayvazian, S., Barr, J., Bayer, S., Brady, D., Bricker, S., Darrow, E., Doall, M., Grizzle, R., Kiffney, T., Kinsella, J., Levinton, J., Meseck, S., Munroe, D., Parker, M., Poach, M., Reichert-Nguyen, J., … Ward, K. (2024). Morphometrics and nutrient concentration of farmed eastern oysters (Crassostrea virginica) from the US Northeast Region [Data set]. In PLOS ONE. Zenodo. https://doi.org/10.5281/zenodo.11966672"
+                             p("Morse, R., Rose, J., Schillaci, C., Ayvazian, S., Barr, J., Bayer, S., Brady, D., Bricker, S., Darrow, E., Doall, M., Grizzle, R., Kiffney, T., Kinsella, J., Levinton, J., Meseck, S., Munroe, D., Parker, M., Poach, M., Reichert-Nguyen, J., … Ward, K. (2024). Morphometrics and nutrient concentration of farmed eastern oysters (Crassostrea virginica) from the US Northeast Region [Data set]. In PLOS ONE. Zenodo.",
+                               tags$a(href="https://doi.org/10.5281/zenodo.11966672", "https://doi.org/10.5281/zenodo.11966672"),
                              ),
                              p("Poach, M., Morse, R., Meseck, S.L., Alvarado, A., Reichert-Nguyen, J., McFarland, K., Elliott, H., Kellogg, M.L., Luckenbach, M.W., & J.M. Rose. (2024). Nutrient reduction by eastern oysters exhibits low variability associated with reproduction, ploidy, and farm location. Marine Pollution Bulletin 202, 116286. doi 10.1016/j.marpolbul.2024.116286"
                              ),
                              p("Reitsma, J., Murphy, D.C., Archer, A.F., & R.H. York. (2017). Nitrogen extraction potential of wild and cultured bivalves harvested from nearshore waters of Cape Cod, USA. Marine Pollution Bulletin 116, 175-181."
                              ),
                              p("Rose, J.M., Bricker, S.B., Tedesco, M.A., & G.H. Wikfors. (2014). A Role for Shellfish Aquaculture in Coastal Nitrogen Management. Environmental Science & Technology 48, 2519-2525."
+                             ),
+                             p("Rose, J.M., Morse, R.E., and C. Schillaci. (2024). Development and application of an online tool to quantify nitrogen removal associated with harvest of cultivated eastern oysters. PLoS ONE 19(9): e0310062.",
+                               tags$a(href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062", "https://doi.org/10.1371/journal.pone.0310062")
                              ),
                              p("Sebastiano, D., Levinton, J.S., Doall, M., & S. Kamath. (2015). Using a Shellfish Harvest Strategy to Extract High Nitrogen Inputs in Urban and Suburban Coastal Bays: Practical and Economic Implications. Journal of Shellfish Research 34, 573-583, 511."
                              ),
