@@ -139,17 +139,44 @@ table(dens.wgt$Farm_Reef)
 dens.wgt$TL_cm=dens.wgt$TL_mm/10
 dens.wgt$logL=log(dens.wgt$TL_cm) # now in cm
 dens.wgt$logW=log(dens.wgt$Wet_wgt_g/1000) # now in kg
+dens.wgt$percent_DW=(dens.wgt$Dry_wgt_g/dens.wgt$Wet_wgt_g)*100
 # Calculated weights from W-L fall BTS all data
 dens.wgt$Wcalc=0.015372*(dens.wgt$TL_cm^2.96) # Calculated weights from W-L fall BTS all data
 dens.wgt$Kn=dens.wgt$Wet_wgt_g/dens.wgt$Wcalc
+# clean up and add dens (measured values)
+ED=dens.wgt %>% left_join(dens, join_by(`Unique ID`==`Fish ID`))
 # Calculate total energy for those with dry weights
 dens.wgt$TotalEnergy=NA
 dens.wgt$TotalEnergy[which(!(is.na(dens.wgt$Dry_wgt_g)))]=(20.265*dens.wgt$Dry_wgt_g[which(!(is.na(dens.wgt$Dry_wgt_g)))])-0.4825 # y=20.265x-0.4825 R2=0.998
 dens.wgt$Energy_Density_kJ_g=dens.wgt$TotalEnergy/dens.wgt$Wet_wgt_g
 
+
+
+## Estimated and measured ED 
+plot(dens.wgt$Energy_Density_kJ_g~dens.wgt$percent_DW)
+lm1=lm(dens.wgt$Energy_Density_kJ_g~dens.wgt$percent_DW, data=dens.wgt)
+abline(lm1, col='black', lw=1)
+points(dens$`Energy Density (kJ/g)`, dens$`% Dry Weight`, pch=1, col='red')
+
+## Measured ED only -> Y=26.46x-1.513
+plot(dens$Energy_Density_kJ_g~dens$`% Dry Weight`, ylab="Energy density (kJ/g)", xlab="Percent dry weight")
+lm1=lm(dens$Energy_Density_kJ_g~dens$`% Dry Weight`)
+abline(lm1, col='black', lw=1)
+text(0.22, 6, labels=paste0("Y = ", round(lm1$coefficients[2],2), "x", round(lm1$coefficients[1],3)))
+text(0.22, 5.65, labels=paste0("R.sq=",round(summary(lm1)$r.squared,4)))
+## Measured Total Energy
+plot(dens$`Total Energy`~dens$`Final Dry Weight (g)`, ylab='Total Energy', xlab='Final dry weight (g)')
+lm1=lm(dens$`Total Energy`~dens$`Final Dry Weight (g)`)
+abline(lm1, col='black', lw=1)
+text(5, 300, labels=paste0("Y = ", round(lm1$coefficients[2],2), "x", round(lm1$coefficients[1],3)))
+text(5, 250, labels=paste0("R.sq=",round(summary(lm1)$r.squared,4)))
+
 ## clean up, remove bad values, excludes, outliers
 # dens.wgt2=dens.wgt %>% filter(Dry_wgt_g >0)
 dens.wgt=dens.wgt %>% filter(!(`Unique ID` %in% c('M9R17', 'C8F66', 'M8F74', 'C9F19')))
+dens=dens%>% filter(!(`Fish ID` %in% c('M9R17','C9F19', 'C9R14', 'M10F127', 'M10F135', 'M9F126', 'M9F127', 'M9R22')))
+
+ED=ED %>% filter(!(`Unique ID` %in% c('M9R17', 'C8F66', 'M8F74', 'C9F19','C9R14', 'M10F127', 'M10F135', 'M9F126', 'M9F127', 'M9R22')))
 
 ## checking
 t1=NA
@@ -168,8 +195,23 @@ boxplot(gpd$MaxN ~ gpd$Treatment)
 # read all sheets and concatenate
 gp2018sheets=excel_sheets(paste0(wd,"Habitat/bsb 2021/2018 farm raw data compiled.xlsx"))
 gp2018all=lapply(gp2018sheets, function(x) read_excel(paste0(wd,"/Habitat/bsb 2021/2018 farm raw data compiled.xlsx"), sheet=x))
-str(gp2018all)
+# str(gp2018all)
 gpd2018=plyr::rbind.fill(gp2018all)
+gpdbsb2018=gpd2018 %>% dplyr::filter(Behavior=="Black sea bass")
+max(gpdbsb2018$Modifier_1)
+# unique(gpdbsb2018$Observation)
+# nms=strsplit(gpdbsb2018$Observation, split="_", fixed=F)
+# nms2=lapply(nms, `[[`, 1, drop = FALSE)
+# dts=lapply(nms, `[[`, 2, drop = FALSE)
+# unique(dts)
+# gpdbsb2018$Month=NA
+# gpdbsb2018$Month[nms2=="GP"]=
+
+gpd.sum=gpdbsb2018 %>% 
+  group_by(Month) %>% 
+  summarise(mn=mean(Modifier_1,na.rm=T), md=median(Modifier_1, na.rm=T), mx=max(Modifier_1, na.rm=T))
+
+
 
 with(dens, table(Farm_Reef, SITE))
 
@@ -411,6 +453,7 @@ text(2.4, 2, labels=paste("a= ", round(exp(lm1$coefficients[1]),7), sep=''))
 text(2.4, 1.5, labels=paste("b= ", round(lm1$coefficients[2],3), sep=''))
 legend('topleft', legend=c('Farm', "Reef"), lty=1,lwd=2, col=c('red', 'blue'), bty='n')
 
+points(x~y, col='red', pch=19)
 plot(dens$logW~dens$logL, 
      type='p', 
      col=ifelse(dens$Farm_Reef=='F', 'red', 'blue'),

@@ -104,9 +104,9 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              helpText(br()),
                              br(),
                              h6(tags$a(target="_blank", href="https://doi.org/10.5281/zenodo.11966672",
-                                       "Data used to create this tool are publicly available here>")),
+                                       "Access publicly available data used to create this tool >")),
                              h6(tags$a(target="_blank", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062",
-                                       "Methods used to create this tool are described here >")),
+                                       "Read about methods used to create this tool >")),
                              br(),
                              h4("Disclaimer"),
                              p("This is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government."
@@ -208,7 +208,6 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              div( style = "border-style: solid; border-color: #0085CA; background-color: #0085CA;",
                                   p("About the Calculator:", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:20px; color: white;"),
                                   p("The Aquaculture Nutrient Removal Calculator can be used for new permit applications based on estimated production value, or to provide information on existing farms from actual harvest numbers. The grower provides information on:", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;"),
-                                  # p("Calculator Inputs:", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:20px;"),
                                   p(strong("- Number of oysters harvested or to be harvested"), style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;"),
                                   p(strong("- Size of oysters at harvest"), style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;"),
                                   p("- Culture method (floating gear vs. off-bottom gear vs. on-bottom)*", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;"),
@@ -221,8 +220,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                helpText(strong("Excess nutrients in coastal waters"), style = "font-size:18px;"),
                                p("Nitrogen (N) and phosphorous (P) are essential nutrients, but excess levels of these nutrients in coastal waters can lead to algal blooms, low oxygen concentrations, and other detrimental effects. Shellfish incorporate nutrients into their tissues and shell as they grow. At harvest, these nutrients are permanently removed from the coastal environment, providing a benefit to water quality in the form of excess nutrient reduction."
                                ),
-                               # tags$img(src='EcosystemServices2.png', width = "100%", alt="Infographic depicting the sources of excess nitrogen, phytoplankton growth, and shellfish consumption of phytoplankton. There are many sources of excess nitrogen to the coastal waters. Phytoplankton take up that nitrogen to grow and multiply. Oysters feed on the phytoplankton and assimilate the nitrogen into their shell and tissue. Growers remove that nitrogen from the system when they harvest their oysters"),
-                               tags$img(src='OysterFarmsWaterQuality.png', width = "100%", alt="Infographic depicting runoff from the land leading to increased algae in coastal waters. Increased algae can cause environmental problems, but oysters eat the algae. When farmers harvest the oysters, they remove nutrients from the system and improve the water quality"),
+                               tags$img(src='1500x1000-Oyster-Farms-Nutrients-Infographic-NEFSC.png', width = "100%", alt="This illustration shows a landscape in the background with agricultural fields, houses with lawns, and a river washing nutrients from those sources into an underwater scene in the foreground where small dots representing algae flow from the left into a cage stacked with oysters at the center, a farmer in a small boat harvests the oysters, and clear water on the right with a variety of fish represents a healthier habitat with better water quality."),
                                helpText(br()),
                                helpText(strong("The Aquaculture Nutrient Removal Calculator"), style = "font-size:18px;"),
                                p("The calculator is a tool designed for shellfish growers and resource managers to inform shellfish aquaculture permitting. Resource managers have expressed interest in easy-to-use tools that produce location and operation-appropriate values for the environmental benefits, or ecosystem services, shellfish farms provide. The calculator provides estimated values for nutrient removal in a format that aligns with the shellfish aquaculture permitting process."
@@ -234,11 +232,10 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                         "(Rose et al. 2024)."),
                                         " Variability in oyster tissue and shell nutrient concentration was low, and an assessment of farm location, ploidy, and cultivation practice (with vs. without gear) suggested that a single average value could reasonably be applied across all farms."
                                ),
-                               # p("We have synthesized available literature for eastern oyster farms across the Northeast region (North Carolina to Maine), and applied methodology used by the Chesapeake Bay Program to calculate nutrient removal at harvest. Variability in oyster tissue and shell nutrient concentration was low, and an assessment of farm location, ploidy, and cultivation practice (with vs. without gear) suggested that a single average value could reasonably be applied across all farms."
-                               # ),
+
                              ),
                              h6(tags$a(target="_blank", href="https://doi.org/10.5281/zenodo.11966672",
-                                       "Data used to create this tool are publicly available here >")
+                                       "Access publicly available data used to create this tool >")
                              ),
                              br(),
                              h4("Location of Eastern oyster", em("(Crassostrea virginica)"), "samples from aquaculture farm sites used to develop the calculator"
@@ -268,6 +265,14 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                ),
                                p("NC: Beth Darrow and Jessica Kinsella - University of North Carolina Wilmington"
                                )
+                             ),
+                             br(),
+                             tags$p(
+                             h4("Project Team"),
+                             tags$a(target="_blank", href="https://www.fisheries.noaa.gov/contact/julie-m-rose-phd", "Julie Rose,"),
+                             tags$a(target="_blank", href="https://coastalscience.noaa.gov/staff/christopher-schillaci/", "Chris Schillaci,"),
+                             tags$a(target="_blank", href="https://www.fisheries.noaa.gov/contact/zachary-gordon", "Zach Gordon,"),
+                             tags$a(target="_blank", href="https://www.fisheries.noaa.gov/contact/ryan-morse-phd","Ryan Morse"),
                              ),
                              tags$p(
                                h4("References:"),
