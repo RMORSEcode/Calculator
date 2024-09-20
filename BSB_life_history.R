@@ -109,22 +109,17 @@ survdat.bio <- survey.bio$survdat
 ## tautog - 177
 
 ### Load energy density data
-# dens=readxl::read_xlsx(paste(wd,"/Habitat/FINALBSBDATA.xlsx", sep=''), sheet='BSB Data - original') # energy density
 dens=readxl::read_xlsx(paste(wd,"/Habitat/BSB_Dry_Weights_Final.xlsx", sep=''), sheet='Energy Density BSB') # energy density
 colnames(dens)
-colnames(dens)[2]="Farm_Reef"
-colnames(dens)[5]="NOAA_WW_g"
-colnames(dens)[6]="Total_Length_mm" 
-colnames(dens)[20]="Energy_Density_kJ_g"
-dens$Total_Length_cm=dens$Total_Length_mm/10
-dens$logL=log(dens$Total_Length_cm) # now in cm
-dens$logW=log(dens$NOAA_WW_g/1000) # now in kg
+dens$pct_DW=dens$`% Dry Weight`*100
+dens=dens[,c(1,4:5,7:21)]
 dens.wgt=readxl::read_xlsx(paste(wd,"/Habitat/BSB_Dry_Weights_Final.xlsx", sep=''), sheet='BSB Data') # energy density
 colnames(dens.wgt)
 colnames(dens.wgt)[2]="TL_mm"
 colnames(dens.wgt)[3]="SL_mm"
 colnames(dens.wgt)[4]="Wet_wgt_g"
 colnames(dens.wgt)[19]="Dry_wgt_g"
+dens.wgt=dens.wgt[,c(1:4,19,23)]
 test=substr(dens.wgt$`Unique ID`,1,1)
 dens.wgt$Site=test
 dens.wgt$Site[which(dens.wgt$Site=="F")]="M" # F is for cages from Milford, vs traps and cages
@@ -135,54 +130,68 @@ dens.wgt$Farm_Reef[which(is.na(t1))]=test[which(is.na(t1))]
 test1=substr(dens.wgt$`Unique ID`,4,4)
 t2=as.numeric(test1)
 dens.wgt$Farm_Reef[which(is.na(t2))]=test1[which(is.na(t2))]
-table(dens.wgt$Farm_Reef)
+# table(dens.wgt$Farm_Reef)
 dens.wgt$TL_cm=dens.wgt$TL_mm/10
-dens.wgt$logL=log(dens.wgt$TL_cm) # now in cm
-dens.wgt$logW=log(dens.wgt$Wet_wgt_g/1000) # now in kg
-dens.wgt$percent_DW=(dens.wgt$Dry_wgt_g/dens.wgt$Wet_wgt_g)*100
-# Calculated weights from W-L fall BTS all data
-dens.wgt$Wcalc=0.015372*(dens.wgt$TL_cm^2.96) # Calculated weights from W-L fall BTS all data
-dens.wgt$Kn=dens.wgt$Wet_wgt_g/dens.wgt$Wcalc
+dens.wgt$logLcm=log(dens.wgt$TL_cm) # now in cm
+dens.wgt$logWW=log(dens.wgt$Wet_wgt_g/1000) # now in kg
+dens.wgt$percent_DW=(dens.wgt$Dry_wgt_g/dens.wgt$Wet_wgt_g)*100 # corrects for excel issue
 # clean up and add dens (measured values)
 ED=dens.wgt %>% left_join(dens, join_by(`Unique ID`==`Fish ID`))
-# Calculate total energy for those with dry weights
-dens.wgt$TotalEnergy=NA
-dens.wgt$TotalEnergy[which(!(is.na(dens.wgt$Dry_wgt_g)))]=(20.265*dens.wgt$Dry_wgt_g[which(!(is.na(dens.wgt$Dry_wgt_g)))])-0.4825 # y=20.265x-0.4825 R2=0.998
-dens.wgt$Energy_Density_kJ_g=dens.wgt$TotalEnergy/dens.wgt$Wet_wgt_g
+ED=ED %>% filter(!(`Unique ID` %in% c('M9R17', 'C8F66', 'M8F74', 'C9F19','C9R14', 'M10F127', 'M10F135', 'M9F126', 'M9F127', 'M9R22')))
+ED$Wcalc=0.015372*(ED$TL_cm^2.96) # Calculated wet weights from W-L fall BTS all data to compare against measured for Kn
+ED$Kn=ED$Wet_wgt_g/ED$Wcalc 
+## two ways to calculate Energy Density -- 
+ED$Total.Energy=20.265*ED$Dry_wgt_g-0.4825 # y=20.265x-0.4825 R2=0.998
+ED$Energy.Density.TE=ED$Total.Energy/ED$Wet_wgt_g
+ED$Energy.Density.pctDW=0.272*ED$percent_DW-1.694
+# ED$Energy.Density.pctDW2=26.46*ED$percent_DW-1.513 # bad, formatting in excel 
 
 
-
-## Estimated and measured ED 
-plot(dens.wgt$Energy_Density_kJ_g~dens.wgt$percent_DW)
-lm1=lm(dens.wgt$Energy_Density_kJ_g~dens.wgt$percent_DW, data=dens.wgt)
+## Measured ED only -> Y=0.27x-1.694
+par(oma=c(0,1,0,0))
+plot(ED$`Energy Density (kJ/g)`~(ED$percent_DW), las=1, xlim=c(20,28),
+     ylab=expression(paste("Energy density (kJ g"^"-1"*")")), 
+     xlab="Percent dry weight (%)",
+     pch=19,
+     col=rgb(0.4, 0.4, 0.6, alpha=0.5)
+)
+lm1=lm(ED$`Energy Density (kJ/g)`~ED$percent_DW)
 abline(lm1, col='black', lw=1)
-points(dens$`Energy Density (kJ/g)`, dens$`% Dry Weight`, pch=1, col='red')
+text(20, 6, pos=4, labels=paste0("Y = ", round(lm1$coefficients[2],3), "x", round(lm1$coefficients[1],3)), cex=0.75)
+text(20, 5.8, pos=4, labels=bquote("R"^"2" ~ " = " ~.(round(summary(lm1)$r.squared,4))), cex=0.75)
 
-## Measured ED only -> Y=26.46x-1.513
-plot(dens$Energy_Density_kJ_g~dens$`% Dry Weight`, ylab="Energy density (kJ/g)", xlab="Percent dry weight")
-lm1=lm(dens$Energy_Density_kJ_g~dens$`% Dry Weight`)
-abline(lm1, col='black', lw=1)
-text(0.22, 6, labels=paste0("Y = ", round(lm1$coefficients[2],2), "x", round(lm1$coefficients[1],3)))
-text(0.22, 5.65, labels=paste0("R.sq=",round(summary(lm1)$r.squared,4)))
-## Measured Total Energy
-plot(dens$`Total Energy`~dens$`Final Dry Weight (g)`, ylab='Total Energy', xlab='Final dry weight (g)')
-lm1=lm(dens$`Total Energy`~dens$`Final Dry Weight (g)`)
+## Measured Total Energy Y=20.28x-0.591
+plot(ED$`Total Energy`~ED$`Final Dry Weight (g)`, ylab='Total Energy', xlab='Final dry weight (g)')
+lm1=lm(ED$`Total Energy`~ED$`Final Dry Weight (g)`)
 abline(lm1, col='black', lw=1)
 text(5, 300, labels=paste0("Y = ", round(lm1$coefficients[2],2), "x", round(lm1$coefficients[1],3)))
 text(5, 250, labels=paste0("R.sq=",round(summary(lm1)$r.squared,4)))
 
+## plot measured ED, and predicted ED by method:
+plot(ED$`Energy Density (kJ/g)`~(ED$percent_DW), ylab="Energy density (kJ/g)", xlab="Percent dry weight")
+lm1=lm(ED$`Energy Density (kJ/g)`~ED$percent_DW)
+abline(lm1, col='black', lw=1)
+points(ED$`% Dry Weight`*100, ED$Energy.Density.TE ,pch=1, col='red')
+lm1=lm(ED$Energy.Density.TE~ED$percent_DW)
+abline(lm1, col='red', lw=1)
+points(ED$`% Dry Weight`*100, ED$Energy.Density.pctDW ,pch=1, col='blue')
+lm1=lm(ED$Energy.Density.pctDW~ED$percent_DW)
+abline(lm1, col='blue', lw=1)
+
 ## clean up, remove bad values, excludes, outliers
 # dens.wgt2=dens.wgt %>% filter(Dry_wgt_g >0)
-dens.wgt=dens.wgt %>% filter(!(`Unique ID` %in% c('M9R17', 'C8F66', 'M8F74', 'C9F19')))
-dens=dens%>% filter(!(`Fish ID` %in% c('M9R17','C9F19', 'C9R14', 'M10F127', 'M10F135', 'M9F126', 'M9F127', 'M9R22')))
-
-ED=ED %>% filter(!(`Unique ID` %in% c('M9R17', 'C8F66', 'M8F74', 'C9F19','C9R14', 'M10F127', 'M10F135', 'M9F126', 'M9F127', 'M9R22')))
+# dens.wgt=dens.wgt %>% filter(!(`Unique ID` %in% c('M9R17', 'C8F66', 'M8F74', 'C9F19')))
+# dens=dens%>% filter(!(`Fish ID` %in% c('M9R17','C9F19', 'C9R14', 'M10F127', 'M10F135', 'M9F126', 'M9F127', 'M9R22')))
+# ED=ED %>% filter(!(`Unique ID` %in% c('M9R17', 'C8F66', 'M8F74', 'C9F19','C9R14', 'M10F127', 'M10F135', 'M9F126', 'M9F127', 'M9R22')))
 
 ## checking
 t1=NA
-t1=dens.wgt$Dry_wgt_g[dens.wgt$TL_mm>57]/dens.wgt$Wet_wgt_g[dens.wgt$TL_mm>57]
-test=(25.85*(t1))-1.37
-plot(dens.wgt$Energy_Density_kJ_g[dens.wgt$TL_mm>57]~test[dens.wgt$TL_mm>57], ylim=c(3.8, 5.8), xlim=c(3.8, 5.8), col=ifelse(dens.wgt$`Shipped to SMAST`==1, 'red', 'black'))
+t1=ED$Dry_wgt_g[ED$TL_mm>57]/ED$Wet_wgt_g[ED$TL_mm>57]*100
+test=0.272*t1-1.694
+plot(ED$Energy.Density.pctDW[ED$TL_mm>57]~test[ED$TL_mm>57], ylim=c(3.8, 5.8), xlim=c(3.8, 5.8), col=ifelse(!(is.na(ED$`% Protein`)), 'red', 'black'))
+plot(ED$Energy.Density.pctDW[!(is.na(ED$`% Protein`))]~test[!(is.na(ED$`% Protein`))], ylim=c(3.8, 5.8), xlim=c(3.8, 5.8), col=ifelse(!(is.na(ED$`% Protein`)), 'red', 'black'))
+# points(ED$`Energy Density (kJ/g)`[!(is.na(ED$`% Protein`))]~ED$Energy.Density.pctDW[!(is.na(ED$`% Protein`))], pch=15)
+
 
 # Load GoPro data
 gpd=read.csv(paste(wd,"/Habitat/2018-Bsb-MaxN-LHS.csv", sep=''))
@@ -192,24 +201,91 @@ gpd2=gpd %>% filter(MaxN>0)
 boxplot(gpd2$MaxN ~ gpd2$Treatment)
 boxplot(gpd$MaxN ~ gpd$Treatment)
 
-# read all sheets and concatenate
+# read all sheets and concatenate ->2018 Farm
 gp2018sheets=excel_sheets(paste0(wd,"Habitat/bsb 2021/2018 farm raw data compiled.xlsx"))
 gp2018all=lapply(gp2018sheets, function(x) read_excel(paste0(wd,"/Habitat/bsb 2021/2018 farm raw data compiled.xlsx"), sheet=x))
-# str(gp2018all)
 gpd2018=plyr::rbind.fill(gp2018all)
 gpdbsb2018=gpd2018 %>% dplyr::filter(Behavior=="Black sea bass")
 max(gpdbsb2018$Modifier_1)
+## extract date, cage replicate, annotator
 # unique(gpdbsb2018$Observation)
-# nms=strsplit(gpdbsb2018$Observation, split="_", fixed=F)
-# nms2=lapply(nms, `[[`, 1, drop = FALSE)
-# dts=lapply(nms, `[[`, 2, drop = FALSE)
-# unique(dts)
+nms=strsplit(gpdbsb2018$Observation, split="_", fixed=F)
+nms2=lapply(nms, `[[`, 1, drop = FALSE)
+dts=lapply(nms, `[[`, 2, drop = FALSE)
+unique(dts)
+test=gpdbsb2018[which(lapply(nms, `[[`, 2, drop=F)=="ShellBottom"),] #6
+
+Time=lapply(nms, `[[`, 3, drop=F)
+unique(Time)
+test=gpdbsb2018[which(lapply(nms, `[[`, 3, drop=F)=="Farm"),] #6
+test=gpdbsb2018[which(lapply(nms, `[[`, 3, drop=F)=="Cage3"),] #5
+test=gpdbsb2018[which(lapply(nms, `[[`, 3, drop=F)=="Farrm"),] #6
+test=gpdbsb2018[which(lapply(nms, `[[`, 3, drop=F)=="Farn"),] #6
+
 # gpdbsb2018$Month=NA
 # gpdbsb2018$Month[nms2=="GP"]=
-
 gpd.sum=gpdbsb2018 %>% 
   group_by(Month) %>% 
   summarise(mn=mean(Modifier_1,na.rm=T), md=median(Modifier_1, na.rm=T), mx=max(Modifier_1, na.rm=T))
+## subset to just those with YOY in comments
+gpdbsb2018yoy=gpdbsb2018[complete.cases(gpdbsb2018$Comment),]
+## tables
+YOYclass=unique(gpdbsb2018yoy$Comment)
+# table(gpdbsb2018yoy$Modifier_1[which(gpdbsb2018yoy$Comment==YOYclass[1])])
+for(i in 1:length(YOYclass)){
+  print(paste("Class is: ", YOYclass[i]))
+  print(table(gpdbsb2018yoy$Modifier_1[which(gpdbsb2018yoy$Comment==YOYclass[i])]))
+}
+# > YOYclass
+# [1] "YOY"                     "1 YOY in top oyster bag" "2 adults, 1 YOY"         "2 1+ 1 yoy"              "yoy"                    
+# [6] "2 1+, 1 yoy"             "1 YOY,"                  "YOY 1"                   "yoy/adult"               "1 yoy"                  
+# [11] "1/1"                     "1adult/1 yoy"           "1-1"                    "1 yoy/2ad"               "2/2"
+# [16] "2/1ad"                   "1/2"                     "2/1"                     "3/1"                     "YOY 2"                  
+# [21] "1/3"                     "2/3"                     "3/2"                     "1/5"                     "2/2 (2/1 for MaxN)"     
+# [26] "0"                       "YOY 3"                   "YOY 5"                   "YOY 4"                   "YOY 6"                  
+# [31] "YOY 7"                   "YOY 10"                 
+YOYnum=c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,1,2,3,2,1,2,3,1,2,0,3,5,4,6,7,10)
+gpdbsb2018yoy$YOY=NA
+for(i in 1:length(YOYnum)){
+  gpdbsb2018yoy$YOY[which(gpdbsb2018yoy$Comment==YOYclass[i])]=YOYnum[i]
+}
+gpdbsb2018yoy$Adult=gpdbsb2018yoy$Modifier_1-gpdbsb2018yoy$YOY
+table(gpdbsb2018yoy$Comment[gpdbsb2018yoy$Adult<0]) #CHECK ON NEGATIVE VALUES
+gpdbsb2018yoy$Adult[gpdbsb2018yoy$Adult<0]=0 # to correct some errors in coding?
+gpd.yoy.sum=gpdbsb2018yoy %>% 
+  group_by(Month) %>% 
+  summarise(mn=mean(YOY,na.rm=T), md=median(YOY, na.rm=T), mx=max(YOY, na.rm=T))
+
+### now for reef
+gp2018.reef.sheets=excel_sheets(paste0(wd,"Habitat/bsb 2021/2018 shell bottom raw data compiled RM.xlsx"))
+gp2018all.reef=lapply(gp2018.reef.sheets, function(x) read_excel(paste0(wd,"/Habitat/bsb 2021/2018 shell bottom raw data compiled RM.xlsx"), sheet=x))
+gpd2018.reef=plyr::rbind.fill(gp2018all.reef)
+gpdbsb2018.reef=gpd2018.reef %>% dplyr::filter(Behavior=="Black sea bass")
+gpdbsb2018.reef.yoy=gpdbsb2018.reef[complete.cases(gpdbsb2018.reef$Comment),]
+## tables
+YOYreefclass=unique(gpdbsb2018.reef.yoy$Comment)
+# table(gpdbsb2018yoy$Modifier_1[which(gpdbsb2018yoy$Comment==YOYclass[1])])
+for(i in 1:length(YOYreefclass)){
+  print(paste("Class is: ", YOYreefclass[i]))
+  print(table(gpdbsb2018.reef.yoy$Modifier_1[which(gpdbsb2018.reef.yoy$Comment==YOYreefclass[i])]))
+}
+# [1] "YOY"   "1 YOY" "YOY 1" "YOY 2" "YOY 6" "YOY 4"
+YOYreefnum=c(1,1,1,2,6,4)
+gpdbsb2018.reef.yoy$YOY=NA
+for(i in 1:length(YOYreefnum)){
+  gpdbsb2018.reef.yoy$YOY[which(gpdbsb2018.reef.yoy$Comment==YOYreefclass[i])]=YOYreefnum[i]
+}
+gpdbsb2018.reef.yoy$Adult=gpdbsb2018.reef.yoy$Modifier_1-gpdbsb2018.reef.yoy$YOY
+# table(gpdbsb2018.reef.yoy$Comment[gpdbsb2018.reef.yoy$Adult<0]) #CHECK ON NEGATIVE VALUES (good)
+gpd.yoy.reef.sum=gpdbsb2018.reef.yoy %>% 
+  group_by(Month) %>% 
+  summarise(mn=mean(YOY,na.rm=T), md=median(YOY, na.rm=T), mx=max(YOY, na.rm=T))
+
+with(gpdbsb2018.reef.yoy, table(YOY, Month))
+with(gpdbsb2018yoy, table(YOY, Month))
+
+
+
 
 
 
