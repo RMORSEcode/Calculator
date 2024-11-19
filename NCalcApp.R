@@ -102,6 +102,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                label = "Generate PDF Report"
                              ),
                              helpText(br()),
+                             plotOutput("fertplot"),
                              br(),
                              h6(tags$a(target="_blank", href="https://doi.org/10.5281/zenodo.11966672",
                                        "Access publicly available data used to create this tool >")),
@@ -491,6 +492,49 @@ server <- function(input, output) {
     P
   })
   
+  fertilplot <- reactive({
+    taval=1.42E-05
+    tbval=2.60727827
+    saval=0.00039042
+    sbval=2.579747757
+    tdw=taval*((input$hsize*25.4)^tbval)
+    sdw=saval*((input$hsize*25.4)^sbval)
+    tNi=(0.0796*tdw)*input$Num
+    sNi=(0.0019*sdw)*input$Num
+    cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+    tN=round((tNi*cnvrt),1)
+    sN=round((sNi*cnvrt),1)
+    nBags=round(((sN+tN)/5),0)
+    # pic="C:/Users/ryan.morse/Documents/GitHub/Calculator/WWW/fertilizerNew.png"
+    # # filename <- rep(normalizePath('fertilizer.png'),nBags)
+    # # filename <- rep(file.path(here::here('WWW/fertilizer.png')),nBags)
+    # filename <- rep(pic,nBags)
+    # pngs = lapply(filename, readPNG)
+    # asGrobs = lapply(pngs, rasterGrob)
+    # F <- grid.arrange(grobs=asGrobs)
+    # F
+    ## add single graphic to Calculator
+    #read file
+    img1<-readPNG("C:/Users/ryan.morse/Documents/GitHub/Calculator/WWW/fertilizer_infographic2.png")
+    #get size
+    h<-dim(img1)[1]
+    w<-dim(img1)[2]
+    par(mar=c(0,0,0,0), xpd=NA, mgp=c(0,0,0), oma=c(0,0,0,0), ann=F)
+    plot.new()
+    plot.window(0:1, 0:1)
+    #fill plot with image
+    usr<-par("usr")    
+    F=rasterImage(img1, usr[1], usr[3], usr[2], usr[4])
+    #add text
+    text(.65,.80, "Nitrogen removal", cex=2, col=rgb(.2,.2,.2,.7))
+    text(.65,.70, "equal to:", cex=2, col=rgb(.2,.2,.2,.7))
+    text(.65,.60, nBags, cex=3, col='red')
+    text(.65,.50, "50-lb bags", cex=2, col=rgb(.2,.2,.2,.7))
+    text(.65,.40, "of fertilizer*", cex=2, col=rgb(.2,.2,.2,.7))
+    text(.65,.25, "* Equivalency based on fertlizer", cex=1, col=rgb(.2,.2,.2,.7))
+    text(.65,.20, "with 10% nitrogen content", cex=1, col=rgb(.2,.2,.2,.7))
+    F
+  })
   
   # Output Components
   output$nutbplot <- 
@@ -504,6 +548,10 @@ server <- function(input, output) {
   output$mytable2 <-
     renderTable({
       esttable()
+    })
+  output$fertplot <- 
+    renderPlot({
+      fertilplot()
     })
   
   # observeEvent(input$add, {

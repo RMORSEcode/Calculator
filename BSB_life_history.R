@@ -9,6 +9,10 @@ library(mapdata)
 library(marmap)
 library(readxl)
 
+dt=lubridate::now()
+# dat=as.character(dt, format="%Y%m%d")
+dat=format(dt, "%Y%m%d")
+
 ### Bottom trawl survey strata shapefile
 wd="C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/"
 bts=sf::read_sf("C:/Users/ryan.morse/Desktop/shapefiles/BTS/BTS_Strata.shp")
@@ -47,8 +51,8 @@ L.his=data.frame(x.yrs); colnames(L.his)="Age"
 L.his$L_cm=x.len
 L.his$W_g=x.wgt
 L.his$M_lorenzen=x.Mlorenz
-x.mnAbnFarm=6.038795
-x.mnAbnRef=0.22
+x.mnAbnFarm=4.125 #YOY 2018 Milford # 6.038795 Barrett adult/juv 2017
+x.mnAbnRef=2.25 #YOY 2018 Milford # 0.22 Barrett adult/juv 2017
 x.enAbn=x.mnAbnFarm-x.mnAbnRef
 x.cageArea=1.1148 #m2
 L.his$Ni=NA #Ni per m2
@@ -89,7 +93,10 @@ for(i in 2:13){
   L.his$Ni_upper[i]=L.his$Ni[i-1]*exp(-L.his$M_lorenzen_upper[i])
 }
 L.his$B_upper=L.his$Ni_upper*L.his$W_g_upper
-write.csv(L.his, file=paste0(wd,'Habitat/BSB_production_CI_Milford_20240814.csv'))
+
+
+
+write.csv(L.his, file=paste0(wd,'Habitat/BSB_production_CI_Milford_',dat,'.csv'))
 
 ## load bottom trawl survey data
 # load ("C:/Users/ryan.morse/Downloads/NEFSC_BTS_2021.RData")
@@ -253,8 +260,8 @@ gpdbsb2018yoy$Adult=gpdbsb2018yoy$Modifier_1-gpdbsb2018yoy$YOY
 table(gpdbsb2018yoy$Comment[gpdbsb2018yoy$Adult<0]) #CHECK ON NEGATIVE VALUES
 gpdbsb2018yoy$Adult[gpdbsb2018yoy$Adult<0]=0 # to correct some errors in coding?
 gpd.yoy.sum=gpdbsb2018yoy %>% 
-  group_by(Month) %>% 
-  summarise(mn=mean(YOY,na.rm=T), md=median(YOY, na.rm=T), mx=max(YOY, na.rm=T))
+  group_by(Month, `Cage Number`,Behavior) %>% 
+  summarise(mn=mean(YOY,na.rm=T), sd=sd(YOY,na.rm=T), md=median(YOY, na.rm=T), mx=max(YOY, na.rm=T), n=n())
 
 ### now for reef
 gp2018.reef.sheets=excel_sheets(paste0(wd,"Habitat/bsb 2021/2018 shell bottom raw data compiled RM.xlsx"))
@@ -286,7 +293,66 @@ with(gpdbsb2018yoy, table(YOY, Month))
 
 
 
+### load YOY sheets
+## Milford Farm high density cage
+gp2018.farm.sheets=excel_sheets(paste0(wd,"Habitat/bsb 2021/YOY-max-farm-2018.xlsx"))
+gp2018.farm.sheets=gp2018.farm.sheets[2:length(gp2018.farm.sheets)] #drop summary
+# YOY.farm=lapply(gp2018.farm.sheets, function(x) read_excel(paste0(wd,"/Habitat/bsb 2021/YOY-max-farm-2018.xlsx"), sheet=x, range = cell_cols("A:V")))
+# YOY.farm=plyr::rbind.fill(YOY.farm)
+# YOY.bsb.farm=YOY.farm %>% dplyr::filter(Behavior=="Black sea bass")
+all_data.farm <- do.call(rbind, lapply(gp2018.farm.sheets, function(X) 
+  transform(readxl::read_excel(paste0(wd,"/Habitat/bsb 2021/YOY-max-farm-2018.xlsx"), sheet = X, range = cell_cols("A:V")), sheetname = X)))
+all_data.farm$date=mdy(all_data.farm$sheetname)
 
+## Milford Farm low density cage
+gp2018.LCD.sheets=excel_sheets(paste0(wd,"Habitat/bsb 2021/YOY-max-LCD-2018.xlsx"))
+gp2018.LCD.sheets=gp2018.LCD.sheets[2:length(gp2018.LCD.sheets)] #drop summary
+# YOY.LCD=lapply(gp2018.LCD.sheets, function(x) read_excel(paste0(wd,"/Habitat/bsb 2021/YOY-max-LCD-2018.xlsx"), sheet=x, range = cell_cols("A:V")))
+# YOY.LCD=plyr::rbind.fill(YOY.LCD)
+all_data.LCD <- do.call(rbind, lapply(gp2018.LCD.sheets, function(X) 
+  transform(readxl::read_excel(paste0(wd,"/Habitat/bsb 2021/YOY-max-LCD-2018.xlsx"), sheet = X, range = cell_cols("A:V")), sheetname = X)))
+all_data.LCD$date=mdy(all_data.LCD$sheetname)
+
+## Milford rock reef control
+gp2018.reef.sheets=excel_sheets(paste0(wd,"Habitat/bsb 2021/YOY-max-reef-2018.xlsx"))
+gp2018.reef.sheets=gp2018.reef.sheets[2:length(gp2018.reef.sheets)] #drop summary
+# YOY.reef=lapply(gp2018.reef.sheets, function(x) read_excel(paste0(wd,"/Habitat/bsb 2021/YOY-max-reef-2018.xlsx"), sheet=x, range = cell_cols("A:V")))
+# YOY.reef=plyr::rbind.fill(YOY.reef)
+# YOY.bsb.reef=YOY.reef %>% dplyr::filter(Behavior=="Black sea bass")
+all_data.reef <- do.call(rbind, lapply(gp2018.reef.sheets, function(X) 
+  transform(readxl::read_excel(paste0(wd,"/Habitat/bsb 2021/YOY-max-reef-2018.xlsx"), sheet = X, range = cell_cols("A:V")), sheetname = X)))
+all_data.reef$date=mdy(all_data.reef$sheetname)
+
+
+yoy.farm.sum=all_data.farm %>% 
+  group_by(month(date), day(date), Behavior) %>% 
+  summarise(mn=mean(X.YOY,na.rm=T), sd=sd(X.YOY,na.rm=T), md=median(X.YOY, na.rm=T), mx=max(X.YOY, na.rm=T), n=n())
+
+yoy.LCD.sum=all_data.LCD %>% 
+  group_by(month(date), day(date), Behavior) %>% 
+  summarise(mn=mean(X.YOY,na.rm=T), sd=sd(X.YOY,na.rm=T), md=median(X.YOY, na.rm=T), mx=max(X.YOY, na.rm=T), n=n())
+
+yoy.reef.sum=all_data.reef %>% 
+  group_by(month(date), day(date),Behavior) %>% 
+  summarise(mn=mean(X.YOY,na.rm=T), sd=sd(X.YOY,na.rm=T), md=median(X.YOY, na.rm=T), mx=max(X.YOY, na.rm=T), n=n())
+
+write.csv(yoy.farm.sum, file=paste0(wd,"/Habitat/bsb 2021/",dat,"weekly_YOY_farm_summary.csv"))
+write.csv(yoy.LCD.sum, file=paste0(wd,"/Habitat/bsb 2021/",dat,"weekly_YOY_LCD_summary.csv"))
+write.csv(yoy.reef.sum, file=paste0(wd,"/Habitat/bsb 2021/",dat,"weekly_YOY_reef_summary.csv"))
+
+#monthly, by cage
+yoy.farm.sum=all_data.farm %>% 
+  group_by(month(date), Cage.Number,Behavior) %>% 
+  summarise(mn=mean(X.YOY,na.rm=T), sd=sd(X.YOY,na.rm=T), md=median(X.YOY, na.rm=T), mx=max(X.YOY, na.rm=T), n=n())
+yoy.LCD.sum=all_data.LCD %>% 
+  group_by(month(date), Cage.Number, Behavior) %>% 
+  summarise(mn=mean(X.YOY,na.rm=T), sd=sd(X.YOY,na.rm=T), md=median(X.YOY, na.rm=T), mx=max(X.YOY, na.rm=T), n=n())
+yoy.reef.sum=all_data.reef %>% 
+  group_by(month(date), Cage.Number, Behavior) %>% 
+  summarise(mn=mean(X.YOY,na.rm=T), sd=sd(X.YOY,na.rm=T), md=median(X.YOY, na.rm=T), mx=max(X.YOY, na.rm=T), n=n())
+write.csv(yoy.farm.sum, file=paste0(wd,"/Habitat/bsb 2021/",dat,"monthly_YOY_farm_summary.csv"))
+write.csv(yoy.LCD.sum, file=paste0(wd,"/Habitat/bsb 2021/",dat,"monthly_YOY_LCD_summary.csv"))
+write.csv(yoy.reef.sum, file=paste0(wd,"/Habitat/bsb 2021/",dat,"monthly_YOY_reef_summary.csv"))
 
 
 with(dens, table(Farm_Reef, SITE))
