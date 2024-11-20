@@ -1,5 +1,8 @@
-# https://test-connect.fisheries.noaa.gov/Calculator/ NOAA internal
-# https://connect.fisheries.noaa.gov/ANRC/ open 20240617 v0.1.0-beta -> v1.0.0 upon approval of MS
+### Open version:
+# https://connect.fisheries.noaa.gov/ANRC/ open version
+### Testing version (NOAA internal)
+# https://test-connect.fisheries.noaa.gov/Calculator/
+
 library(shiny)
 library(shinyWidgets)
 library(leaflet)
@@ -9,6 +12,10 @@ library(ggplot2)
 library(formatR)
 library(tinytex)
 library(gh)
+library(png)
+# library(shinyWidgets)
+# library(gridExtra)
+# library(grid)
 
 ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                 ### Title ###
@@ -92,17 +99,18 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                inline = T,
                                width="100%"),
                              helpText(br()),
-                             
-                             plotOutput("nutbplot", width="50%"), 
-                             helpText(br()),
-                             tableOutput("mytable"), 
-                             # actionButton("go", "Screenshot"),
                              downloadButton(
                                outputId = "downloader",
                                label = "Generate PDF Report"
                              ),
+                             br(),
+                             br(),
+                             plotOutput("nutbplot", width="50%"), 
                              helpText(br()),
-                             plotOutput("fertplot"),
+                             tableOutput("mytable"), 
+                             # actionButton("go", "Screenshot"),
+                             br(),
+                             plotOutput("fertplot", width="75%"),
                              br(),
                              h6(tags$a(target="_blank", href="https://doi.org/10.5281/zenodo.11966672",
                                        "Access publicly available data used to create this tool >")),
@@ -124,7 +132,6 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                   p("To use the tool, please enter a nitrogen load and the average size of oyters at harvest.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white;")),
                              # p("To download a report, click on ",strong("Generate PDF Report")," at the bottom", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:15px;")),
                              helpText(br()),
-                             
                              helpText(br()),
                              helpText(h3("Harvest Estimator For Nitrogen (N) Load Removal")),
                              numericInput("Nload", strong("Nitrogen load into waterbody (lbs N)"), 0, min=0, max=NA, width="100%"),
