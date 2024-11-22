@@ -82,11 +82,11 @@ knitr::opts_chunk$set(opts.label="kill_prefix")
 **Average size of oysters at harvest (Inches):**  
 `r params[["hsize"]]`
 
-**Period of harvest** (YYYY-MM-DD begin, YYYY-MM-DD end)  
+**Period of harvest (YYYY-MM-DD begin, end):**  
 `r params[["Dates"]]`
 
 
-# *Calculated Farm Nitrogen Removal**  
+# **Calculated Farm Nitrogen Removal**  
 ```{r, tidy='styler', echo=FALSE}
 knitr::kable(params[["table"]], 
              caption="N Removal")
@@ -128,16 +128,18 @@ NC: Beth Darrow, Jessica Kinsella *University of North Carolina Wilmington*
 - Poach, M., Morse, R., Meseck, S.L., Alvarado, A., Reichert-Nguyen, J., McFarland, K., Elliott, H., Kellogg, M.L., Luckenbach, M.W., & J.M. Rose. (2024). Nutrient reduction by eastern oysters exhibits low variability associated with reproduction, ploidy, and farm location. Marine Pollution Bulletin 202, 116286. doi 10.1016/j.marpolbul.2024.116286"  
 - Reitsma, J., Murphy, D.C., Archer, A.F., and York, R.H. (2017). Nitrogen extraction potential of wild and cultured bivalves harvested from nearshore waters of Cape Cod, USA. Marine Pollution Bulletin 116, 175-181.  
 - Rose, J.M., Bricker, S.B., Tedesco, M.A., and Wikfors, G.H. (2014). A Role for Shellfish Aquaculture in Coastal Nitrogen Management. Environmental Science & Technology 48, 2519-2525.  
+- Rose, J.M., Morse, R.E., and C. Schillaci. (2024). Development and application of an online tool to quantify nitrogen removal associated with harvest of cultivated eastern oysters. PLoS ONE 19(9): e0310062.  
 - Sebastiano, D., Levinton, J.S., Doall, M., and Kamath, S. (2015). Using a Shellfish Harvest Strategy to Extract High Nitrogen Inputs in Urban and Suburban Coastal Bays: Practical and Economic Implications. Journal of Shellfish Research 34, 573-583, 511.  
   
   
 # **Disclaimer**  
 This is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government.  
-
-**Caclulator Version:**  
+  
+  
+# **Calculator Version:**  
 ```{r, echo=FALSE}
 releases <- gh("GET /repos/{owner}/{repo}/releases", 
                owner = "RMORSEcode",
                repo = "Calculator")
-releases[[1]][["name"]]
+print(releases[[1]][["name"]])
 ```

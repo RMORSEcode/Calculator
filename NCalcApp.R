@@ -1,6 +1,6 @@
 ### Open version:
 # https://connect.fisheries.noaa.gov/ANRC/ open version
-### Testing version (NOAA internal)
+### Test version (NOAA internal):
 # https://test-connect.fisheries.noaa.gov/Calculator/
 
 library(shiny)
@@ -13,9 +13,8 @@ library(formatR)
 library(tinytex)
 library(gh)
 library(png)
-# library(shinyWidgets)
-# library(gridExtra)
-# library(grid)
+library(gridExtra)
+library(grid)
 
 ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                 ### Title ###
@@ -328,7 +327,8 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
 
 
 
-server <- function(input, output) {
+server <- function(input, output, session) {
+  session$onSessionEnded(function() { stopApp() })
   stations=readxl::read_xlsx("Location_data.xlsx",sheet='final2', range='A1:F34')
   # aquaculture=sf::st_read("C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/Habitat/Marine Cadastre/Aquaculture.shp")
   # NESaquaculture=sf::st_crop(aquaculture, xmin=-77, ymin=35, xmax=-66.98481, ymax=60.83483) #xmin: -160.7436 ymin: 19.52108 xmax: -66.98481 ymax: 60.83483
@@ -508,7 +508,7 @@ server <- function(input, output) {
     sdw=saval*((input$hsize*25.4)^sbval)
     tNi=(0.0796*tdw)*input$Num
     sNi=(0.0019*sdw)*input$Num
-    cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+    cnvrt=0.00220462
     tN=round((tNi*cnvrt),1)
     sN=round((sNi*cnvrt),1)
     nBags=round(((sN+tN)/5),0)
@@ -522,7 +522,9 @@ server <- function(input, output) {
     # F
     ## add single graphic to Calculator
     #read file
-    img1<-readPNG("C:/Users/ryan.morse/Documents/GitHub/Calculator/WWW/fertilizer_infographic2.png")
+    img1<-readPNG("fertilizerInfographic.png")
+    # img1<tags$img(src='fertilizer_infographic2.png')
+    # img1<-readPNG("C:/Users/ryan.morse/Documents/GitHub/Calculator/WWW/fertilizer_infographic2.png")
     #get size
     h<-dim(img1)[1]
     w<-dim(img1)[2]
@@ -539,7 +541,7 @@ server <- function(input, output) {
     text(.65,.50, "50-lb bags", cex=2, col=rgb(.2,.2,.2,.7))
     text(.65,.40, "of fertilizer*", cex=2, col=rgb(.2,.2,.2,.7))
     text(.65,.25, "* Equivalency based on fertlizer", cex=1, col=rgb(.2,.2,.2,.7))
-    text(.65,.20, "with 10% nitrogen content", cex=1, col=rgb(.2,.2,.2,.7))
+    text(.65,.20, "with 10% nitrogen content", cex=1.2, col=rgb(.2,.2,.2,.7))
     F
   })
   
@@ -580,7 +582,7 @@ server <- function(input, output) {
   
   output$downloader <- 
     downloadHandler(
-      "Oyster_Farm_Nitrogen_Report.pdf",
+      paste0(Sys.Date(),"_Oyster_Farm_Nitrogen_Report.pdf"),
       content = 
         function(file)
         {
