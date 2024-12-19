@@ -74,6 +74,7 @@ makeVBEqnLabel <- function(fit) {
   paste0("LENGTH==",Linf,"~bgroup('(',1-e^{-",K,"~(AGE",t0,")},')')")
 }
 
+## Figure 3 Mercaldo-Allen et al 2025 in prep ##
 vbFitPlot <- ggplot() + 
   geom_ribbon(data=preds2,aes(x=AGE,ymin=LCI,ymax=UCI),fill="gray90") +
   geom_point(data=dataX,aes(y=LENGTH,x=AGE),size=2,alpha=0.1) +
@@ -87,4 +88,4 @@ vbFitPlot <- ggplot() +
   theme(panel.grid=element_blank())
 vbFitPlot + annotate(geom="text",label=makeVBEqnLabel(f.fit),parse=TRUE,
                      size=4,x=Inf,y=-Inf,hjust=1.1,vjust=-0.5)
-
+ggsave(filename='vB300dpi.tiff',path = wd, width = 5, height = 3.5, device='tiff', dpi=300)

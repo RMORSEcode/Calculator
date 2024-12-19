@@ -155,6 +155,8 @@ ED$Energy.Density.pctDW=0.272*ED$percent_DW-1.694
 
 
 ## Measured ED only -> Y=0.27x-1.694
+## Figure 5 Mercaldo-Allen et al 2025 in prep ##
+tiff(paste0(wd,'ED300dpi.tiff'), units="in", width=5, height=4, res=300)
 par(oma=c(0,1,0,0))
 plot(ED$`Energy Density (kJ/g)`~(ED$percent_DW), las=1, xlim=c(20,28),
      ylab=expression(paste("Energy density (kJ g"^"-1"*")")), 
@@ -166,6 +168,7 @@ lm1=lm(ED$`Energy Density (kJ/g)`~ED$percent_DW)
 abline(lm1, col='black', lw=1)
 text(20, 6, pos=4, labels=paste0("Y = ", round(lm1$coefficients[2],3), "x", round(lm1$coefficients[1],3)), cex=0.75)
 text(20, 5.8, pos=4, labels=bquote("R"^"2" ~ " = " ~.(round(summary(lm1)$r.squared,4))), cex=0.75)
+dev.off()
 
 ## Measured Total Energy Y=20.28x-0.591
 plot(ED$`Total Energy`~ED$`Final Dry Weight (g)`, ylab='Total Energy', xlab='Final dry weight (g)')
@@ -231,6 +234,11 @@ test=gpdbsb2018[which(lapply(nms, `[[`, 3, drop=F)=="Farn"),] #6
 
 # gpdbsb2018$Month=NA
 # gpdbsb2018$Month[nms2=="GP"]=
+gpd.all.sum=gpd2018 %>% 
+  group_by(Month, `Cage Number`, Behavior) %>% 
+  summarise(mn=mean(Modifier_1,na.rm=T), sd=sd(Modifier_1,na.rm=T) ,md=median(Modifier_1, na.rm=T), mx=max(Modifier_1, na.rm=T))
+
+
 gpd.sum=gpdbsb2018 %>% 
   group_by(Month) %>% 
   summarise(mn=mean(Modifier_1,na.rm=T), md=median(Modifier_1, na.rm=T), mx=max(Modifier_1, na.rm=T))
@@ -754,13 +762,14 @@ text(2, 0, labels=paste("a= ", exp(lm1$coefficients[1]), sep=''))
 text(2, -1, labels=paste("b= ", lm1$coefficients[2], sep=''))
 
 
-
+### Figure 2 Mercaldo-Allen et al 2025 in prep ##
 bsb.fl3=bsb.fl2 %>% filter(INDWT>0)#,STRATUM==1050)
 bsb.fl3$logW=log(bsb.fl3$INDWT*1000) #grams
 bsb.fl3$logL=log(bsb.fl3$LENGTH) #cm
 sp2=bsb.fl3[complete.cases(bsb.fl3$logW),]
 sp3=sp2[complete.cases(sp2$logL),]
 lm1=lm(logW~logL, data=sp3)
+tiff(paste0(wd,'LW300dpi.tiff'), units="in", width=5, height=4, res=300)
 plot(sp3$logW~sp3$logL, type='p', pch=21, xlab="Log length (cm)", ylab="Log weight (g)", las=1)#, main="Fall Black Sea Bass")
 abline(lm1, col='red', lw=2)
 summary(lm1)
@@ -774,6 +783,7 @@ legend('topleft', legend = c("Fall bottom trawl survey",
                              paste("a= ", round(exp(lm1$coefficients[1]),6), sep=''),
                              paste("b= ", round(lm1$coefficients[2],3), sep='')),
                              bty = 'n')
+dev.off()
 ## spatial view of high abundance strata
 bts.s=bts %>% filter(STRATA %in% t2.s$STRATUM)
 bts.f=bts %>% filter(STRATA %in% t2.f$STRATUM)

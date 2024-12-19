@@ -71,8 +71,8 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              sliderInput(
                                "hsize",
                                div(strong("Average oyster size at harvest (Inches):"), " Please drag the slider to select the average size of the oysters that were harvested"),
-                               2.0,
-                               5.0,
+                               0.1,
+                               6.0,
                                3.0,
                                step = 0.1,
                                round = FALSE,
@@ -87,6 +87,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              numericInput("Num", div(strong("Number of oysters at harvest:")," Please enter the total number of oysters harvested at the selected size"), 0, min=0, max=NA, width="100%"),
                              helpText(br()),
                              ## Dates
+                             # dateRangeInput("Htime", div(strong("Period of harvest (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date()+(2*365), startview = "month", width="100%"),
                              dateRangeInput("Htime", div(strong("Period of harvest (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month", width="100%"),
                              helpText(br()),
                              ## Units
@@ -512,6 +513,7 @@ server <- function(input, output, session) {
     tN=round((tNi*cnvrt),1)
     sN=round((sNi*cnvrt),1)
     nBags=round(((sN+tN)/5),0)
+    sqftlawns=round((sN+tN),0)*1000
     # pic="C:/Users/ryan.morse/Documents/GitHub/Calculator/WWW/fertilizerNew.png"
     # # filename <- rep(normalizePath('fertilizer.png'),nBags)
     # # filename <- rep(file.path(here::here('WWW/fertilizer.png')),nBags)
@@ -535,13 +537,17 @@ server <- function(input, output, session) {
     usr<-par("usr")    
     F=rasterImage(img1, usr[1], usr[3], usr[2], usr[4])
     #add text
-    text(.65,.80, "Nitrogen removal", cex=2, col=rgb(.2,.2,.2,.7))
-    text(.65,.70, "equal to:", cex=2, col=rgb(.2,.2,.2,.7))
-    text(.65,.60, nBags, cex=3, col='red')
-    text(.65,.50, "50-lb bags", cex=2, col=rgb(.2,.2,.2,.7))
-    text(.65,.40, "of fertilizer*", cex=2, col=rgb(.2,.2,.2,.7))
-    text(.65,.25, "* Equivalency based on fertlizer", cex=1, col=rgb(.2,.2,.2,.7))
-    text(.65,.20, "with 10% nitrogen content", cex=1.2, col=rgb(.2,.2,.2,.7))
+    text(.35,.90, "Nitrogen removal", cex=2, col=rgb(.2,.2,.2,.7), pos=4)
+    text(.35,.80, "equal to:", cex=2, col=rgb(.2,.2,.2,.7), pos=4)
+    text(.35,.70, nBags, cex=3, col='red', pos=4)
+    text(.35,.60, "50-lb bags", cex=2, col=rgb(.2,.2,.2,.7), pos=4)
+    text(.35,.50, "of fertilizer*, or", cex=2, col=rgb(.2,.2,.2,.7), pos=4)
+    text(0.35,0.40, sqftlawns, cex=3, col='red', pos=4)
+    text(.35,.30, "square feet of",cex=2, col=rgb(.2,.2,.2,.7), pos=4) 
+    text(.35,.20,"lawns fertilzed**",cex=2, col=rgb(.2,.2,.2,.7), pos=4)
+    text(.35,.15, "* Equivalency based on fertlizer", cex=1.2, col=rgb(.2,.2,.2,.7), pos=4)
+    text(.35,.10, "with 10% nitrogen content", cex=1.2, col=rgb(.2,.2,.2,.7), pos=4)
+    text(0.35,0.05,"** Using 1-lb of N per 1000 sq. ft.", cex=1.2, col=rgb(.2,.2,.2,.7), pos=4)
     F
   })
   
