@@ -71,7 +71,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              sliderInput(
                                "hsize",
                                div(strong("Average oyster size at harvest (Inches):"), " Please drag the slider to select the average size of the oysters that were harvested"),
-                               0.1,
+                               2.0,
                                6.0,
                                3.0,
                                step = 0.1,
@@ -112,6 +112,12 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              br(),
                              plotOutput("fertplot", width="75%"),
                              br(),
+                             # radioButtons("extension", "Save As:",
+                             #              choices = c("png", "svg"), inline = TRUE),
+                             downloadButton(
+                               outputId = "download",
+                               label = "Save Infographic"
+                             ),
                              h6(tags$a(target="_blank", href="https://doi.org/10.5281/zenodo.11966672",
                                        "Access publicly available data used to create this tool >")),
                              h6(tags$a(target="_blank", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062",
@@ -500,7 +506,8 @@ server <- function(input, output, session) {
     P
   })
   
-  fertilplot <- reactive({
+  # fertilplot <- reactive({
+  fertilplot <- function(){
     taval=1.42E-05
     tbval=2.60727827
     saval=0.00039042
@@ -549,7 +556,8 @@ server <- function(input, output, session) {
     text(.35,.10, "with 10% nitrogen content", cex=1.2, col=rgb(.2,.2,.2,.7), pos=4)
     text(0.35,0.05,"** Using 1-lb of N per 1000 sq. ft.", cex=1.2, col=rgb(.2,.2,.2,.7), pos=4)
     F
-  })
+  # })
+  }
   
   # Output Components
   output$nutbplot <- 
@@ -569,6 +577,39 @@ server <- function(input, output, session) {
       fertilplot()
     })
   
+
+  ## save infographic to file
+  output$download <- downloadHandler(
+    filename = paste0("Infographic_",Sys.Date(),".png"),
+    content = function(file) {
+      png(file, width = 1000,
+          height = 1000,
+          res = 200)
+      fertilplot()
+      dev.off()
+    }) 
+
+  
+  # downaload handler - save the image
+  # output$save_myPlot_hidden <- downloadHandler(
+  #   filename = function() { 
+  #     paste0("Infographic_", Sys.Date(), ".png") },
+  #   content = function(file) {
+  #     # get image code from URI
+  #     plot_src <- gsub("^data.*base64,", "", input$plot_src)
+  #     # decode the image code into the image
+  #     plot_image <- image_read(base64_decode(plot_src))
+  #     # save the image
+  #     image_write(plot_image, file)
+  #   })
+  # 
+  # # plot
+  # output$fertplot <-
+  #   renderPlot({
+  #     fertilplot()
+  #   })
+  
+# }
   # observeEvent(input$add, {
   #   output_name <- paste0("out_", input$add)
   #   output[[output_name]] <- renderText({
@@ -616,5 +657,14 @@ server <- function(input, output, session) {
     )
 }
 
+#   output$download <- downloadHandler(
+#     filename = function() {
+#       paste("Infographic", input$extension, sep = ".")
+#     },
+#     content = function(file){
+#       save(file, plot_output(), device = input$extension)
+#     }
+#   )
+# }
 # Run the application
 shinyApp(ui = ui, server = server)

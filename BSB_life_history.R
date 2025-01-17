@@ -21,8 +21,8 @@ bts=sf::read_sf("C:/Users/ryan.morse/Desktop/shapefiles/BTS/BTS_Strata.shp")
 # https://www.habitat.noaa.gov/application/efhinventory/
 NEWENGefh=sf::read_sf(paste(wd,"/Habitat/EFH/neweng_efh/neweng_efh.shp",sep=''))
 MIDATLefh=sf::read_sf(paste(wd,"/Habitat/EFH/midatl_efh/midatl_efh.shp",sep=''))
-MIDefh=st_transform(MIDATLefh, "WGS84")
-NEWefh=st_transform(NEWENGefh, "WGS84")
+MIDefh=sf::st_transform(MIDATLefh, "WGS84")
+NEWefh=sf::st_transform(NEWENGefh, "WGS84")
 map("worldHires", xlim=c(-78,-68),ylim=c(36.5,45), fill=T,border=0,col="gray70")
 map.axes(las=1)
 plot(MIDefh$geometry[39], col='green', add=T) #BSB Juv
@@ -299,7 +299,69 @@ gpd.yoy.reef.sum=gpdbsb2018.reef.yoy %>%
 with(gpdbsb2018.reef.yoy, table(YOY, Month))
 with(gpdbsb2018yoy, table(YOY, Month))
 
+###___________ 20241219
+# read all sheets and concatenate ->2018 Farm
+gp2018sheets=excel_sheets(paste0(wd,"Habitat/bsb 2021/2018 farm raw data compiled.xlsx"))
+gp2018all=lapply(gp2018sheets, function(x) read_excel(paste0(wd,"/Habitat/bsb 2021/2018 farm raw data compiled.xlsx"), sheet=x))
+gpd2018=plyr::rbind.fill(gp2018all)
 
+gpd.all.sum=gpd2018 %>% 
+  group_by(Month, `Cage Number`, Behavior) %>% 
+  summarise(mn=mean(Modifier_1,na.rm=T), sd=sd(Modifier_1,na.rm=T) ,md=median(Modifier_1, na.rm=T), mx=max(Modifier_1, na.rm=T))
+gpd.all.sum=gpd2018 %>% 
+  group_by(Month, Behavior) %>% 
+  summarise(mn=mean(Modifier_1,na.rm=T), sd=sd(Modifier_1,na.rm=T) ,md=median(Modifier_1, na.rm=T), mx=max(Modifier_1, na.rm=T),n=n())
+gpd.all.sum=gpd2018 %>% 
+  group_by(Behavior) %>% 
+  summarise(mn=mean(Modifier_1,na.rm=T), sd=sd(Modifier_1,na.rm=T) ,md=median(Modifier_1, na.rm=T), mx=max(Modifier_1, na.rm=T),n=n())
+
+P=gpd.all.sum=gpd2018 %>%
+  filter(Behavior=='Black sea bass') %>%
+  group_by(Month, Behavior) %>%
+  ggplot(aes(y=Modifier_1, x=Month)) +
+  geom_boxplot(color = "black", notch=F, fill="gray") +
+  theme_classic()+
+  labs(x='Farm BSB', y = 'MaxN') +
+  coord_cartesian(ylim = c(-0.5, 3))+
+  stat_summary(fun.y=mean, geom="point", shape=18, size=4)+
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank())+
+  theme(legend.position = "none") #+
+  # theme(text = element_text(size = 12, family="Arial"))# +
+  # theme(legend.text = element_text(size = 12, family="Arial"))
+P
+
+# read all sheets and concatenate ->2018 LCD
+gp2018.lcd.sheets=excel_sheets(paste0(wd,"Habitat/bsb 2021/2018 shell bottom raw data compiled RM.xlsx"))
+gp2018all.lcd=lapply(gp2018.lcd.sheets, function(x) read_excel(paste0(wd,"/Habitat/bsb 2021/2018 shell bottom raw data compiled RM.xlsx"), sheet=x))
+gpd2018.lcd=plyr::rbind.fill(gp2018all.lcd)
+
+gpd.lcd.all.sum=gpd2018.lcd %>% 
+  group_by(Month, `Cage Number`, Behavior) %>% 
+  summarise(mn=mean(Modifier_1,na.rm=T), sd=sd(Modifier_1,na.rm=T) ,md=median(Modifier_1, na.rm=T), mx=max(Modifier_1, na.rm=T))
+gpd.lcd.all.sum=gpd2018.lcd %>% 
+  group_by(Month, Behavior) %>% 
+  summarise(mn=mean(Modifier_1,na.rm=T), sd=sd(Modifier_1,na.rm=T) ,md=median(Modifier_1, na.rm=T), mx=max(Modifier_1, na.rm=T),n=n())
+gpd.lcd.all.sum=gpd2018.lcd %>% 
+  group_by(Behavior) %>% 
+  summarise(mn=mean(Modifier_1,na.rm=T), sd=sd(Modifier_1,na.rm=T) ,md=median(Modifier_1, na.rm=T), mx=max(Modifier_1, na.rm=T),n=n())
+
+# read all sheets and concatenate ->2018 Reef
+gp2018.reef.sheets=excel_sheets(paste0(wd,"/Habitat/BSB 2021/2018 reef raw data compiled.xlsx"))
+gp2018all.reef=lapply(gp2018.reef.sheets, function(x) read_excel(paste0(wd,"/Habitat/bsb 2021/2018 reef raw data compiled.xlsx"), sheet=x))
+gpd2018.reef=plyr::rbind.fill(gp2018all.reef)
+
+gpd.reef.all.sum=gpd2018.reef %>% 
+  group_by(Month, `Cage Number`, Behavior) %>% 
+  summarise(mn=mean(Modifier_1,na.rm=T), sd=sd(Modifier_1,na.rm=T) ,md=median(Modifier_1, na.rm=T), mx=max(Modifier_1, na.rm=T))
+gpd.reef.all.sum=gpd2018.reef %>% 
+  group_by(Month, Behavior) %>% 
+  summarise(mn=mean(Modifier_1,na.rm=T), sd=sd(Modifier_1,na.rm=T) ,md=median(Modifier_1, na.rm=T), mx=max(Modifier_1, na.rm=T),n=n())
+gpd.reef.all.sum=gpd2018.reef %>% 
+  group_by(Behavior) %>% 
+  summarise(mn=mean(Modifier_1,na.rm=T), sd=sd(Modifier_1,na.rm=T) ,md=median(Modifier_1, na.rm=T), mx=max(Modifier_1, na.rm=T),n=n())
+
+#______________
 
 ### load YOY sheets
 ## Milford Farm high density cage
@@ -790,8 +852,11 @@ bts.f=bts %>% filter(STRATA %in% t2.f$STRATUM)
 plot(bts[1:152,2], axes=T, reset = FALSE, main="Spring Strata")
 plot(bts.s[2], add=T, col='red')
 plot(bts.s[[8]][[1]], add=T, col='green')
+#Fall
 plot(bts[1:152,2], axes=T, reset = FALSE, main="Fall Strata")
-plot(bts.f[1:2,2], add=T, col='red')
+plot(bts.f[1:2,2][2], add=T, col='red')
+points(-73.069132,	41.189929, pch=19, col='red') #Milford dense farm
+map('state', fill = F, add=T) # add state lines
 
 test=bsb %>% count(YEAR, SEASON)
 
