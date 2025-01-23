@@ -555,10 +555,52 @@ server <- function(input, output, session) {
     text(.35,.15, "* Equivalency based on fertlizer", cex=1.2, col=rgb(.2,.2,.2,.7), pos=4)
     text(.35,.10, "with 10% nitrogen content", cex=1.2, col=rgb(.2,.2,.2,.7), pos=4)
     text(0.35,0.05,"** Using 1-lb of N per 1000 sq. ft.", cex=1.2, col=rgb(.2,.2,.2,.7), pos=4)
+    text(0.0,0.0,"https://connect.fisheries.noaa.gov/ANRC/", cex=1, col='blue', pos=4)
     F
+    # dev.off()
   # })
   }
   
+  infoplot <- function(){
+    taval=1.42E-05
+    tbval=2.60727827
+    saval=0.00039042
+    sbval=2.579747757
+    tdw=taval*((input$hsize*25.4)^tbval)
+    sdw=saval*((input$hsize*25.4)^sbval)
+    tNi=(0.0796*tdw)*input$Num
+    sNi=(0.0019*sdw)*input$Num
+    cnvrt=0.00220462
+    tN=round((tNi*cnvrt),1)
+    sN=round((sNi*cnvrt),1)
+    nBags=round(((sN+tN)/5),0)
+    sqftlawns=round((sN+tN),0)*1000
+    img2<-readPNG("FarmInfoG2.png")
+    #get size
+    h<-dim(img2)[1]
+    w<-dim(img2)[2]
+    par(mar=c(0,0,0,0), xpd=NA, mgp=c(0,0,0), oma=c(0,0,0,0), ann=F)
+    plot.new()
+    plot.window(0:1, 0:1)
+    #fill plot with image
+    usr<-par("usr")    
+    Z=rasterImage(img2, usr[1], usr[3], usr[2], usr[4])
+    #add text
+    text(-0.05,0.2, "Nitrogen removal equals:", cex=1, col='yellow', pos=4)
+    text(0.15,.15, nBags, cex=1.5, col='red')
+    text(-0.05,.10, "50-lb bags of fertilizer*", cex=1, col='yellow', pos=4)
+    text(.68,.2, "which is equal to:", cex=1, col='yellow', pos=4)
+    text(0.85,0.15, sqftlawns, cex=1.5, col='red')
+    text(.68,.10, "sq. ft. of land fertilzed**",cex=1, col='yellow', pos=4) 
+    text(-0.05,.050, "* Based on fertlizer", cex=0.75, col='yellow', pos=4)
+    text(-0.05,.025, "with 10% nitrogen content", cex=0.75, col='yellow', pos=4)
+    text(0.68,0.05,"** Using 1-lb of N", cex=0.75, col='yellow', pos=4)
+    text(0.68,0.025,"per 1000 sq. ft.", cex=0.75, col='yellow', pos=4)
+    text(0.5,1.0,"https://connect.fisheries.noaa.gov/ANRC/", cex=0.75, col='blue', pos=4)
+    Z
+    # dev.off()
+    # })
+  }
   # Output Components
   output$nutbplot <- 
     renderPlot({
@@ -585,7 +627,8 @@ server <- function(input, output, session) {
       png(file, width = 1000,
           height = 1000,
           res = 200)
-      fertilplot()
+      # fertilplot()
+      infoplot()
       dev.off()
     }) 
 
