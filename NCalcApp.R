@@ -597,6 +597,8 @@ server <- function(input, output, session) {
     text(0.68,0.05,"** Using 1-lb of N", cex=0.75, col='yellow', pos=4)
     text(0.68,0.025,"per 1000 sq. ft.", cex=0.75, col='yellow', pos=4)
     text(0.5,1.0,"https://connect.fisheries.noaa.gov/ANRC/", cex=0.75, col='blue', pos=4)
+    QR1=png::readPNG("linkQR.png")
+    rasterImage(QR1,0.8,0.7,1,0.9)
     Z
     # dev.off()
     # })
