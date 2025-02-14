@@ -146,7 +146,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                "hsize2",
                                strong("Average oyster size at harvest (Inches)"),
                                2.0,
-                               5.0,
+                               6.0,
                                3.0,
                                step = 0.1,
                                round = FALSE,
@@ -582,7 +582,9 @@ server <- function(input, output, session) {
     nBags=round(((sN+tN)/5),0)
     sqftlawns=round((sN+tN),0)*1000
     # img2<-readPNG("FarmInfoG2.png")
-    img2<-readPNG("Oyster-Farms-Nutrients-no-text-small.png")
+    # img2<-readPNG("Oyster-Farms-Nutrients-no-text-small.png") # magnified and phyto dots
+    # img2<-readPNG("Oyster-Farms-Nutrients-phyto-icons-small.png") # phyto dots only
+    img2<-readPNG("Oyster-Farms-Nutrients-no-phyto-small.png") # no phyto at all
     #get size
     h<-dim(img2)[1]
     w<-dim(img2)[2]
@@ -609,20 +611,15 @@ server <- function(input, output, session) {
     # QR1=png::readPNG("linkQR.png")
     # rasterImage(QR1,0.8,0.7,1,0.9)
     text(0,0.45, "Nitrogen removed =", cex=1.1, col='yellow', pos=4)
-    # text(0.2,.37, substitute(paste(bold(nBags))), cex=1.5, col='white')
     text(0.2,.37, prettyNum(nBags, big.mark = ",", scientific = FALSE), cex=1.5, col='white')
     text(0,.30, "50-lb bags of fertilizer*", cex=1.1, col='yellow', pos=4)
     text(.65,.45, "Which is equal to:", cex=1.1, col='yellow', pos=4)
-    # text(0.8,0.37, substitute(paste(bold(sqftlawns))), cex=1.5, col='white')
     text(0.8,0.37, prettyNum(sqftlawns, big.mark = ",", scientific = FALSE), cex=1.5, col='white')
-    # text(.72,.30, "sq. ft. of land",cex=1.1, col='yellow', pos=4) 
-    # text(.75,.25, "fertilized**",cex=1.1, col='yellow', pos=4) 
     text(.6,.30, "sq. ft. of land fertilized**",cex=1.1, col='yellow', pos=4) 
     text(0,.050, "* Based on fertilizer with 10% nitrogen content", cex=0.65, col='yellow', pos=4)
     text(0,.025, "** Using 1-lb of nitrogen per 1000 sq. ft.", cex=0.65, col='yellow', pos=4)
-    # text(0.7,0.05,"** Using 1-lb of nitrogen", cex=0.65, col='yellow', pos=4)
-    # text(0.75,0.025,"per 1000 sq. ft.", cex=0.65, col='yellow', pos=4)
     text(0.5,0.95,"https://connect.fisheries.noaa.gov/ANRC/", cex=0.75, col='blue', pos=4)
+    mtext(input$farmname, side=3, line=-1, outer=T, cex=ifelse(nchar(input$farmname)<40,1.3,1), font=2, col='black') #FF9900 #3399FF #003366 #003399
     QR1=png::readPNG("C:/Users/ryan.morse/Documents/Github/Calculator/linkQR.png")
     rasterImage(QR1,0.85,0.7,1,0.9)
     Z

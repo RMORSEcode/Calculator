@@ -15,9 +15,9 @@ survdat.bio <- survey.bio$survdat
 Season="Fall" # Spring | Fall | Combined
 ### Choose species ###
 Species="Black sea bass"; snum=141 # Centropristis striata
-# Species="Scup"; snum=143
-# Species="Cunner"; snum=176
-# Species="Tautog"; snum=177
+Species="Scup"; snum=143
+# Species="Cunner"; snum=176 # No age data available
+# Species="Tautog"; snum=177 # No age data available
 
 spp.sp=survdat.bio %>% 
   dplyr::filter(SVSPP==snum, SEASON=="SPRING") %>%
@@ -88,4 +88,4 @@ vbFitPlot <- ggplot() +
   theme(panel.grid=element_blank())
 vbFitPlot + annotate(geom="text",label=makeVBEqnLabel(f.fit),parse=TRUE,
                      size=4,x=Inf,y=-Inf,hjust=1.1,vjust=-0.5)
-ggsave(filename='vB300dpi.tiff',path = wd, width = 5, height = 3.5, device='tiff', dpi=300)
+ggsave(filename=paste0(Species,'_',Season,'_','vB300dpi.tiff'),path = wd, width = 5, height = 3.5, device='tiff', dpi=300)

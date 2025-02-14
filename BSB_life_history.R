@@ -854,7 +854,7 @@ plot(bts.s[2], add=T, col='red')
 plot(bts.s[[8]][[1]], add=T, col='green')
 #Fall
 plot(bts[1:152,2], axes=T, reset = FALSE, main="Fall Strata")
-plot(bts.f[1:2,2][2], add=T, col='red')
+plot(bts.f[1:7,2][2], add=T, col='red')
 points(-73.069132,	41.189929, pch=19, col='red') #Milford dense farm
 map('state', fill = F, add=T) # add state lines
 
