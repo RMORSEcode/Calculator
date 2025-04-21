@@ -29,6 +29,11 @@ plot(MIDefh$geometry[39], col='green', add=T) #BSB Juv
 plot(MIDefh$geometry[40], col='blue', add=T) #BSB adult
 plot(MIDefh$geometry[3], col='red', add=T) # BSB eggs
 
+BSBefh=MIDefh %>% dplyr::filter(SITENAME_L=="Black Sea Bass")
+SCUPefh=MIDefh %>% dplyr::filter(SITENAME_L=="Scup")
+
+plot(MIDefh$geometry[39], col='green', add=T) #BSB Juv
+
 # Load Barrett et al 2022 data
 Barrett=readxl::read_xlsx(paste(wd, "Habitat/Barrett_2022_suppl3.xlsx", sep=''), sheet = 'fish abundance data')
 

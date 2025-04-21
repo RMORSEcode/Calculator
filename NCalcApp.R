@@ -238,15 +238,15 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                helpText(br()),
                                helpText(strong("The Aquaculture Nutrient Removal Calculator"), style = "font-size:18px;"),
                                p("The calculator is a tool designed for shellfish growers and resource managers to inform shellfish aquaculture permitting. Resource managers have expressed interest in easy-to-use tools that produce location and operation-appropriate values for the environmental benefits, or ecosystem services, shellfish farms provide. The calculator provides estimated values for nutrient removal in a format that aligns with the shellfish aquaculture permitting process."
-                                 ),
+                               ),
                                p("The nutrient removal calculations are based on relationships of oyster dry weight-to-length and the average nitrogen concentrations in oyster shell and tissue. First, we estimate the weight of the oysters based on the typical size of oysters harvested on a farm. The weight estimates are based on non-linear quantile regressions of oyster shell height and dry-weight for both tissue and shell. Next, the nitrogen portion of total oyster weight is calculated using the average nitrogen concentration value for both shell and tissue. Adding the tissue and shell nitrogen yields the total weight of nitrogen per oyster. This result is scaled to the total number of oysters harvested, as input by the user."
                                ),
                                p("We have synthesized available literature for eastern oyster farms across the Northeast region, from North Carolina to Maine, and applied methodology used by the Chesapeake Bay Program to calculate nutrient removal at harvest ",
                                  tags$a(style="font-weight:bold", target="_blank", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062",
                                         "(Rose et al. 2024)."),
-                                        " Variability in oyster tissue and shell nutrient concentration was low, and an assessment of farm location, ploidy, and cultivation practice (with vs. without gear) suggested that a single average value could reasonably be applied across all farms."
+                                 " Variability in oyster tissue and shell nutrient concentration was low, and an assessment of farm location, ploidy, and cultivation practice (with vs. without gear) suggested that a single average value could reasonably be applied across all farms."
                                ),
-
+                               
                              ),
                              h6(tags$a(target="_blank", href="https://doi.org/10.5281/zenodo.11966672",
                                        "Access publicly available data used to create this tool >")
@@ -282,11 +282,11 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              ),
                              br(),
                              tags$p(
-                             h4("Project Team"),
-                             tags$a(target="_blank", href="https://www.fisheries.noaa.gov/contact/julie-m-rose-phd", "Julie Rose,"),
-                             tags$a(target="_blank", href="https://coastalscience.noaa.gov/staff/christopher-schillaci/", "Chris Schillaci,"),
-                             tags$a(target="_blank", href="https://www.fisheries.noaa.gov/contact/zachary-gordon", "Zach Gordon,"),
-                             tags$a(target="_blank", href="https://www.fisheries.noaa.gov/contact/ryan-morse-phd","Ryan Morse"),
+                               h4("Project Team"),
+                               tags$a(target="_blank", href="https://www.fisheries.noaa.gov/contact/julie-m-rose-phd", "Julie Rose,"),
+                               tags$a(target="_blank", href="https://coastalscience.noaa.gov/staff/christopher-schillaci/", "Chris Schillaci,"),
+                               tags$a(target="_blank", href="https://www.fisheries.noaa.gov/contact/zachary-gordon", "Zach Gordon,"),
+                               tags$a(target="_blank", href="https://www.fisheries.noaa.gov/contact/ryan-morse-phd","Ryan Morse"),
                              ),
                              div( style = "border-style: solid; border-radius: 10px; border-color: #0085CA; background-color: #0085CA;",
                                   p("Send questions or comments to:",style="text-align:center; padding-left:10px; padding-right:10px; font-size:16px; color: white"),
@@ -294,38 +294,41 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              ),
                              tags$p(
                                h4("References:"),
-                               p("Barr, J.M., Munroe, D., Rose, J.M., Calvo, L., Cheng, K.M., Bayer, S., & D. Kreeger. (2023). Seasonal Feeding Behavior of Aquaculture Eastern Oysters (Crassostrea virginica) in the Mid-Atlantic. Estuaries and Coasts. doi 10.1007/s12237-023-01293-9"
+                               p("Barr, J. M., Munroe, D., Rose, J. M., Calvo, L., Cheng, K. M., Bayer, S., & D. Kreeger. (2023). Seasonal Feeding Behavior of Aquaculture Eastern Oysters (Crassostrea virginica) in the Mid-Atlantic. Estuaries and Coasts. doi 10.1007/s12237-023-01293-9"
                                ),
-                               p("Bayer, S.R., Cubillo, A.M., Rose, J.M., Ferreira, J.G., Dixon, M., Alvarado, A., Barr, J., Bernatchez, G., Meseck, S., Poach, M., Pousse, E., Wikfors, G.H., & S. Bricker. (2024). Refining the Farm Aquaculture Resource Management Model for Shellfish Nitrogen Removal at the Local Scale. Estuaries and Coasts. doi 10.1007/s12237-024-01354-7"
+                               p("Bayer, S. R., Cubillo, A. M., Rose, J. M., Ferreira, J. G., Dixon, M., Alvarado, A., Barr, J., Bernatchez, G., Meseck, S., Poach, M., Pousse, E., Wikfors, G. H., & S. Bricker. (2024). Refining the Farm Aquaculture Resource Management Model for Shellfish Nitrogen Removal at the Local Scale. Estuaries and Coasts. doi 10.1007/s12237-024-01354-7"
                                ),
-                               p("Cornwell, J., Rose, J., Kellogg, L., Luckenbach, M., Bricker, S., Paynter, K., Moore, C., Parker, M., Sanford, L., Wolinski, B., Lacatell, A., Fegley, L., & K. Hudson. (2016). Panel Recommendations on the Oyster BMP Nutrient and Suspended Sediment Reduction Effectiveness Determination Decision Framework and Nitrogen and Phosphorus Assimilation in Oyster Tissue Reduction Effectiveness for Oyster Aquaculture Practices. (Report to the Chesapeake Bay Program.  Available online at http://www.chesapeakebay.net/documents/Oyster_BMP_1st_Report_Final_Approved_2016-12-19.pdf).")
+                               p("Clements, J. C., & L. A. Comeau. (2019). Nitrogen removal potential of shellfish aquaculture harvests in eastern Canada: A comparison of culture methods. Aquaculture Reports, 13, 100183. https://doi.org/https://doi.org/10.1016/j.aqrep.2019.100183"
+                               ),
+                               p("Cornwell, J., Rose, J., Kellogg, L., Luckenbach, M., Bricker, S., Paynter, K., Moore, C., Parker, M., Sanford, L., Wolinski, B., Lacatell, A., Fegley, L., & K. Hudson. (2016). Panel Recommendations on the Oyster BMP Nutrient and Suspended Sediment Reduction Effectiveness Determination Decision Framework and Nitrogen and Phosphorus Assimilation in Oyster Tissue Reduction Effectiveness for Oyster Aquaculture Practices. (Report to the Chesapeake Bay Program. Available online at http://www.chesapeakebay.net/documents/Oyster_BMP_1st_Report_Final_Approved_2016-12-19.pdf)."
+                               ),
+                               p("Cornwell, J., S. Bricker, A. Lacatell, M. Luckenbach, F. Marenghi, C. Moore, M. Parker, K. Paynter, J. Rose, L. Sanford, W. Wolinski, O. N. Caretti, J. Reichert-Nguyen, & H. W. Slacum. (2023). Nitrogen and phosphorus reduction associated with harvest of hatchery-produced oysters and reef restoration: Assimilation and enhanced denitrification: Panel recommendations. Report submitted to the Chesapeake Bay Program Partnership Water Quality Goal Implementation Team January 27, 2023. (Report to the Chesapeake Bay Program. Available online at https://d18lev1ok5leia.cloudfront.net/chesapeakebay/documents/Animal-Mortality-Mngmnt-Expert-Panel-Report-WQGIT-Approved.pdf)."
+                               ),
+                               p("Grizzle, R. E., Ward, K. M., Peter, C. R., Cantwell, M., Katz, D., & J. Sullivan. (2017). Growth, morphometrics and nutrient content of farmed eastern oysters, Crassostrea virginica (Gmelin), in New Hampshire, USA. Aquaculture Research 48, 1525-1537."
+                               ),
+                               p("Higgins, C. B., Stephenson, K., & B. L. Brown. (2011). Nutrient bioassimilation capacity of aquacultured oysters: quantification of an ecosystem service. Journal of Environmental Quality 40, 271-277."
+                               ),
+                               p("Lindahl, O., Hart, R., Hernroth, B., Kollberg, S., Loo, L.-O., Olrog, L., Rehnstam-Holm, A.-S., Svensson, J., Svensson, S., & U. Syversen. (2005). Improving marine water quality by mussel farming - a profitable solution for Swedish society. Ambio 34, 129-136."
+                               ),
+                               p("Morse, R., Rose, J., Schillaci, C., Ayvazian, S., Barr, J., Bayer, S., Brady, D., Bricker, S., Darrow, E., Doall, M., Grizzle, R., Kiffney, T., Kinsella, J., Levinton, J., Meseck, S., Munroe, D., Parker, M., Poach, M., Reichert-Nguyen, J., … Ward, K. (2024). Morphometrics and nutrient concentration of farmed eastern oysters (Crassostrea virginica) from the US Northeast Region [Data set]. In PLOS ONE. Zenodo.",
+                                 tags$a(target="_blank", href="https://doi.org/10.5281/zenodo.11966672", "https://doi.org/10.5281/zenodo.11966672"),
+                               ),
+                               p("Poach, M., Morse, R., Meseck, S. L., Alvarado, A., Reichert-Nguyen, J., McFarland, K., Elliott, H., Kellogg, M. L., Luckenbach, M. W., & J. M. Rose. (2024). Nutrient reduction by eastern oysters exhibits low variability associated with reproduction, ploidy, and farm location. Marine Pollution Bulletin 202, 116286. doi 10.1016/j.marpolbul.2024.116286"
+                               ),
+                               p("Reitsma, J., Murphy, D. C., Archer, A. F., & R. H. York. (2017). Nitrogen extraction potential of wild and cultured bivalves harvested from nearshore waters of Cape Cod, USA. Marine Pollution Bulletin 116, 175-181."
+                               ),
+                               p("Rose, J. M., Bricker, S. B., Tedesco, M. A., & G. H. Wikfors. (2014). A Role for Shellfish Aquaculture in Coastal Nitrogen Management. Environmental Science & Technology 48, 2519-2525."
+                               ),
+                               p("Rose, J. M., Morse, R. E., & C. Schillaci. (2024). Development and application of an online tool to quantify nitrogen removal associated with harvest of cultivated eastern oysters. PLoS ONE 19(9): e0310062.",
+                                 tags$a(target="_blank", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062", "https://doi.org/10.1371/journal.pone.0310062")
+                               ),
+                               p("Sebastiano, D., Levinton, J. S., Doall, M., & S. Kamath. (2015). Using a Shellfish Harvest Strategy to Extract High Nitrogen Inputs in Urban and Suburban Coastal Bays: Practical and Economic Implications. Journal of Shellfish Research 34, 573-583, 511."
+                               ),
+                               h4("Disclaimer:"),
+                               p("This is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government."
+                               ),
                              ),
-                             p("Cornwell, J., S. Bricker, A. Lacatell, M. Luckenbach, F. Marenghi, C. Moore, M. Parker, K. Paynter, J. Rose, L. Sanford, W. Wolinski, O.N. Caretti, J. Reichert-Nguyen, & H.W. Slacum. (2023). Nitrogen and phosphorus reduction associated with harvest of hatchery-produced oysters and reef restoration: Assimilation and enhanced denitrification: Panel recommendations. Report submitted to the Chesapeake Bay Program Partnership Water Quality Goal Implementation Team January 27, 2023. (Report to the Chesapeake Bay Program.  Available online at https://d18lev1ok5leia.cloudfront.net/chesapeakebay/documents/Animal-Mortality-Mngmnt-Expert-Panel-Report-WQGIT-Approved.pdf)."
-                             ),
-                             p("Grizzle, R.E., Ward, K.M., Peter, C.R., Cantwell, M., Katz, D., & J. Sullivan. (2017). Growth, morphometrics and nutrient content of farmed eastern oysters, Crassostrea virginica (Gmelin), in New Hampshire, USA. Aquaculture Research 48, 1525-1537."
-                             ),
-                             p("Higgins, C.B., Stephenson, K., & B.L. Brown. (2011). Nutrient bioassimilation capacity of aquacultured oysters: quantification of an ecosystem service. Journal of Environmental Quality 40, 271-277."
-                             ),
-                             p("Lindahl, O., Hart, R., Hernroth, B., Kollberg, S., Loo, L.-O., Olrog, L., Rehnstam-Holm, A.-S., Svensson, J., Svensson, S., & U. Syversen. (2005). Improving marine water quality by mussel farming - a profitable solution for Swedish society. Ambio 34, 129-136."
-                             ),
-                             p("Morse, R., Rose, J., Schillaci, C., Ayvazian, S., Barr, J., Bayer, S., Brady, D., Bricker, S., Darrow, E., Doall, M., Grizzle, R., Kiffney, T., Kinsella, J., Levinton, J., Meseck, S., Munroe, D., Parker, M., Poach, M., Reichert-Nguyen, J., … Ward, K. (2024). Morphometrics and nutrient concentration of farmed eastern oysters (Crassostrea virginica) from the US Northeast Region [Data set]. In PLOS ONE. Zenodo.",
-                               tags$a(target="_blank", href="https://doi.org/10.5281/zenodo.11966672", "https://doi.org/10.5281/zenodo.11966672"),
-                             ),
-                             p("Poach, M., Morse, R., Meseck, S.L., Alvarado, A., Reichert-Nguyen, J., McFarland, K., Elliott, H., Kellogg, M.L., Luckenbach, M.W., & J.M. Rose. (2024). Nutrient reduction by eastern oysters exhibits low variability associated with reproduction, ploidy, and farm location. Marine Pollution Bulletin 202, 116286. doi 10.1016/j.marpolbul.2024.116286"
-                             ),
-                             p("Reitsma, J., Murphy, D.C., Archer, A.F., & R.H. York. (2017). Nitrogen extraction potential of wild and cultured bivalves harvested from nearshore waters of Cape Cod, USA. Marine Pollution Bulletin 116, 175-181."
-                             ),
-                             p("Rose, J.M., Bricker, S.B., Tedesco, M.A., & G.H. Wikfors. (2014). A Role for Shellfish Aquaculture in Coastal Nitrogen Management. Environmental Science & Technology 48, 2519-2525."
-                             ),
-                             p("Rose, J.M., Morse, R.E., and C. Schillaci. (2024). Development and application of an online tool to quantify nitrogen removal associated with harvest of cultivated eastern oysters. PLoS ONE 19(9): e0310062.",
-                               tags$a(target="_blank", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062", "https://doi.org/10.1371/journal.pone.0310062")
-                             ),
-                             p("Sebastiano, D., Levinton, J.S., Doall, M., & S. Kamath. (2015). Using a Shellfish Harvest Strategy to Extract High Nitrogen Inputs in Urban and Suburban Coastal Bays: Practical and Economic Implications. Journal of Shellfish Research 34, 573-583, 511."
-                             ),
-                             h4("Disclaimer:"),
-                             p("This is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government."
-                             ),
-                    ),
+                    )
                   )
                 )
 )
@@ -558,7 +561,7 @@ server <- function(input, output, session) {
     # text(0.0,0.0,"https://connect.fisheries.noaa.gov/ANRC/", cex=1.2, col='blue', pos=4)
     F
     # dev.off()
-  # })
+    # })
   }
   
   ## QR code
@@ -608,7 +611,7 @@ server <- function(input, output, session) {
     # text(0.68,0.05,"** Using 1-lb of nitrogen", cex=0.65, col='yellow', pos=4)
     # text(0.68,0.025,"per 1000 sq. ft.", cex=0.65, col='yellow', pos=4)
     # text(0.5,1.0,"https://connect.fisheries.noaa.gov/ANRC/", cex=0.75, col='blue', pos=4)
-    # QR1=png::readPNG("linkQR.png")
+    QR1=png::readPNG("linkQR.png")
     # rasterImage(QR1,0.8,0.7,1,0.9)
     text(0,0.45, "Nitrogen removed =", cex=1.1, col='yellow', pos=4)
     text(0.2,.37, prettyNum(nBags, big.mark = ",", scientific = FALSE), cex=1.5, col='white')
@@ -620,7 +623,6 @@ server <- function(input, output, session) {
     text(0,.025, "** Using 1-lb of nitrogen per 1000 sq. ft.", cex=0.65, col='yellow', pos=4)
     text(0.5,0.95,"https://connect.fisheries.noaa.gov/ANRC/", cex=0.75, col='blue', pos=4)
     mtext(input$farmname, side=3, line=-1, outer=T, cex=ifelse(nchar(input$farmname)<40,1.3,1), font=2, col='black') #FF9900 #3399FF #003366 #003399
-    QR1=png::readPNG("C:/Users/ryan.morse/Documents/Github/Calculator/linkQR.png")
     rasterImage(QR1,0.85,0.7,1,0.9)
     Z
     # dev.off()
@@ -644,7 +646,7 @@ server <- function(input, output, session) {
       fertilplot()
     })
   
-
+  
   ## save infographic to file
   output$download <- downloadHandler(
     filename = paste0("Infographic_",Sys.Date(),".png"),
@@ -656,7 +658,7 @@ server <- function(input, output, session) {
       infoplot()
       dev.off()
     }) 
-
+  
   
   # downaload handler - save the image
   # output$save_myPlot_hidden <- downloadHandler(
@@ -677,7 +679,7 @@ server <- function(input, output, session) {
   #     fertilplot()
   #   })
   
-# }
+  # }
   # observeEvent(input$add, {
   #   output_name <- paste0("out_", input$add)
   #   output[[output_name]] <- renderText({
@@ -725,14 +727,5 @@ server <- function(input, output, session) {
     )
 }
 
-#   output$download <- downloadHandler(
-#     filename = function() {
-#       paste("Infographic", input$extension, sep = ".")
-#     },
-#     content = function(file){
-#       save(file, plot_output(), device = input$extension)
-#     }
-#   )
-# }
 # Run the application
 shinyApp(ui = ui, server = server)
