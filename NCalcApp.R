@@ -15,6 +15,7 @@ library(gh)
 library(png)
 library(gridExtra)
 library(grid)
+library(bslib)
 
 ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                 ### Title ###
@@ -38,7 +39,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              
                              ### add text box with black border ### #5761C0  style = "border-style: solid; border-color: #C6E6F0#5EB6D9; background-color: #5EB6D9;",
                              div( style = "border-style: solid; border-radius: 5px; border-color: #0085CA; background-color: #0085CA;",
-                                  p("This calculator predicts the amount of nitrogen farmed eastern oysters remove from the water when harvested, a key environmental benefit that oysters provide. This tool applies to oyster farms located within the geographic range of North Carolina to Maine, USA.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px;color: white"),
+                                  p("This calculator predicts the amount of nitrogen and phosphorous farmed eastern oysters remove from the water when harvested, a key environmental benefit that oysters provide. This tool applies to oyster farms located within the geographic range of North Carolina to Maine, USA.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px;color: white"),
                                   p("To use the tool, please fill in information about your farm in sections 1-3 below.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white"),
                                   p("To download a report, click on ",strong("Generate PDF Report")," at the bottom", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white")),
                              helpText(br()),
@@ -67,6 +68,47 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              
                              ### 3 HARVEST DETAILS ###
                              helpText(h3("3) Harvest Details")),
+                             input_switch("switch", div(strong("Click Here If Oyster Seed Is Imported And Planted For Growout"), value=F, width = "100%")), 
+                             conditionalPanel(
+                               condition = "input.switch == true",
+                               input_switch("switch2", div(strong("Click Here If Oyster Nursery And Growout Locations Are Different"), value=F, width = "100%")), 
+                               conditionalPanel(
+                                 condition = "input.switch2 == true",
+                                 helpText(h6("Nursery Location: "),"Please scroll or pinch to zoom to the nursery area, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
+                                 leafletOutput("spatmap", width="100%", height=400),
+                                 tableOutput('spatloctable'),
+                               ),
+                               sliderInput(
+                                 "sizeIn",
+                                 div(strong("Average seed oyster size at planting (Inches):"), " Please drag the slider to select the average size of the oysters at the time of planting"),
+                                 0,
+                                 2.0,
+                                 0.2,
+                                 step = 0.1,
+                                 round = FALSE,
+                                 ticks = TRUE,
+                                 animate = FALSE,
+                                 width = "100%",
+                                 sep = ",",
+                                 dragRange = TRUE
+                               ),
+                               # sliderInput(
+                               #   "sizeOut",
+                               #   div(strong("Select size of oysters at harves (inches):"), " Please drag the slider to select the average size of the oysters at the time of harvest"),
+                               #   2.0,
+                               #   6.0,
+                               #   3.0,
+                               #   step = 0.1,
+                               #   round = FALSE,
+                               #   ticks = TRUE,
+                               #   animate = FALSE,
+                               #   width = "100%",
+                               #   sep = ",",
+                               #   dragRange = TRUE
+                               # ),
+                             ),
+                             
+                             # helpText(h3("3) Harvest Details")),
                              ## Size
                              sliderInput(
                                "hsize",
@@ -82,6 +124,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                sep = ",",
                                dragRange = TRUE
                              ),
+                             # ),
                              helpText(br()),
                              ## Number
                              numericInput("Num", div(strong("Number of oysters at harvest:")," Please enter the total number of oysters harvested at the selected size"), 0, min=0, max=NA, width="100%"),
@@ -105,9 +148,20 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              ),
                              br(),
                              br(),
-                             plotOutput("nutbplot", width="50%"), 
-                             helpText(br()),
-                             tableOutput("mytable"), 
+                             
+                             fluidRow(
+                               splitLayout(style = "border: 1px solid silver:", cellWidths = c(300,300), 
+                                           plotOutput("nutbplot", width="80%"), 
+                                           plotOutput("nutbplot2", width="80%")
+                               )
+                             ),
+                             # plotOutput("nutbplot", width="50%"), 
+                             # helpText(br()),
+                             # plotOutput("nutbplot2", width="50%"), 
+                             # helpText(br()),
+                             tableOutput("mytable"),
+                             # renderTable("mytable", rownames = TRUE), 
+                             
                              # actionButton("go", "Screenshot"),
                              br(),
                              plotOutput("fertplot", width="75%"),
@@ -116,8 +170,10 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              #              choices = c("png", "svg"), inline = TRUE),
                              downloadButton(
                                outputId = "download",
-                               label = "Save Infographic"
+                               label = "Download Customized Infographic"
                              ),
+                             br(),
+                             br(),
                              h6(tags$a(target="_blank", href="https://doi.org/10.5281/zenodo.11966672",
                                        "Access publicly available data used to create this tool >")),
                              h6(tags$a(target="_blank", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062",
@@ -239,7 +295,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                helpText(strong("The Aquaculture Nutrient Removal Calculator"), style = "font-size:18px;"),
                                p("The calculator is a tool designed for shellfish growers and resource managers to inform shellfish aquaculture permitting. Resource managers have expressed interest in easy-to-use tools that produce location and operation-appropriate values for the environmental benefits, or ecosystem services, shellfish farms provide. The calculator provides estimated values for nutrient removal in a format that aligns with the shellfish aquaculture permitting process."
                                ),
-                               p("The nutrient removal calculations are based on relationships of oyster dry weight-to-length and the average nitrogen concentrations in oyster shell and tissue. First, we estimate the weight of the oysters based on the typical size of oysters harvested on a farm. The weight estimates are based on non-linear quantile regressions of oyster shell height and dry-weight for both tissue and shell. Next, the nitrogen portion of total oyster weight is calculated using the average nitrogen concentration value for both shell and tissue. Adding the tissue and shell nitrogen yields the total weight of nitrogen per oyster. This result is scaled to the total number of oysters harvested, as input by the user."
+                               p("The nutrient removal calculations are based on relationships of oyster dry weight-to-length and the average nitrogen and phoshphorous concentrations in oyster shell and tissue. First, we estimate the weight of the oysters based on the typical size of oysters harvested on a farm. The weight estimates are based on non-linear quantile regressions of oyster shell height and dry-weight for both tissue and shell. Next, the nutrient portion of total oyster weight is calculated using the average nitrogen and phosphorous concentration value for both shell and tissue. Adding the tissue and shell nutrients yields the total weight of nitrogen and phosphorous per oyster. This result is scaled to the total number of oysters harvested, as input by the user."
                                ),
                                p("We have synthesized available literature for eastern oyster farms across the Northeast region, from North Carolina to Maine, and applied methodology used by the Chesapeake Bay Program to calculate nutrient removal at harvest ",
                                  tags$a(style="font-weight:bold", target="_blank", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062",
@@ -367,6 +423,22 @@ server <- function(input, output, session) {
         editOptions = editToolbarOptions(edit = FALSE, selectedPathOptions = selectedPathOptions()))
   })
   
+  output$spatmap <- renderLeaflet({
+    leaflet(height="50%") %>%
+      # addProviderTiles("Esri.OceanBasemap",group = "Ocean Basemap") %>%
+      addTiles() %>%
+      setView(lng = -70, lat = 40, zoom = 5) %>%
+      addDrawToolbar(
+        targetGroup='Selected',
+        polylineOptions=FALSE,
+        polygonOptions=FALSE,
+        markerOptions = T,
+        rectangleOptions =F,
+        circleOptions = F,
+        circleMarkerOptions = F,
+        editOptions = editToolbarOptions(edit = FALSE, selectedPathOptions = selectedPathOptions()))
+  })
+  
   # output$aquaMap <- renderLeaflet({
   #   NESaquaculture %>% 
   #     leaflet(height="50%") %>%
@@ -403,6 +475,25 @@ server <- function(input, output, session) {
     )
   })
   
+  observeEvent(input$spatmap_draw_new_feature,{
+    feature2 <- input$spatmap_draw_new_feature
+    
+    output$spatloctable <- renderTable(
+      data.frame("Lon"=feature2$geometry$coordinates[[1]],"Lat"=feature2$geometry$coordinates[[2]]),
+      striped = T,
+      hover = F,
+      bordered = T,
+      spacing = c("s", "xs", "m", "l"),
+      width = "auto",
+      align = NULL,
+      rownames = FALSE,
+      colnames = TRUE,
+      digits = 4,
+      na = "NA",
+      quoted = FALSE
+    )
+  })
+  
   # add  data contributor map
   output$contmap <- renderLeaflet({
     leaflet(height="100%") %>%
@@ -424,15 +515,28 @@ server <- function(input, output, session) {
     sNi=reactiveValues()
     tNi=0.0770*tdw
     sNi=0.0019*sdw
+    tPi=0.008345*tdw
+    sPi=0.000438*sdw
     
     #convert grams N to lbs or kg
     cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
-    tN=reactiveValues()
+    # tN=reactiveValues()
     tN=round((tNi*cnvrt*input$Num),1)
-    sN=reactiveValues()
+    # sN=reactiveValues()
     sN=round((sNi*cnvrt*input$Num),1)
-    df=data.frame("Shell_N"=sN, "Tissue_N"=tN, "Total"=sN+tN, "Units"=input$units)
-    colnames(df)=c("Shell N", "Tissue N", "Total", "Units")
+    # tP=reactiveValues()
+    tP=round((tPi*cnvrt*input$Num),1)
+    # sP=reactiveValues()
+    sP=round((sPi*cnvrt*input$Num),1)
+    # df=data.frame("Shell_N"=sN, "Tissue_N"=tN, "Total_N"=sN+tN, "Shell_P"=sP, "Tissue_P"=tP, "Total_P"=sP+tP, "Units"=input$units)
+    # colnames(df)=c("Shell N", "Tissue N", "Total N", "Shell P", "Tissue P", "Total P", "Units")
+    
+    df=data.frame(matrix(c(sN, tN, tN+sN), nrow=1, ncol=3))
+    colnames(df)=c("Shell", "Tissue", "Total")
+    df=rbind(df, list(Shell=sP, Tissue=tP, Total=sP+tP))
+    df$Units=input$units
+    row.names(df)=c("Nitrogen", "Phosphorous")
+    
     df
   })
   
@@ -463,7 +567,7 @@ server <- function(input, output, session) {
     df3
   })
   
-  plot <- reactive({
+  Nplot <- reactive({
     taval=1.42E-05
     tbval=2.60727827
     saval=0.00039042
@@ -476,6 +580,8 @@ server <- function(input, output, session) {
     # sNi=reactiveValues()
     tNi=(0.0770*tdw)*input$Num
     sNi=(0.0019*sdw)*input$Num
+    tPi=(0.008345*tdw)*input$Num
+    sPi=(0.000438*sdw)*input$Num
     
     #convert grams N to lbs or kg
     cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
@@ -483,22 +589,71 @@ server <- function(input, output, session) {
     tN=round((tNi*cnvrt),1)
     # sN=reactiveValues()
     sN=round((sNi*cnvrt),1)
-    # barplot(c(tN, sN), col = 'lightgray', border = 'white', xlab="N removal", 
-    #         names.arg=c("Tissue N", "Shell N"), ylab=input$units)
-    # df=data.frame("Tissue N"=tN,"Shell N"=sN, "Total N"=sN+tN, "Units"=input$units)
-    df2=data.frame(matrix(tN, nrow=1, ncol=1))
-    colnames(df2)="N"
-    df2$var="Tissue"
-    df2=rbind(df2, list(N=sN,var="Shell" ))
-    df2=rbind(df2, list(N=sN+tN,var="Total" ))
-    df2$units=input$units
+    tP=round((tPi*cnvrt),1)
+    sP=round((sPi*cnvrt),1)
     
-    P=ggplot(df2, aes(x=var, y=N))+
+    ## Nitrogen only
+    # df2=data.frame(matrix(c(tN, tP), nrow=1, ncol=2))
+    # colnames(df2)=c("N", "P")
+    # df2$var="Tissue"
+    # df2=rbind(df2, list(N=sN, P=sP, var="Shell" ))
+    # df2=rbind(df2, list(N=sN+tN, P=sP+tP, var="Total" ))
+    # df2$units=input$units
+    # P=ggplot(df2, aes(x=var, y=N))+
+    #   geom_bar(stat="identity" , fill="steelblue", width = 0.65)+
+    #   # coord_cartesian(ylim=c(0, NA), xlim=NULL, clip = "on")+
+    #   # ylim(0,max(df2$N))+
+    #   # scale_y_continuous(limits = c(0, NA))+
+    #   # aes(ymin=0)+
+    #   theme_minimal()+
+    #   ylab(input$units)+
+    #   xlab("Nitrogen Removed")+
+    #   theme(axis.title.x = element_text(size = 16),
+    #         axis.text.x = element_text(size = 14),
+    #         axis.text.y = element_text(size = 14),
+    #         axis.title.y = element_text(size = 16))
+    # P
+    
+    ##update to add P data
+    # df2=data.frame(matrix(c(tN, tP), nrow=1, ncol=2))
+    # colnames(df2)=c("Nitrogen", "Phosphorous")
+    # df2$var="Tissue"
+    # df2=rbind(df2, list(Nitrogen=sN, Phosphorous=sP, var="Shell" ))
+    # df2=rbind(df2, list(Nitrogen=sN+tN, Phosphorous=sP+tP, var="Total" ))
+    # df2$units=input$units
+    # df3=df2 %>% tidyr::pivot_longer(cols=c("Nitrogen", "Phosphorous"), names_to="Nutrients")
+    ### both N and P
+    # P=ggplot(df3, aes(x=var, y=value, fill=Nutrients))+
+    #   geom_bar(stat="identity" , position='dodge', width = 0.9)+
+    #   # coord_cartesian(ylim=c(0, NA), xlim=NULL, clip = "on")+
+    #   # ylim(0,max(df2$N))+
+    #   # scale_y_continuous(limits = c(0, NA))+
+    #   # aes(ymin=0)+
+    #   # facet_wrap(~ Nutrients) +
+    #   theme_minimal()+
+    #   ylab(input$units)+
+    #   xlab("Nutrients Removed")+
+    #   theme(axis.title.x = element_text(size = 16),
+    #         axis.text.x = element_text(size = 14),
+    #         axis.text.y = element_text(size = 14),
+    #         axis.title.y = element_text(size = 16),
+    #         legend.text=element_text(size=12),
+    #         legend.title=element_text(size=12))
+    # P
+    ### N and P individually
+    df2=data.frame(matrix(tN, nrow=1, ncol=1))
+    colnames(df2)="Nitrogen"
+    df2$var="Tissue"
+    df2=rbind(df2, list(Nitrogen=sN, var="Shell" ))
+    df2=rbind(df2, list(Nitrogen=sN+tN, var="Total" ))
+    df2$units=input$units
+    P=ggplot(df2, aes(x=var, y=Nitrogen))+
       geom_bar(stat="identity" , fill="steelblue", width = 0.65)+
       # coord_cartesian(ylim=c(0, NA), xlim=NULL, clip = "on")+
       # ylim(0,max(df2$N))+
       # scale_y_continuous(limits = c(0, NA))+
       # aes(ymin=0)+
+      # facet_wrap(~ Nutrients) +
       theme_minimal()+
       ylab(input$units)+
       xlab("Nitrogen Removed")+
@@ -506,7 +661,46 @@ server <- function(input, output, session) {
             axis.text.x = element_text(size = 14),
             axis.text.y = element_text(size = 14),
             axis.title.y = element_text(size = 16))
+
     P
+  })
+  
+  Pplot <- reactive({
+    taval=1.42E-05
+    tbval=2.60727827
+    saval=0.00039042
+    sbval=2.579747757
+    tdw=taval*((input$hsize*25.4)^tbval)
+    sdw=saval*((input$hsize*25.4)^sbval)
+
+    tPi=(0.008345*tdw)*input$Num
+    sPi=(0.000438*sdw)*input$Num
+    
+    cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+    tP=round((tPi*cnvrt),1)
+    sP=round((sPi*cnvrt),1)
+    
+    df3=data.frame(matrix(tP, nrow=1, ncol=1))
+    colnames(df3)="Phosphorous"
+    df3$var="Tissue"
+    df3=rbind(df3, list(Phosphorous=sP, var="Shell" ))
+    df3=rbind(df3, list(Phosphorous=sP+tP, var="Total" ))
+    df3$units=input$units
+    
+    P2=ggplot(df3, aes(x=var, y=Phosphorous))+
+      geom_bar(stat="identity" , fill="firebrick", width = 0.65)+
+      # coord_cartesian(ylim=c(0, NA), xlim=NULL, clip = "on")+
+      # ylim(0,max(df2$N))+
+      # scale_y_continuous(limits = c(0, NA))+
+      # aes(ymin=0)+
+      theme_minimal()+
+      ylab(input$units)+
+      xlab("Phosphorous Removed")+
+      theme(axis.title.x = element_text(size = 16),
+            axis.text.x = element_text(size = 14),
+            axis.text.y = element_text(size = 14),
+            axis.title.y = element_text(size = 16))
+    P2
   })
   
   # fertilplot <- reactive({
@@ -631,12 +825,17 @@ server <- function(input, output, session) {
   # Output Components
   output$nutbplot <- 
     renderPlot({
-      plot()
+      Nplot()
+    })
+  output$nutbplot2 <- 
+    renderPlot({
+      Pplot()
     })
   output$mytable <-
-    renderTable({
-      table()
-    })
+    renderTable(
+      table(),
+      rownames = TRUE
+    )
   output$mytable2 <-
     renderTable({
       esttable()
