@@ -56,34 +56,148 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              selectInput("ploidy", div(strong("Oyster Ploidy:")," Please select the ploidy of the oysters that were harvested", em("(will not affect calculation)")),c("Diploid", "Triploid", "Combination"), width="100%"),
                              helpText(br()),
                              
-                             ### 2 LOCATION ###
-                             helpText(h3("2) Farm Location")),
-                             textAreaInput("projloc", div(strong("Harvest Location:"), " Please enter the name of the water body where the oysters were harvested from", em("(will not affect calculation)")), value = "", width ="100%", rows=2, placeholder = NULL),
-                             helpText(br()),
-                             helpText(h6("Approximate Coordinates: "),"Please scroll or pinch to zoom to the harvest location, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
-                             leafletOutput("mymap", width="100%", height=400),
-                             ## Location table
-                             tableOutput('loctable'),
-                             helpText(br()),
+                             # #####______________________________________
+                             # ### 2 LOCATION ###
+                             # helpText(h3("2) Farm Location")),
+                             # textAreaInput("projloc", div(strong("Harvest Location:"), " Please enter the name of the water body where the oysters were harvested from", em("(will not affect calculation)")), value = "", width ="100%", rows=2, placeholder = NULL),
+                             # helpText(br()),
+                             # helpText(h6("Approximate Coordinates: "),"Please scroll or pinch to zoom to the harvest location, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
+                             # leafletOutput("mymap", width="100%", height=400),
+                             # ## Location table
+                             # tableOutput('loctable'),
+                             # helpText(br()),
+                             # 
+                             # ### 3 HARVEST DETAILS ###
+                             # helpText(h3("3) Harvest Details")),
+                             # input_switch("switch", div(strong("Click Here If Oyster Seed Is Imported And Planted For Growout"), value=F, width = "100%")), 
+                             # conditionalPanel(
+                             #   condition = "input.switch == true",
+                             #   input_switch("switch2", div(strong("Click Here If Oyster Nursery And Growout Locations Are Different"), value=F, width = "100%")), 
+                             #   conditionalPanel(
+                             #     condition = "input.switch2 == true",
+                             #     helpText(h6("Nursery Location: "),"Please scroll or pinch to zoom to the nursery area, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
+                             #     leafletOutput("spatmap", width="100%", height=400),
+                             #     tableOutput('spatloctable'),
+                             #   ),
+                             #   sliderInput(
+                             #     "sizeIn",
+                             #     div(strong("Average seed oyster size at planting (Inches):"), " Please drag the slider to select the average size of the oysters at the time of planting"),
+                             #     0,
+                             #     2.0,
+                             #     0.2,
+                             #     step = 0.1,
+                             #     round = FALSE,
+                             #     ticks = TRUE,
+                             #     animate = FALSE,
+                             #     width = "100%",
+                             #     sep = ",",
+                             #     dragRange = TRUE
+                             #   ),
+                             #   # sliderInput(
+                             #   #   "sizeOut",
+                             #   #   div(strong("Select size of oysters at harves (inches):"), " Please drag the slider to select the average size of the oysters at the time of harvest"),
+                             #   #   2.0,
+                             #   #   6.0,
+                             #   #   3.0,
+                             #   #   step = 0.1,
+                             #   #   round = FALSE,
+                             #   #   ticks = TRUE,
+                             #   #   animate = FALSE,
+                             #   #   width = "100%",
+                             #   #   sep = ",",
+                             #   #   dragRange = TRUE
+                             #   # ),
+                             # ),
+                             # 
+                             # ## Size
+                             # sliderInput(
+                             #   "hsize",
+                             #   div(strong("Average oyster size at harvest (Inches):"), " Please drag the slider to select the average size of the oysters that were harvested"),
+                             #   2.0,
+                             #   6.0,
+                             #   3.0,
+                             #   step = 0.1,
+                             #   round = FALSE,
+                             #   ticks = TRUE,
+                             #   animate = FALSE,
+                             #   width = "100%",
+                             #   sep = ",",
+                             #   dragRange = TRUE
+                             # ),
+                             # # ),
+                             # helpText(br()),
+                             # ## Number
+                             # numericInput("Num", div(strong("Number of oysters at harvest:")," Please enter the total number of oysters harvested at the selected size"), 0, min=0, max=NA, width="100%"),
+                             # helpText(br()),
+                             # ## Dates
+                             # # dateRangeInput("Htime", div(strong("Period of harvest (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date()+(2*365), startview = "month", width="100%"),
+                             # dateRangeInput("Htime", div(strong("Period of harvest (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month", width="100%"),
+                             # #####_________________________________________
                              
-                             ### 3 HARVEST DETAILS ###
-                             helpText(h3("3) Harvest Details")),
-                             input_switch("switch", div(strong("Click Here If Oyster Seed Is Imported And Planted For Growout"), value=F, width = "100%")), 
+                             ### 2 REMOVAL DETAILS ###
+                             helpText(h3("2) Oyster Removal Details")),
+                             helpText(h4("Please Select From The Following Choices:")),
+                             input_switch("seedonly", div(strong("I Only Grow Seed Oysters"), value=F, width = "100%")), 
                              conditionalPanel(
-                               condition = "input.switch == true",
-                               input_switch("switch2", div(strong("Click Here If Oyster Nursery And Growout Locations Are Different"), value=F, width = "100%")), 
+                               condition = "input.seedonly == true",
+                               helpText(h6("Nursery Location: "),"Please scroll or pinch to zoom to the nursery area, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
+                               leafletOutput("spatonlymap", width="100%", height=400),
+                               tableOutput('spatonlyloctable'),
+                               sliderInput(
+                                 "spatSizeOut",
+                                 div(strong("Average seed oyster size (mm):"), " Please drag the slider to select the average size of the oyster seed removed for sale"),
+                                 1,
+                                 30,
+                                 5,
+                                 step = 1,
+                                 round = FALSE,
+                                 ticks = TRUE,
+                                 animate = FALSE,
+                                 width = "100%",
+                                 sep = ",",
+                                 dragRange = TRUE
+                               ),
+                               numericInput("spatNum", div(strong("Number of spat removed:")," Please enter the total number of spat removed from the selected size"), 0, min=0, max=NA, width="100%"),
+                               helpText(br()),
+                             ),
+                             input_switch("plantseed", div(strong("I Buy Seed Oysters And Plant On Site For Harvest"), value=F, width = "100%")), 
+                             conditionalPanel(
+                               condition = "input.plantseed == true",
+                               input_switch("nurseryloc", div(strong("My Oyster Nursery And Growout Locations Are Different"), value=F, width = "100%")), 
                                conditionalPanel(
-                                 condition = "input.switch2 == true",
+                                 condition = "input.nurseryloc == true",
                                  helpText(h6("Nursery Location: "),"Please scroll or pinch to zoom to the nursery area, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
                                  leafletOutput("spatmap", width="100%", height=400),
                                  tableOutput('spatloctable'),
                                ),
+                               textAreaInput("projloc", div(strong("Waterbody Name:"), " Please enter the name of the water body where the oysters were harvested from", em("(will not affect calculation)")), value = "", width ="100%", rows=2, placeholder = NULL),
+                               helpText(br()),
+                               helpText(h6("Harvest Location: "),"Please scroll or pinch to zoom to the harvest location, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
+                               leafletOutput("mymap", width="100%", height=400),
+                               ## Location table
+                               tableOutput('loctable'),
+                               helpText(br()),
                                sliderInput(
                                  "sizeIn",
-                                 div(strong("Average seed oyster size at planting (Inches):"), " Please drag the slider to select the average size of the oysters at the time of planting"),
-                                 0,
+                                 div(strong("Average seed oyster size at planting (mm):"), " Please drag the slider to select the average size of the oysters at the time of planting"),
+                                 1,
+                                 30,
+                                 5,
+                                 step = 1,
+                                 round = FALSE,
+                                 ticks = TRUE,
+                                 animate = FALSE,
+                                 width = "100%",
+                                 sep = ",",
+                                 dragRange = TRUE
+                               ),
+                               br(),
+                               sliderInput(
+                                 "sizeOut",
+                                 div(strong("Select size of oysters at harves (inches):"), " Please drag the slider to select the average size of the oysters at the time of harvest"),
                                  2.0,
-                                 0.2,
+                                 6.0,
+                                 3.0,
                                  step = 0.1,
                                  round = FALSE,
                                  ticks = TRUE,
@@ -92,46 +206,13 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                  sep = ",",
                                  dragRange = TRUE
                                ),
-                               # sliderInput(
-                               #   "sizeOut",
-                               #   div(strong("Select size of oysters at harves (inches):"), " Please drag the slider to select the average size of the oysters at the time of harvest"),
-                               #   2.0,
-                               #   6.0,
-                               #   3.0,
-                               #   step = 0.1,
-                               #   round = FALSE,
-                               #   ticks = TRUE,
-                               #   animate = FALSE,
-                               #   width = "100%",
-                               #   sep = ",",
-                               #   dragRange = TRUE
-                               # ),
+                               ## Number
+                               numericInput("HNum", div(strong("Number of oysters at harvest:")," Please enter the total number of oysters harvested at the selected size"), 0, min=0, max=NA, width="100%"),
+                               helpText(br()),
+                               dateRangeInput("Htime", div(strong("Period of harvest (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month", width="100%"),
+                               br()
                              ),
                              
-                             # helpText(h3("3) Harvest Details")),
-                             ## Size
-                             sliderInput(
-                               "hsize",
-                               div(strong("Average oyster size at harvest (Inches):"), " Please drag the slider to select the average size of the oysters that were harvested"),
-                               2.0,
-                               6.0,
-                               3.0,
-                               step = 0.1,
-                               round = FALSE,
-                               ticks = TRUE,
-                               animate = FALSE,
-                               width = "100%",
-                               sep = ",",
-                               dragRange = TRUE
-                             ),
-                             # ),
-                             helpText(br()),
-                             ## Number
-                             numericInput("Num", div(strong("Number of oysters at harvest:")," Please enter the total number of oysters harvested at the selected size"), 0, min=0, max=NA, width="100%"),
-                             helpText(br()),
-                             ## Dates
-                             # dateRangeInput("Htime", div(strong("Period of harvest (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date()+(2*365), startview = "month", width="100%"),
-                             dateRangeInput("Htime", div(strong("Period of harvest (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month", width="100%"),
                              helpText(br()),
                              ## Units
                              radioButtons(
@@ -219,58 +300,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              p("This is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government."
                              ),
                     ),
-                    # tabPanel("Fish Production", 
-                    #          # tags$img(src='swooshgn2.png'),
-                    #          # tags$img(src='gn_swoosh_shellfish3.png'),
-                    #          tags$img(src='white_swoosh_cage_500pxH.png', width = "100%", alt="NOAA branding, NOAA Fisheries Logo, and multiple oysters on and in cage"),
-                    #          titlePanel(h1("Aquaculture Nutrient Removal Calculator"), windowTitle = "Aquaculture Nutrient Removal Calculator"),
-                    #          helpText(br()),
-                    #          
-                    #          ### add text box with black border ### #5761C0  style = "border-style: solid; border-color: #C6E6F0#5EB6D9; background-color: #5EB6D9;",
-                    #          div( style = "border-style: solid; border-color: #0085CA; background-color: #0085CA;",
-                    #               p("This calculator estimates the amount of fish production associated with aquaculture gear as new habitat. This tool applies to oyster farms located within the geographic range of North Carolina to Maine, USA.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px;color: white"),
-                    #               #p("To use the tool, please fill in information about your farm in sections 1-3 below.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white"),
-                    #               p("To download a report, click on ",strong("Generate PDF Report")," at the bottom", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white")),
-                    #          helpText(br()),
-                    #          
-                    #          ### 1 FARM PRACTICES ###
-                    #          helpText(h3("1) Farm Practices")),
-                    #          ## Name
-                    #          textAreaInput("farmname", div(strong("Project Name:"), " Please enter the name of the oyster farm"),value = "", width="100%", rows=2, placeholder = NULL),
-                    #          helpText(br()),
-                    #          ## Culture Method
-                    #          selectInput("gear", div(strong("Culture Method:")," Select the gear type primarily used for growing oysters, or select 'On-Bottom' for no gear", em("(will not affect calculation)")),c("Floating", "Off-bottom", "On-Bottom", "Multiple methods used"), width="100%"),
-                    #          helpText(br()),
-                    # 
-                    #          
-                    #          ### 2 LOCATION ###
-                    #          helpText(h3("2) Farm Location")),
-                    #          textAreaInput("projloc", div(strong("Harvest Location:"), " Please enter the name of the water body where the oysters were harvested from", em("(will not affect calculation)")), value = "", width ="100%", rows=2, placeholder = NULL),
-                    #          helpText(br()),
-                    #          helpText(h6("Approximate Coordinates: "),"Please scroll or pinch to zoom to the harvest location, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
-                    #          leafletOutput("aquaMap", width="100%", height=400),
-                    #          ## Location table
-                    #          tableOutput('loctable'),
-                    #          helpText(br()),
-                    #          
-                    #          ### 3 Gear DETAILS ###
-                    #          ## Number of cages
-                    #          numericInput("NumCage", div(strong("Number of oyster cages:")," Please enter the average number of oyster cages in the water at the farm site"), 0, min=0, max=NA, width="100%"),
-                    #          helpText(br()),
-                    #          ## Dates
-                    #          dateRangeInput("Cagetime", div(strong("Gear time in the water (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month", width="100%"),
-                    #          helpText(br()),
-                    #          tableOutput("FishTable"), 
-                    #          # actionButton("go", "Screenshot"),
-                    #          downloadButton(
-                    #            outputId = "downloader",
-                    #            label = "Generate PDF Report"
-                    #          ),
-                    #          helpText(br()),
-                    #          h4("Disclaimer"),
-                    #          p("This is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government."
-                    #          ),
-                    # ),
+                    
                     tabPanel("About", 
                              tags$img(src='white_swoosh_hand_left2_500pxH.png', width = "100%", alt="NOAA branding, NOAA Fisheries Logo, and five oysters being held in palm, with additional oysters in the background."),
                              titlePanel(h1("Aquaculture Nutrient Removal Calculator"), windowTitle = "Aquaculture Nutrient Removal Calculator"),
@@ -423,6 +453,22 @@ server <- function(input, output, session) {
         editOptions = editToolbarOptions(edit = FALSE, selectedPathOptions = selectedPathOptions()))
   })
   
+  output$spatonlymap <- renderLeaflet({
+    leaflet(height="50%") %>%
+      # addProviderTiles("Esri.OceanBasemap",group = "Ocean Basemap") %>%
+      addTiles() %>%
+      setView(lng = -70, lat = 40, zoom = 5) %>%
+      addDrawToolbar(
+        targetGroup='Selected',
+        polylineOptions=FALSE,
+        polygonOptions=FALSE,
+        markerOptions = T,
+        rectangleOptions =F,
+        circleOptions = F,
+        circleMarkerOptions = F,
+        editOptions = editToolbarOptions(edit = FALSE, selectedPathOptions = selectedPathOptions()))
+  })
+  
   output$spatmap <- renderLeaflet({
     leaflet(height="50%") %>%
       # addProviderTiles("Esri.OceanBasemap",group = "Ocean Basemap") %>%
@@ -494,6 +540,24 @@ server <- function(input, output, session) {
     )
   })
   
+  observeEvent(input$spatonlymap_draw_new_feature,{
+    feature3 <- input$spatonlymap_draw_new_feature
+    
+    output$spatonlyloctable <- renderTable(
+      data.frame("Lon"=feature3$geometry$coordinates[[1]],"Lat"=feature3$geometry$coordinates[[2]]),
+      striped = T,
+      hover = F,
+      bordered = T,
+      spacing = c("s", "xs", "m", "l"),
+      width = "auto",
+      align = NULL,
+      rownames = FALSE,
+      colnames = TRUE,
+      digits = 4,
+      na = "NA",
+      quoted = FALSE
+    )
+  })
   # add  data contributor map
   output$contmap <- renderLeaflet({
     leaflet(height="100%") %>%
@@ -502,44 +566,103 @@ server <- function(input, output, session) {
       addMarkers(stations$Longitude, stations$Latitude, popup = stations$Waterbody_Name, label =stations$Waterbody_Name )
   })
   
+  # table <- reactive({
+  #   taval=1.42E-05
+  #   tbval=2.60727827
+  #   saval=0.00039042
+  #   sbval=2.579747757
+  #   tdw=taval*(input$hsize*25.4)^tbval
+  #   sdw=saval*(input$hsize*25.4)^sbval
+  #   
+  #   #Convert dry weight of tissue and shell (g) to nutrients (g)
+  #   tNi=reactiveValues()
+  #   sNi=reactiveValues()
+  #   tNi=0.0770*tdw
+  #   sNi=0.0019*sdw
+  #   tPi=0.008345*tdw
+  #   sPi=0.000438*sdw
+  #   
+  #   #convert grams N to lbs or kg
+  #   cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+  #   # tN=reactiveValues()
+  #   tN=round((tNi*cnvrt*input$Num),1)
+  #   # sN=reactiveValues()
+  #   sN=round((sNi*cnvrt*input$Num),1)
+  #   # tP=reactiveValues()
+  #   tP=round((tPi*cnvrt*input$Num),1)
+  #   # sP=reactiveValues()
+  #   sP=round((sPi*cnvrt*input$Num),1)
+  #   # df=data.frame("Shell_N"=sN, "Tissue_N"=tN, "Total_N"=sN+tN, "Shell_P"=sP, "Tissue_P"=tP, "Total_P"=sP+tP, "Units"=input$units)
+  #   # colnames(df)=c("Shell N", "Tissue N", "Total N", "Shell P", "Tissue P", "Total P", "Units")
+  #   
+  #   df=data.frame(matrix(c(sN, tN, tN+sN), nrow=1, ncol=3))
+  #   colnames(df)=c("Shell", "Tissue", "Total")
+  #   df=rbind(df, list(Shell=sP, Tissue=tP, Total=sP+tP))
+  #   df$Units=input$units
+  #   row.names(df)=c("Nitrogen", "Phosphorous")
+  #   
+  #   df
+  # })
   table <- reactive({
     taval=1.42E-05
     tbval=2.60727827
     saval=0.00039042
     sbval=2.579747757
-    tdw=taval*(input$hsize*25.4)^tbval
-    sdw=saval*(input$hsize*25.4)^sbval
+    if(input$seedonly==T){
+      tdw=taval*(input$spatSizeOut)^tbval
+      sdw=saval*(input$spatSizeOut)^sbval
+      tNi=0.0770*tdw
+      sNi=0.0019*sdw
+      tPi=0.008345*tdw
+      sPi=0.000438*sdw
+      #convert grams N to lbs or kg
+      cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+      tN=round((tNi*cnvrt*input$spatNum),1)
+      sN=round((sNi*cnvrt*input$spatNum),1)
+      tP=round((tPi*cnvrt*input$spatNum),1)
+      sP=round((sPi*cnvrt*input$spatNum),1)
+      df=data.frame(matrix(c(sN, tN, tN+sN), nrow=1, ncol=3))
+      colnames(df)=c("Shell", "Tissue", "Total")
+      df=rbind(df, list(Shell=sP, Tissue=tP, Total=sP+tP))
+      df$Units=input$units
+      row.names(df)=c("Nitrogen", "Phosphorous")
+    }
     
-    #Convert dry weight of tissue and shell (g) to nutrients (g)
-    tNi=reactiveValues()
-    sNi=reactiveValues()
-    tNi=0.0770*tdw
-    sNi=0.0019*sdw
-    tPi=0.008345*tdw
-    sPi=0.000438*sdw
-    
-    #convert grams N to lbs or kg
-    cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
-    # tN=reactiveValues()
-    tN=round((tNi*cnvrt*input$Num),1)
-    # sN=reactiveValues()
-    sN=round((sNi*cnvrt*input$Num),1)
-    # tP=reactiveValues()
-    tP=round((tPi*cnvrt*input$Num),1)
-    # sP=reactiveValues()
-    sP=round((sPi*cnvrt*input$Num),1)
-    # df=data.frame("Shell_N"=sN, "Tissue_N"=tN, "Total_N"=sN+tN, "Shell_P"=sP, "Tissue_P"=tP, "Total_P"=sP+tP, "Units"=input$units)
-    # colnames(df)=c("Shell N", "Tissue N", "Total N", "Shell P", "Tissue P", "Total P", "Units")
-    
-    df=data.frame(matrix(c(sN, tN, tN+sN), nrow=1, ncol=3))
-    colnames(df)=c("Shell", "Tissue", "Total")
-    df=rbind(df, list(Shell=sP, Tissue=tP, Total=sP+tP))
-    df$Units=input$units
-    row.names(df)=c("Nitrogen", "Phosphorous")
-    
+    else{
+      tdw1=taval*(input$sizeIn)^tbval
+      sdw1=saval*(input$sizeIn)^sbval
+      tdw2=taval*(input$sizeOut*25.4)^tbval
+      sdw2=saval*(input$sizeOut*25.4)^sbval
+      tNi1=0.0770*tdw1
+      sNi1=0.0019*sdw1
+      tPi1=0.008345*tdw1
+      sPi1=0.000438*sdw1
+      tNi2=0.0770*tdw2
+      sNi2=0.0019*sdw2
+      tPi2=0.008345*tdw2
+      sPi2=0.000438*sdw2
+      #convert grams N to lbs or kg
+      cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+      tN1=round((tNi1*cnvrt*input$HNum),1)
+      sN1=round((sNi1*cnvrt*input$HNum),1)
+      tP1=round((tPi1*cnvrt*input$HNum),1)
+      sP1=round((sPi1*cnvrt*input$HNum),1)
+      tN2=round((tNi2*cnvrt*input$HNum),1)
+      sN2=round((sNi2*cnvrt*input$HNum),1)
+      tP2=round((tPi2*cnvrt*input$HNum),1)
+      sP2=round((sPi2*cnvrt*input$HNum),1)
+      sN=sN2-sN1
+      tN=tN2-tN1
+      sP=sP2-sP1
+      tP=tP2-tP1
+      df=data.frame(matrix(c(sN, tN, tN+sN), nrow=1, ncol=3))
+      colnames(df)=c("Shell", "Tissue", "Total")
+      df=rbind(df, list(Shell=sP, Tissue=tP, Total=sP+tP))
+      df$Units=input$units
+      row.names(df)=c("Nitrogen", "Phosphorous")
+    }
     df
   })
-  
   # estimate number of oysters required for N load
   esttable <- reactive({
     taval=1.42E-05
@@ -548,13 +671,11 @@ server <- function(input, output, session) {
     sbval=2.579747757
     tdw=taval*(input$hsize2*25.4)^tbval
     sdw=saval*(input$hsize2*25.4)^sbval
-    
     #Convert dry weight of tissue and shell (g) to nutrients (g)
     tNi=reactiveValues()
     sNi=reactiveValues()
     tNi=0.0770*tdw
     sNi=0.0019*sdw
-    
     #convert grams N to lbs
     cnvrt=0.00220462
     # tN=reactiveValues()
@@ -567,80 +688,174 @@ server <- function(input, output, session) {
     df3
   })
   
+  # Nplot <- reactive({
+  #   taval=1.42E-05
+  #   tbval=2.60727827
+  #   saval=0.00039042
+  #   sbval=2.579747757
+  #   tdw=taval*((input$hsize*25.4)^tbval)
+  #   sdw=saval*((input$hsize*25.4)^sbval)
+  #   
+  #   #Convert dry weight of tissue and shell (g) to nutrients (g)
+  #   # tNi=reactiveValues()
+  #   # sNi=reactiveValues()
+  #   tNi=(0.0770*tdw)*input$Num
+  #   sNi=(0.0019*sdw)*input$Num
+  #   tPi=(0.008345*tdw)*input$Num
+  #   sPi=(0.000438*sdw)*input$Num
+  #   
+  #   #convert grams N to lbs or kg
+  #   cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+  #   # tN=reactiveValues()
+  #   tN=round((tNi*cnvrt),1)
+  #   # sN=reactiveValues()
+  #   sN=round((sNi*cnvrt),1)
+  #   tP=round((tPi*cnvrt),1)
+  #   sP=round((sPi*cnvrt),1)
+  #   
+  #   ## Nitrogen only
+  #   # df2=data.frame(matrix(c(tN, tP), nrow=1, ncol=2))
+  #   # colnames(df2)=c("N", "P")
+  #   # df2$var="Tissue"
+  #   # df2=rbind(df2, list(N=sN, P=sP, var="Shell" ))
+  #   # df2=rbind(df2, list(N=sN+tN, P=sP+tP, var="Total" ))
+  #   # df2$units=input$units
+  #   # P=ggplot(df2, aes(x=var, y=N))+
+  #   #   geom_bar(stat="identity" , fill="steelblue", width = 0.65)+
+  #   #   # coord_cartesian(ylim=c(0, NA), xlim=NULL, clip = "on")+
+  #   #   # ylim(0,max(df2$N))+
+  #   #   # scale_y_continuous(limits = c(0, NA))+
+  #   #   # aes(ymin=0)+
+  #   #   theme_minimal()+
+  #   #   ylab(input$units)+
+  #   #   xlab("Nitrogen Removed")+
+  #   #   theme(axis.title.x = element_text(size = 16),
+  #   #         axis.text.x = element_text(size = 14),
+  #   #         axis.text.y = element_text(size = 14),
+  #   #         axis.title.y = element_text(size = 16))
+  #   # P
+  #   
+  #   ##update to add P data
+  #   # df2=data.frame(matrix(c(tN, tP), nrow=1, ncol=2))
+  #   # colnames(df2)=c("Nitrogen", "Phosphorous")
+  #   # df2$var="Tissue"
+  #   # df2=rbind(df2, list(Nitrogen=sN, Phosphorous=sP, var="Shell" ))
+  #   # df2=rbind(df2, list(Nitrogen=sN+tN, Phosphorous=sP+tP, var="Total" ))
+  #   # df2$units=input$units
+  #   # df3=df2 %>% tidyr::pivot_longer(cols=c("Nitrogen", "Phosphorous"), names_to="Nutrients")
+  #   ### both N and P
+  #   # P=ggplot(df3, aes(x=var, y=value, fill=Nutrients))+
+  #   #   geom_bar(stat="identity" , position='dodge', width = 0.9)+
+  #   #   # coord_cartesian(ylim=c(0, NA), xlim=NULL, clip = "on")+
+  #   #   # ylim(0,max(df2$N))+
+  #   #   # scale_y_continuous(limits = c(0, NA))+
+  #   #   # aes(ymin=0)+
+  #   #   # facet_wrap(~ Nutrients) +
+  #   #   theme_minimal()+
+  #   #   ylab(input$units)+
+  #   #   xlab("Nutrients Removed")+
+  #   #   theme(axis.title.x = element_text(size = 16),
+  #   #         axis.text.x = element_text(size = 14),
+  #   #         axis.text.y = element_text(size = 14),
+  #   #         axis.title.y = element_text(size = 16),
+  #   #         legend.text=element_text(size=12),
+  #   #         legend.title=element_text(size=12))
+  #   # P
+  #   ### N and P individually
+  #   df2=data.frame(matrix(tN, nrow=1, ncol=1))
+  #   colnames(df2)="Nitrogen"
+  #   df2$var="Tissue"
+  #   df2=rbind(df2, list(Nitrogen=sN, var="Shell" ))
+  #   df2=rbind(df2, list(Nitrogen=sN+tN, var="Total" ))
+  #   df2$units=input$units
+  #   P=ggplot(df2, aes(x=var, y=Nitrogen))+
+  #     geom_bar(stat="identity" , fill="steelblue", width = 0.65)+
+  #     # coord_cartesian(ylim=c(0, NA), xlim=NULL, clip = "on")+
+  #     # ylim(0,max(df2$N))+
+  #     # scale_y_continuous(limits = c(0, NA))+
+  #     # aes(ymin=0)+
+  #     # facet_wrap(~ Nutrients) +
+  #     theme_minimal()+
+  #     ylab(input$units)+
+  #     xlab("Nitrogen Removed")+
+  #     theme(axis.title.x = element_text(size = 16),
+  #           axis.text.x = element_text(size = 14),
+  #           axis.text.y = element_text(size = 14),
+  #           axis.title.y = element_text(size = 16))
+  #   
+  #   P
+  # })
+  # 
+  # Pplot <- reactive({
+  #   taval=1.42E-05
+  #   tbval=2.60727827
+  #   saval=0.00039042
+  #   sbval=2.579747757
+  #   tdw=taval*((input$hsize*25.4)^tbval)
+  #   sdw=saval*((input$hsize*25.4)^sbval)
+  #   
+  #   tPi=(0.008345*tdw)*input$Num
+  #   sPi=(0.000438*sdw)*input$Num
+  #   
+  #   cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+  #   tP=round((tPi*cnvrt),1)
+  #   sP=round((sPi*cnvrt),1)
+  #   
+  #   df3=data.frame(matrix(tP, nrow=1, ncol=1))
+  #   colnames(df3)="Phosphorous"
+  #   df3$var="Tissue"
+  #   df3=rbind(df3, list(Phosphorous=sP, var="Shell" ))
+  #   df3=rbind(df3, list(Phosphorous=sP+tP, var="Total" ))
+  #   df3$units=input$units
+  #   
+  #   P2=ggplot(df3, aes(x=var, y=Phosphorous))+
+  #     geom_bar(stat="identity" , fill="firebrick", width = 0.65)+
+  #     # coord_cartesian(ylim=c(0, NA), xlim=NULL, clip = "on")+
+  #     # ylim(0,max(df2$N))+
+  #     # scale_y_continuous(limits = c(0, NA))+
+  #     # aes(ymin=0)+
+  #     theme_minimal()+
+  #     ylab(input$units)+
+  #     xlab("Phosphorous Removed")+
+  #     theme(axis.title.x = element_text(size = 16),
+  #           axis.text.x = element_text(size = 14),
+  #           axis.text.y = element_text(size = 14),
+  #           axis.title.y = element_text(size = 16))
+  #   P2
+  # })
   Nplot <- reactive({
     taval=1.42E-05
     tbval=2.60727827
     saval=0.00039042
     sbval=2.579747757
-    tdw=taval*((input$hsize*25.4)^tbval)
-    sdw=saval*((input$hsize*25.4)^sbval)
-    
-    #Convert dry weight of tissue and shell (g) to nutrients (g)
-    # tNi=reactiveValues()
-    # sNi=reactiveValues()
-    tNi=(0.0770*tdw)*input$Num
-    sNi=(0.0019*sdw)*input$Num
-    tPi=(0.008345*tdw)*input$Num
-    sPi=(0.000438*sdw)*input$Num
-    
-    #convert grams N to lbs or kg
-    cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
-    # tN=reactiveValues()
-    tN=round((tNi*cnvrt),1)
-    # sN=reactiveValues()
-    sN=round((sNi*cnvrt),1)
-    tP=round((tPi*cnvrt),1)
-    sP=round((sPi*cnvrt),1)
-    
-    ## Nitrogen only
-    # df2=data.frame(matrix(c(tN, tP), nrow=1, ncol=2))
-    # colnames(df2)=c("N", "P")
-    # df2$var="Tissue"
-    # df2=rbind(df2, list(N=sN, P=sP, var="Shell" ))
-    # df2=rbind(df2, list(N=sN+tN, P=sP+tP, var="Total" ))
-    # df2$units=input$units
-    # P=ggplot(df2, aes(x=var, y=N))+
-    #   geom_bar(stat="identity" , fill="steelblue", width = 0.65)+
-    #   # coord_cartesian(ylim=c(0, NA), xlim=NULL, clip = "on")+
-    #   # ylim(0,max(df2$N))+
-    #   # scale_y_continuous(limits = c(0, NA))+
-    #   # aes(ymin=0)+
-    #   theme_minimal()+
-    #   ylab(input$units)+
-    #   xlab("Nitrogen Removed")+
-    #   theme(axis.title.x = element_text(size = 16),
-    #         axis.text.x = element_text(size = 14),
-    #         axis.text.y = element_text(size = 14),
-    #         axis.title.y = element_text(size = 16))
-    # P
-    
-    ##update to add P data
-    # df2=data.frame(matrix(c(tN, tP), nrow=1, ncol=2))
-    # colnames(df2)=c("Nitrogen", "Phosphorous")
-    # df2$var="Tissue"
-    # df2=rbind(df2, list(Nitrogen=sN, Phosphorous=sP, var="Shell" ))
-    # df2=rbind(df2, list(Nitrogen=sN+tN, Phosphorous=sP+tP, var="Total" ))
-    # df2$units=input$units
-    # df3=df2 %>% tidyr::pivot_longer(cols=c("Nitrogen", "Phosphorous"), names_to="Nutrients")
-    ### both N and P
-    # P=ggplot(df3, aes(x=var, y=value, fill=Nutrients))+
-    #   geom_bar(stat="identity" , position='dodge', width = 0.9)+
-    #   # coord_cartesian(ylim=c(0, NA), xlim=NULL, clip = "on")+
-    #   # ylim(0,max(df2$N))+
-    #   # scale_y_continuous(limits = c(0, NA))+
-    #   # aes(ymin=0)+
-    #   # facet_wrap(~ Nutrients) +
-    #   theme_minimal()+
-    #   ylab(input$units)+
-    #   xlab("Nutrients Removed")+
-    #   theme(axis.title.x = element_text(size = 16),
-    #         axis.text.x = element_text(size = 14),
-    #         axis.text.y = element_text(size = 14),
-    #         axis.title.y = element_text(size = 16),
-    #         legend.text=element_text(size=12),
-    #         legend.title=element_text(size=12))
-    # P
-    ### N and P individually
+    if(input$seedonly==T){
+      tdw=taval*(input$spatSizeOut)^tbval
+      sdw=saval*(input$spatSizeOut)^sbval
+      tNi=0.0770*tdw
+      sNi=0.0019*sdw
+      #convert grams N to lbs or kg
+      cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+      tN=round((tNi*cnvrt*input$spatNum),1)
+      sN=round((sNi*cnvrt*input$spatNum),1)
+    }
+    else{
+      tdw1=taval*(input$sizeIn)^tbval
+      sdw1=saval*(input$sizeIn)^sbval
+      tdw2=taval*(input$sizeOut*25.4)^tbval
+      sdw2=saval*(input$sizeOut*25.4)^sbval
+      tNi1=0.0770*tdw1
+      sNi1=0.0019*sdw1
+      tNi2=0.0770*tdw2
+      sNi2=0.0019*sdw2
+      #convert grams N to lbs or kg
+      cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+      tN1=round((tNi1*cnvrt*input$HNum),1)
+      sN1=round((sNi1*cnvrt*input$HNum),1)
+      tN2=round((tNi2*cnvrt*input$HNum),1)
+      sN2=round((sNi2*cnvrt*input$HNum),1)
+      sN=sN2-sN1
+      tN=tN2-tN1
+    }
     df2=data.frame(matrix(tN, nrow=1, ncol=1))
     colnames(df2)="Nitrogen"
     df2$var="Tissue"
@@ -649,11 +864,6 @@ server <- function(input, output, session) {
     df2$units=input$units
     P=ggplot(df2, aes(x=var, y=Nitrogen))+
       geom_bar(stat="identity" , fill="steelblue", width = 0.65)+
-      # coord_cartesian(ylim=c(0, NA), xlim=NULL, clip = "on")+
-      # ylim(0,max(df2$N))+
-      # scale_y_continuous(limits = c(0, NA))+
-      # aes(ymin=0)+
-      # facet_wrap(~ Nutrients) +
       theme_minimal()+
       ylab(input$units)+
       xlab("Nitrogen Removed")+
@@ -661,7 +871,6 @@ server <- function(input, output, session) {
             axis.text.x = element_text(size = 14),
             axis.text.y = element_text(size = 14),
             axis.title.y = element_text(size = 16))
-
     P
   })
   
@@ -670,29 +879,42 @@ server <- function(input, output, session) {
     tbval=2.60727827
     saval=0.00039042
     sbval=2.579747757
-    tdw=taval*((input$hsize*25.4)^tbval)
-    sdw=saval*((input$hsize*25.4)^sbval)
-
-    tPi=(0.008345*tdw)*input$Num
-    sPi=(0.000438*sdw)*input$Num
-    
-    cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
-    tP=round((tPi*cnvrt),1)
-    sP=round((sPi*cnvrt),1)
-    
+    if(input$seedonly==T){
+      tdw=taval*(input$spatSizeOut)^tbval
+      sdw=saval*(input$spatSizeOut)^sbval
+      tPi=0.008345*tdw
+      sPi=0.000438*sdw
+      #convert grams N to lbs or kg
+      cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+      tP=round((tPi*cnvrt*input$spatNum),1)
+      sP=round((sPi*cnvrt*input$spatNum),1)
+    }
+    else {
+      tdw1=taval*(input$sizeIn)^tbval
+      sdw1=saval*(input$sizeIn)^sbval
+      tdw2=taval*(input$sizeOut*25.4)^tbval
+      sdw2=saval*(input$sizeOut*25.4)^sbval
+      tPi1=0.008345*tdw1
+      sPi1=0.000438*sdw1
+      tPi2=0.008345*tdw2
+      sPi2=0.000438*sdw2
+      #convert grams N to lbs or kg
+      cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+      tP1=round((tPi1*cnvrt*input$HNum),1)
+      sP1=round((sPi1*cnvrt*input$HNum),1)
+      tP2=round((tPi2*cnvrt*input$HNum),1)
+      sP2=round((sPi2*cnvrt*input$HNum),1)
+      sP=sP2-sP1
+      tP=tP2-tP1
+    }
     df3=data.frame(matrix(tP, nrow=1, ncol=1))
     colnames(df3)="Phosphorous"
     df3$var="Tissue"
     df3=rbind(df3, list(Phosphorous=sP, var="Shell" ))
     df3=rbind(df3, list(Phosphorous=sP+tP, var="Total" ))
     df3$units=input$units
-    
     P2=ggplot(df3, aes(x=var, y=Phosphorous))+
       geom_bar(stat="identity" , fill="firebrick", width = 0.65)+
-      # coord_cartesian(ylim=c(0, NA), xlim=NULL, clip = "on")+
-      # ylim(0,max(df2$N))+
-      # scale_y_continuous(limits = c(0, NA))+
-      # aes(ymin=0)+
       theme_minimal()+
       ylab(input$units)+
       xlab("Phosphorous Removed")+
@@ -702,20 +924,57 @@ server <- function(input, output, session) {
             axis.title.y = element_text(size = 16))
     P2
   })
-  
   # fertilplot <- reactive({
   fertilplot <- function(){
+    # taval=1.42E-05
+    # tbval=2.60727827
+    # saval=0.00039042
+    # sbval=2.579747757
+    # tdw=taval*((input$hsize*25.4)^tbval)
+    # sdw=saval*((input$hsize*25.4)^sbval)
+    # tNi=(0.0796*tdw)*input$Num
+    # sNi=(0.0019*sdw)*input$Num
+    # cnvrt=0.00220462
+    # tN=round((tNi*cnvrt),1)
+    # sN=round((sNi*cnvrt),1)
     taval=1.42E-05
     tbval=2.60727827
     saval=0.00039042
     sbval=2.579747757
-    tdw=taval*((input$hsize*25.4)^tbval)
-    sdw=saval*((input$hsize*25.4)^sbval)
-    tNi=(0.0796*tdw)*input$Num
-    sNi=(0.0019*sdw)*input$Num
-    cnvrt=0.00220462
-    tN=round((tNi*cnvrt),1)
-    sN=round((sNi*cnvrt),1)
+    
+    if(input$seedonly==T){
+      tdw=taval*(input$spatSizeOut)^tbval
+      sdw=saval*(input$spatSizeOut)^sbval
+      
+      tNi=0.0770*tdw
+      sNi=0.0019*sdw
+      
+      #convert grams N to lbs or kg
+      cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+      tN=round((tNi*cnvrt*input$spatNum),1)
+      sN=round((sNi*cnvrt*input$spatNum),1)
+    }
+    else{
+      tdw1=taval*(input$sizeIn)^tbval
+      sdw1=saval*(input$sizeIn)^sbval
+      tdw2=taval*(input$sizeOut*25.4)^tbval
+      sdw2=saval*(input$sizeOut*25.4)^sbval
+      
+      tNi1=0.0770*tdw1
+      sNi1=0.0019*sdw1
+      tNi2=0.0770*tdw2
+      sNi2=0.0019*sdw2
+      
+      #convert grams N to lbs or kg
+      cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+      tN1=round((tNi1*cnvrt*input$HNum),1)
+      sN1=round((sNi1*cnvrt*input$HNum),1)
+      tN2=round((tNi2*cnvrt*input$HNum),1)
+      sN2=round((sNi2*cnvrt*input$HNum),1)
+      
+      sN=sN2-sN1
+      tN=tN2-tN1
+    }
     nBags=round(((sN+tN)/5),0)
     sqftlawns=round((sN+tN),0)*1000
     # pic="C:/Users/ryan.morse/Documents/GitHub/Calculator/WWW/fertilizerNew.png"
@@ -769,13 +1028,46 @@ server <- function(input, output, session) {
     tbval=2.60727827
     saval=0.00039042
     sbval=2.579747757
-    tdw=taval*((input$hsize*25.4)^tbval)
-    sdw=saval*((input$hsize*25.4)^sbval)
-    tNi=(0.0796*tdw)*input$Num
-    sNi=(0.0019*sdw)*input$Num
-    cnvrt=0.00220462
-    tN=round((tNi*cnvrt),1)
-    sN=round((sNi*cnvrt),1)
+    if(input$seedonly==T){
+      tdw=taval*(input$spatSizeOut)^tbval
+      sdw=saval*(input$spatSizeOut)^sbval
+      
+      tNi=0.0770*tdw
+      sNi=0.0019*sdw
+      
+      #convert grams N to lbs or kg
+      cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+      tN=round((tNi*cnvrt*input$spatNum),1)
+      sN=round((sNi*cnvrt*input$spatNum),1)
+    }
+    else{
+      tdw1=taval*(input$sizeIn)^tbval
+      sdw1=saval*(input$sizeIn)^sbval
+      tdw2=taval*(input$sizeOut*25.4)^tbval
+      sdw2=saval*(input$sizeOut*25.4)^sbval
+      
+      tNi1=0.0770*tdw1
+      sNi1=0.0019*sdw1
+      tNi2=0.0770*tdw2
+      sNi2=0.0019*sdw2
+      
+      #convert grams N to lbs or kg
+      cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
+      tN1=round((tNi1*cnvrt*input$HNum),1)
+      sN1=round((sNi1*cnvrt*input$HNum),1)
+      tN2=round((tNi2*cnvrt*input$HNum),1)
+      sN2=round((sNi2*cnvrt*input$HNum),1)
+      
+      sN=sN2-sN1
+      tN=tN2-tN1
+    }
+    # tdw=taval*((input$hsize*25.4)^tbval)
+    # sdw=saval*((input$hsize*25.4)^sbval)
+    # tNi=(0.0796*tdw)*input$Num
+    # sNi=(0.0019*sdw)*input$Num
+    # cnvrt=0.00220462
+    # tN=round((tNi*cnvrt),1)
+    # sN=round((sNi*cnvrt),1)
     nBags=round(((sN+tN)/5),0)
     sqftlawns=round((sN+tN),0)*1000
     # img2<-readPNG("FarmInfoG2.png")
@@ -905,18 +1197,29 @@ server <- function(input, output, session) {
           rmarkdown::render(
             input = "report.Rmd",
             output_file = "built_report.pdf",
-            params = list(table = table(),
-                          plot = plot(),
-                          Location=input$projloc, 
-                          Units=input$units, 
-                          gear=input$gear, 
-                          ploidy=input$ploidy, 
-                          hsize=input$hsize,
-                          Farm=input$farmname,
-                          Number=input$Num,
-                          Dates=input$Htime,
-                          Lat=input$mymap_draw_new_feature$geometry$coordinates[[2]],
-                          Lon=input$mymap_draw_new_feature$geometry$coordinates[[1]])
+            params = list(
+              SeedOnly=input$seedonly,
+              NurseryLocDiff=input$nurseryloc,
+              table = table(),
+              Nplot = Nplot(),
+              Pplot = Plot(),
+              Location=input$projloc, 
+              Units=input$units, 
+              gear=input$gear, 
+              ploidy=input$ploidy, 
+              spatsize=input$spatSizeOut,
+              size=input$sizeOut,
+              Farm=input$farmname,
+              spatNumber=input$spatNum,
+              Number=input$HNum,
+              Dates=input$Htime,
+              spatLat=input$mymap_draw_new_feature$geometry$coordinates[[2]],
+              spatLon=input$mymap_draw_new_feature$geometry$coordinates[[1]],
+              nurseLat=input$spatmap_draw_new_feature$geometry$coordinates[[2]],
+              nurseLon=input$spatmap_draw_new_feature$geometry$coordinates[[1]],
+              HLat=input$spatonlymap_draw_new_feature$geometry$coordinates[[2]],
+              HLon=input$spatonlymap_draw_new_feature$geometry$coordinates[[1]]
+              )
           ) 
           readBin(con = "built_report.pdf", 
                   what = "raw",

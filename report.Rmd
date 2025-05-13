@@ -5,18 +5,27 @@ title: |
 output: pdf_document
 date: "`r format(Sys.Date(),'%B %e, %Y')`"
 params: 
+  SeedOnly: NA
+  NurseryLocDiff: NA
   table: 'NULL'
-  plot: 'NULL'
+  Nplot: 'NULL'
+  Pplot: 'NULL'
   Farm: NA
   Location: NA
   Dates: NA
   Units: NA 
   gear: NA 
-  ploidy: NA  
-  hsize: NA  
+  ploidy: NA
+  spatsize: NA  
+  size: NA  
   Number: NA
-  Lat: NA
-  Lon: NA
+  spatNumber: NA
+  spatLat: NA
+  spatLon: NA
+  nurseLat: NA
+  nurseLon: NA
+  HLat: NA
+  HLon: NA
 ---
 
 ```{r, echo = F, warning=FALSE, echo=FALSE}
@@ -68,7 +77,7 @@ knitr::opts_chunk$set(opts.label="kill_prefix")
 `r params[["Location"]]`
 
 **Harvest location (latitude, longitude):**  
-`r params[["Lat"]]`, `r params[["Lon"]]`
+`r params[["HLat"]]`, `r params[["HLon"]]`
 
 **Culture method:**  
 `r params[["gear"]]`
@@ -80,7 +89,7 @@ knitr::opts_chunk$set(opts.label="kill_prefix")
 `r params[["Number"]]`
 
 **Average size of oysters at harvest (Inches):**  
-`r params[["hsize"]]`
+`r params[["size"]]`
 
 **Period of harvest (YYYY-MM-DD begin, end):**  
 `r params[["Dates"]]`
@@ -89,16 +98,19 @@ knitr::opts_chunk$set(opts.label="kill_prefix")
 # **Calculated Farm Nitrogen Removal**  
 ```{r, tidy='styler', echo=FALSE}
 knitr::kable(params[["table"]], 
-             caption="N Removal")
+             caption="N and P Removal")
 ```
 
 ```{r, fig.dim = c(4, 4), echo=FALSE}
-params[["plot"]]
+params[["Nplot"]]
 ```
 
+```{r, fig.dim = c(4, 4), echo=FALSE}
+params[["Pplot"]]
+```
 
 # **Summary**  
-Shellfish incorporate nutrients into their tissues and shell as they grow. At harvest, these nutrients are permanently removed from the coastal environment, providing a benefit to water quality in the form of excess nutrient reduction. The harvest of `r params[["Number"]]` oysters at an average size of `r  params[["hsize"]]` inches is expected to result in the removal of a total of `r round(params[["plot"]]$data$N[3], 2)` pounds (lbs) of N during the harvest period.  
+Shellfish incorporate nutrients into their tissues and shell as they grow. At harvest, these nutrients are permanently removed from the coastal environment, providing a benefit to water quality in the form of excess nutrient reduction. The harvest of `r params[["Number"]]` oysters at an average size of `r  params[["size"]]` inches is expected to result in the removal of a total of `r round(params[["plot"]]$data$N[3], 2)` pounds (lbs) of N during the harvest period.  
   
 # **Federal Regulatory Nexus:**  
 Public Interest Factor(s): (1)Water Quality; (2)General Environmental Concerns; (3) Fish and wildlife values.  
