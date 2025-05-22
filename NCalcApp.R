@@ -134,45 +134,53 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              ### 2 REMOVAL DETAILS ###
                              helpText(h3("2) Oyster Removal Details")),
                              helpText(h4("Please Select From The Following Choices:")),
-                             input_switch("seedonly", div(strong("I Only Grow Seed Oysters"), value=F, width = "100%")), 
-                             conditionalPanel(
-                               condition = "input.seedonly == true",
-                               textAreaInput("seedprojloc", div(strong("Waterbody Name:"), " Please enter the name of the water body where the seed oysters were removed", em("(will not affect calculation)")), value = "", width ="100%", rows=1, placeholder = NULL),
-                               helpText(br()),
-                               dateRangeInput("seedTime", div(strong("Period of seed removal (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month", width="100%"),
-                               helpText(br()),
-                               helpText(h6("Seed Growout Location: "),"Please scroll or pinch to zoom to the growout area, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
-                               leafletOutput("seedonlymap", width="100%", height=400),
-                               tableOutput('seedonlyloctable'),
-                               sliderInput(
-                                 "seedSizeOut",
-                                 div(strong("Average seed oyster size (mm):"), " Please drag the slider to select the average size of the oyster seed removed for sale"),
-                                 1,
-                                 30,
-                                 5,
-                                 step = 1,
-                                 round = FALSE,
-                                 ticks = TRUE,
-                                 animate = FALSE,
-                                 width = "100%",
-                                 sep = ",",
-                                 dragRange = TRUE
-                               ),
-                               numericInput("seedNum", div(strong("Number of seed oysters removed:")," Please enter the total number of seed removed from the selected size"), 0, min=0, max=NA, width="100%"),
-                               helpText(br()),
-                             ),
-                             input_switch("plantseed", div(strong("I Buy Seed Oysters And Plant On Site For Harvest"), value=F, width = "100%")), 
+                             input_switch(
+                               "seedonly", div(strong("I Only Grow Seed Oysters"), value=F, width = "100%")
+                             ), 
+                             input_switch(
+                               "plantseed", div(strong("I Buy Seed Oysters And Plant On Site For Harvest"), value=F, width = "100%")
+                             ), 
                              conditionalPanel(
                                condition = "input.plantseed == true",
-                               input_switch("nurseryloc", div(strong("My Oyster Nursery And Growout Locations Are Different"), value=F, width = "100%")), 
+                               input_switch(
+                                 "nurseryloc", div(strong("My Oyster Nursery And Growout Locations Are Different"), value=F, width = "100%")
+                               ),
+                               # conditionalPanel(
+                               #   condition = "input.seedonly == true",
+                               #   textAreaInput("seedprojloc", div(strong("Waterbody Name:"), " Please enter the name of the water body where the seed oysters were removed", em("(will not affect calculation)")), value = "", width ="100%", rows=1, placeholder = NULL),
+                               #   helpText(br()),
+                               #   dateRangeInput("seedTime", div(strong("Period of seed removal (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month", width="100%"),
+                               #   helpText(br()),
+                               #   helpText(h6("Seed Growout Location: "),"Please scroll or pinch to zoom to the growout area, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
+                               #   leafletOutput("seedonlymap", width="100%", height=400),
+                               #   tableOutput('seedonlyloctable'),
+                               #   sliderInput(
+                               #     "seedSizeOut",
+                               #     div(strong("Average seed oyster size (mm):"), " Please drag the slider to select the average size of the oyster seed removed for sale"),
+                               #     1,
+                               #     30,
+                               #     5,
+                               #     step = 1,
+                               #     round = FALSE,
+                               #     ticks = TRUE,
+                               #     animate = FALSE,
+                               #     width = "100%",
+                               #     sep = ",",
+                               #     dragRange = TRUE
+                               #   ),
+                               #   numericInput("seedNum", div(strong("Number of seed oysters removed:")," Please enter the total number of seed removed from the selected size"), 0, min=0, max=NA, width="100%"),
+                               #   helpText(br()),
+                               # ),
                                conditionalPanel(
                                  condition = "input.nurseryloc == true",
+                                 helpText(br()),
                                  helpText(h6("Nursery Location: "),"Please scroll or pinch to zoom to the nursery area, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
                                  leafletOutput("spatmap", width="100%", height=400),
                                  tableOutput('spatloctable'),
+                                 helpText(br()),
                                ),
-                               textAreaInput("projloc", div(strong("Waterbody Name:"), " Please enter the name of the water body where the oysters were harvested from", em("(will not affect calculation)")), value = "", width ="100%", rows=1, placeholder = NULL),
                                helpText(br()),
+                               textAreaInput("projloc", div(strong("Harvest Location Waterbody Name:"), " Please enter the name of the water body where the oysters were harvested from", em("(will not affect calculation)")), value = "", width ="100%", rows=1, placeholder = NULL),
                                helpText(h6("Harvest Location: "),"Please scroll or pinch to zoom to the harvest location, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
                                leafletOutput("mymap", width="100%", height=400),
                                ## Location table
@@ -198,7 +206,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                br(),
                                sliderInput(
                                  "sizeOut",
-                                 div(strong("Select size of oysters at harves (inches):"), " Please drag the slider to select the average size of the oysters at the time of harvest"),
+                                 div(strong("Select size of oysters at harvest (inches):"), " Please drag the slider to select the average size of the oysters at the time of harvest"),
                                  2.0,
                                  6.0,
                                  3.0,
@@ -211,12 +219,38 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                  dragRange = TRUE
                                ),
                                ## Number
+                               helpText(br()),
                                numericInput("HNum", div(strong("Number of oysters at harvest:")," Please enter the total number of oysters harvested at the selected size"), 0, min=0, max=NA, width="100%"),
                                helpText(br()),
                                dateRangeInput("Htime", div(strong("Period of harvest (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month", width="100%"),
                                br()
                              ),
-                             
+                             conditionalPanel(
+                               condition = "input.seedonly == true",
+                               helpText(br()),
+                               textAreaInput("seedprojloc", div(strong("Waterbody Name:"), " Please enter the name of the water body where the seed oysters were removed", em("(will not affect calculation)")), value = "", width ="100%", rows=1, placeholder = NULL),
+                               dateRangeInput("seedTime", div(strong("Period of seed removal (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month", width="100%"),
+                               helpText(br()),
+                               helpText(h6("Seed Growout Location: "),"Please scroll or pinch to zoom to the growout area, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
+                               leafletOutput("seedonlymap", width="100%", height=400),
+                               tableOutput('seedonlyloctable'),
+                               sliderInput(
+                                 "seedSizeOut",
+                                 div(strong("Average seed oyster size (mm):"), " Please drag the slider to select the average size of the oyster seed removed for sale"),
+                                 1,
+                                 30,
+                                 5,
+                                 step = 1,
+                                 round = FALSE,
+                                 ticks = TRUE,
+                                 animate = FALSE,
+                                 width = "100%",
+                                 sep = ",",
+                                 dragRange = TRUE
+                               ),
+                               numericInput("seedNum", div(strong("Number of seed oysters removed:")," Please enter the total number of seed removed from the selected size"), 0, min=0, max=NA, width="100%"),
+                               helpText(br()),
+                             ),
                              helpText(br()),
                              ## Units
                              radioButtons(
@@ -227,10 +261,10 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                inline = T,
                                width="100%"),
                              helpText(br()),
-                             downloadButton(
-                               outputId = "downloader",
-                               label = "Download PDF Report"
-                             ),
+                             # downloadButton(
+                             #   outputId = "downloader",
+                             #   label = "Download PDF Report"
+                             # ),
                              br(),
                              br(),
                              
@@ -249,6 +283,10 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              
                              # actionButton("go", "Screenshot"),
                              br(),
+                             downloadButton(
+                               outputId = "downloader",
+                               label = "Download PDF Report"
+                             ),
                              plotOutput("fertplot", width="75%"),
                              br(),
                              # radioButtons("extension", "Save As:",
