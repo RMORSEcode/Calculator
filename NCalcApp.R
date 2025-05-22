@@ -39,18 +39,15 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              
                              ### add text box with black border ### #5761C0  style = "border-style: solid; border-color: #C6E6F0#5EB6D9; background-color: #5EB6D9;",
                              div( style = "border-style: solid; border-radius: 5px; border-color: #0085CA; background-color: #0085CA;",
-                                  p("This calculator predicts the amount of nitrogen and phosphorous farmed eastern oysters remove from the water when harvested, a key environmental benefit that oysters provide. This tool applies to oyster farms located within the geographic range of North Carolina to Maine, USA.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px;color: white"),
-                                  p("To use the tool, please fill in information about your farm in sections 1-3 below.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white"),
-                                  p("To download a report, click on ",strong("Generate PDF Report")," at the bottom", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white")),
+                                  p("This calculator predicts the amount of nitrogen and phosphorus farmed eastern oysters remove from the water when harvested, a key environmental benefit that oysters provide. This tool applies to oyster farms located within the geographic range of North Carolina to Maine, USA.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px;color: white"),
+                                  p("To use the tool, please fill in information about your farm in sections 1-2 below.", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white"),
+                                  p("To download a report, click on ",strong("Download PDF Report")," at the bottom", style="text-align:justify; padding-left:10px; padding-right:10px; font-size:18px; color: white")),
                              helpText(br()),
                              
                              ### 1 FARM PRACTICES ###
                              helpText(h3("1) Farm Practices")),
                              ## Name
-                             textAreaInput("farmname", div(strong("Project Name:"), " Please enter the name of the oyster farm"),value = "", width="100%", rows=2, placeholder = NULL),
-                             helpText(br()),
-                             ## Culture Method
-                             selectInput("gear", div(strong("Culture Method:")," Select the gear type primarily used for growing oysters, or select 'On-Bottom' for no gear", em("(will not affect calculation)")),c("Floating", "Off-bottom", "On-Bottom", "Multiple methods used"), width="100%"),
+                             textAreaInput("farmname", div(strong("Project Name:"), " Please enter the name of the oyster farm"),value = "", width="100%", rows=1, placeholder = NULL),
                              helpText(br()),
                              ## Ploidy
                              selectInput("ploidy", div(strong("Oyster Ploidy:")," Please select the ploidy of the oysters that were harvested", em("(will not affect calculation)")),c("Diploid", "Triploid", "Combination"), width="100%"),
@@ -140,11 +137,15 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              input_switch("seedonly", div(strong("I Only Grow Seed Oysters"), value=F, width = "100%")), 
                              conditionalPanel(
                                condition = "input.seedonly == true",
-                               helpText(h6("Nursery Location: "),"Please scroll or pinch to zoom to the nursery area, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
-                               leafletOutput("spatonlymap", width="100%", height=400),
-                               tableOutput('spatonlyloctable'),
+                               textAreaInput("seedprojloc", div(strong("Waterbody Name:"), " Please enter the name of the water body where the seed oysters were removed", em("(will not affect calculation)")), value = "", width ="100%", rows=1, placeholder = NULL),
+                               helpText(br()),
+                               dateRangeInput("seedTime", div(strong("Period of seed removal (yyyy-mm-dd):"), em("(does not affect calculation)")), start=NULL, end=NULL, min=Sys.Date()-(5*365), max=Sys.Date(), startview = "month", width="100%"),
+                               helpText(br()),
+                               helpText(h6("Seed Growout Location: "),"Please scroll or pinch to zoom to the growout area, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
+                               leafletOutput("seedonlymap", width="100%", height=400),
+                               tableOutput('seedonlyloctable'),
                                sliderInput(
-                                 "spatSizeOut",
+                                 "seedSizeOut",
                                  div(strong("Average seed oyster size (mm):"), " Please drag the slider to select the average size of the oyster seed removed for sale"),
                                  1,
                                  30,
@@ -157,7 +158,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                  sep = ",",
                                  dragRange = TRUE
                                ),
-                               numericInput("spatNum", div(strong("Number of spat removed:")," Please enter the total number of spat removed from the selected size"), 0, min=0, max=NA, width="100%"),
+                               numericInput("seedNum", div(strong("Number of seed oysters removed:")," Please enter the total number of seed removed from the selected size"), 0, min=0, max=NA, width="100%"),
                                helpText(br()),
                              ),
                              input_switch("plantseed", div(strong("I Buy Seed Oysters And Plant On Site For Harvest"), value=F, width = "100%")), 
@@ -170,12 +171,15 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                                  leafletOutput("spatmap", width="100%", height=400),
                                  tableOutput('spatloctable'),
                                ),
-                               textAreaInput("projloc", div(strong("Waterbody Name:"), " Please enter the name of the water body where the oysters were harvested from", em("(will not affect calculation)")), value = "", width ="100%", rows=2, placeholder = NULL),
+                               textAreaInput("projloc", div(strong("Waterbody Name:"), " Please enter the name of the water body where the oysters were harvested from", em("(will not affect calculation)")), value = "", width ="100%", rows=1, placeholder = NULL),
                                helpText(br()),
                                helpText(h6("Harvest Location: "),"Please scroll or pinch to zoom to the harvest location, then click once on the marker pin and select the site to record the coordinates. To remove a marker, click on the trash icon and then the errant marker", style = "font-size:18px;"),
                                leafletOutput("mymap", width="100%", height=400),
                                ## Location table
                                tableOutput('loctable'),
+                               helpText(br()),
+                               ## Culture Method
+                               selectInput("gear", div(strong("Culture Method:")," Select the gear type primarily used for growing oysters, or select 'On-Bottom' for no gear", em("(will not affect calculation)")),c("Floating", "Off-bottom", "On-Bottom", "Multiple methods used"), width="100%"),
                                helpText(br()),
                                sliderInput(
                                  "sizeIn",
@@ -225,7 +229,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              helpText(br()),
                              downloadButton(
                                outputId = "downloader",
-                               label = "Generate PDF Report"
+                               label = "Download PDF Report"
                              ),
                              br(),
                              br(),
@@ -318,14 +322,14 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              tags$p(
                                h4("Background"),
                                helpText(strong("Excess nutrients in coastal waters"), style = "font-size:18px;"),
-                               p("Nitrogen (N) and phosphorous (P) are essential nutrients, but excess levels of these nutrients in coastal waters can lead to algal blooms, low oxygen concentrations, and other detrimental effects. Shellfish incorporate nutrients into their tissues and shell as they grow. At harvest, these nutrients are permanently removed from the coastal environment, providing a benefit to water quality in the form of excess nutrient reduction."
+                               p("Nitrogen (N) and phosphorus (P) are essential nutrients, but excess levels of these nutrients in coastal waters can lead to algal blooms, low oxygen concentrations, and other detrimental effects. Shellfish incorporate nutrients into their tissues and shell as they grow. At harvest, these nutrients are permanently removed from the coastal environment, providing a benefit to water quality in the form of excess nutrient reduction."
                                ),
                                tags$img(src='1500x1000-Oyster-Farms-Nutrients-Infographic-NEFSC.png', width = "100%", alt="This illustration shows a landscape in the background with agricultural fields, houses with lawns, and a river washing nutrients from those sources into an underwater scene in the foreground where small dots representing algae flow from the left into a cage stacked with oysters at the center, a farmer in a small boat harvests the oysters, and clear water on the right with a variety of fish represents a healthier habitat with better water quality."),
                                helpText(br()),
                                helpText(strong("The Aquaculture Nutrient Removal Calculator"), style = "font-size:18px;"),
                                p("The calculator is a tool designed for shellfish growers and resource managers to inform shellfish aquaculture permitting. Resource managers have expressed interest in easy-to-use tools that produce location and operation-appropriate values for the environmental benefits, or ecosystem services, shellfish farms provide. The calculator provides estimated values for nutrient removal in a format that aligns with the shellfish aquaculture permitting process."
                                ),
-                               p("The nutrient removal calculations are based on relationships of oyster dry weight-to-length and the average nitrogen and phoshphorous concentrations in oyster shell and tissue. First, we estimate the weight of the oysters based on the typical size of oysters harvested on a farm. The weight estimates are based on non-linear quantile regressions of oyster shell height and dry-weight for both tissue and shell. Next, the nutrient portion of total oyster weight is calculated using the average nitrogen and phosphorous concentration value for both shell and tissue. Adding the tissue and shell nutrients yields the total weight of nitrogen and phosphorous per oyster. This result is scaled to the total number of oysters harvested, as input by the user."
+                               p("The nutrient removal calculations are based on relationships of oyster dry weight-to-length and the average nitrogen and phoshphorous concentrations in oyster shell and tissue. First, we estimate the weight of the oysters based on the typical size of oysters harvested on a farm. The weight estimates are based on non-linear quantile regressions of oyster shell height and dry-weight for both tissue and shell. Next, the nutrient portion of total oyster weight is calculated using the average nitrogen and phosphorus concentration value for both shell and tissue. Adding the tissue and shell nutrients yields the total weight of nitrogen and phosphorus per oyster. This result is scaled to the total number of oysters harvested, as input by the user."
                                ),
                                p("We have synthesized available literature for eastern oyster farms across the Northeast region, from North Carolina to Maine, and applied methodology used by the Chesapeake Bay Program to calculate nutrient removal at harvest ",
                                  tags$a(style="font-weight:bold", target="_blank", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062",
@@ -453,7 +457,7 @@ server <- function(input, output, session) {
         editOptions = editToolbarOptions(edit = FALSE, selectedPathOptions = selectedPathOptions()))
   })
   
-  output$spatonlymap <- renderLeaflet({
+  output$seedonlymap <- renderLeaflet({
     leaflet(height="50%") %>%
       # addProviderTiles("Esri.OceanBasemap",group = "Ocean Basemap") %>%
       addTiles() %>%
@@ -540,10 +544,10 @@ server <- function(input, output, session) {
     )
   })
   
-  observeEvent(input$spatonlymap_draw_new_feature,{
-    feature3 <- input$spatonlymap_draw_new_feature
+  observeEvent(input$seedonlymap_draw_new_feature,{
+    feature3 <- input$seedonlymap_draw_new_feature
     
-    output$spatonlyloctable <- renderTable(
+    output$seedonlyloctable <- renderTable(
       data.frame("Lon"=feature3$geometry$coordinates[[1]],"Lat"=feature3$geometry$coordinates[[2]]),
       striped = T,
       hover = F,
@@ -599,7 +603,7 @@ server <- function(input, output, session) {
   #   colnames(df)=c("Shell", "Tissue", "Total")
   #   df=rbind(df, list(Shell=sP, Tissue=tP, Total=sP+tP))
   #   df$Units=input$units
-  #   row.names(df)=c("Nitrogen", "Phosphorous")
+  #   row.names(df)=c("Nitrogen", "Phosphorus")
   #   
   #   df
   # })
@@ -609,23 +613,23 @@ server <- function(input, output, session) {
     saval=0.00039042
     sbval=2.579747757
     if(input$seedonly==T){
-      tdw=taval*(input$spatSizeOut)^tbval
-      sdw=saval*(input$spatSizeOut)^sbval
+      tdw=taval*(input$seedSizeOut)^tbval
+      sdw=saval*(input$seedSizeOut)^sbval
       tNi=0.0770*tdw
       sNi=0.0019*sdw
       tPi=0.008345*tdw
       sPi=0.000438*sdw
       #convert grams N to lbs or kg
       cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
-      tN=round((tNi*cnvrt*input$spatNum),1)
-      sN=round((sNi*cnvrt*input$spatNum),1)
-      tP=round((tPi*cnvrt*input$spatNum),1)
-      sP=round((sPi*cnvrt*input$spatNum),1)
+      tN=round((tNi*cnvrt*input$seedNum),1)
+      sN=round((sNi*cnvrt*input$seedNum),1)
+      tP=round((tPi*cnvrt*input$seedNum),1)
+      sP=round((sPi*cnvrt*input$seedNum),1)
       df=data.frame(matrix(c(sN, tN, tN+sN), nrow=1, ncol=3))
       colnames(df)=c("Shell", "Tissue", "Total")
       df=rbind(df, list(Shell=sP, Tissue=tP, Total=sP+tP))
       df$Units=input$units
-      row.names(df)=c("Nitrogen", "Phosphorous")
+      row.names(df)=c("Nitrogen", "Phosphorus")
     }
     
     else{
@@ -659,7 +663,7 @@ server <- function(input, output, session) {
       colnames(df)=c("Shell", "Tissue", "Total")
       df=rbind(df, list(Shell=sP, Tissue=tP, Total=sP+tP))
       df$Units=input$units
-      row.names(df)=c("Nitrogen", "Phosphorous")
+      row.names(df)=c("Nitrogen", "Phosphorus")
     }
     df
   })
@@ -737,12 +741,12 @@ server <- function(input, output, session) {
   #   
   #   ##update to add P data
   #   # df2=data.frame(matrix(c(tN, tP), nrow=1, ncol=2))
-  #   # colnames(df2)=c("Nitrogen", "Phosphorous")
+  #   # colnames(df2)=c("Nitrogen", "Phosphorus")
   #   # df2$var="Tissue"
-  #   # df2=rbind(df2, list(Nitrogen=sN, Phosphorous=sP, var="Shell" ))
-  #   # df2=rbind(df2, list(Nitrogen=sN+tN, Phosphorous=sP+tP, var="Total" ))
+  #   # df2=rbind(df2, list(Nitrogen=sN, Phosphorus=sP, var="Shell" ))
+  #   # df2=rbind(df2, list(Nitrogen=sN+tN, Phosphorus=sP+tP, var="Total" ))
   #   # df2$units=input$units
-  #   # df3=df2 %>% tidyr::pivot_longer(cols=c("Nitrogen", "Phosphorous"), names_to="Nutrients")
+  #   # df3=df2 %>% tidyr::pivot_longer(cols=c("Nitrogen", "Phosphorus"), names_to="Nutrients")
   #   ### both N and P
   #   # P=ggplot(df3, aes(x=var, y=value, fill=Nutrients))+
   #   #   geom_bar(stat="identity" , position='dodge', width = 0.9)+
@@ -802,13 +806,13 @@ server <- function(input, output, session) {
   #   sP=round((sPi*cnvrt),1)
   #   
   #   df3=data.frame(matrix(tP, nrow=1, ncol=1))
-  #   colnames(df3)="Phosphorous"
+  #   colnames(df3)="Phosphorus"
   #   df3$var="Tissue"
-  #   df3=rbind(df3, list(Phosphorous=sP, var="Shell" ))
-  #   df3=rbind(df3, list(Phosphorous=sP+tP, var="Total" ))
+  #   df3=rbind(df3, list(Phosphorus=sP, var="Shell" ))
+  #   df3=rbind(df3, list(Phosphorus=sP+tP, var="Total" ))
   #   df3$units=input$units
   #   
-  #   P2=ggplot(df3, aes(x=var, y=Phosphorous))+
+  #   P2=ggplot(df3, aes(x=var, y=Phosphorus))+
   #     geom_bar(stat="identity" , fill="firebrick", width = 0.65)+
   #     # coord_cartesian(ylim=c(0, NA), xlim=NULL, clip = "on")+
   #     # ylim(0,max(df2$N))+
@@ -816,7 +820,7 @@ server <- function(input, output, session) {
   #     # aes(ymin=0)+
   #     theme_minimal()+
   #     ylab(input$units)+
-  #     xlab("Phosphorous Removed")+
+  #     xlab("Phosphorus Removed")+
   #     theme(axis.title.x = element_text(size = 16),
   #           axis.text.x = element_text(size = 14),
   #           axis.text.y = element_text(size = 14),
@@ -829,14 +833,14 @@ server <- function(input, output, session) {
     saval=0.00039042
     sbval=2.579747757
     if(input$seedonly==T){
-      tdw=taval*(input$spatSizeOut)^tbval
-      sdw=saval*(input$spatSizeOut)^sbval
+      tdw=taval*(input$seedSizeOut)^tbval
+      sdw=saval*(input$seedSizeOut)^sbval
       tNi=0.0770*tdw
       sNi=0.0019*sdw
       #convert grams N to lbs or kg
       cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
-      tN=round((tNi*cnvrt*input$spatNum),1)
-      sN=round((sNi*cnvrt*input$spatNum),1)
+      tN=round((tNi*cnvrt*input$seedNum),1)
+      sN=round((sNi*cnvrt*input$seedNum),1)
     }
     else{
       tdw1=taval*(input$sizeIn)^tbval
@@ -880,14 +884,14 @@ server <- function(input, output, session) {
     saval=0.00039042
     sbval=2.579747757
     if(input$seedonly==T){
-      tdw=taval*(input$spatSizeOut)^tbval
-      sdw=saval*(input$spatSizeOut)^sbval
+      tdw=taval*(input$seedSizeOut)^tbval
+      sdw=saval*(input$seedSizeOut)^sbval
       tPi=0.008345*tdw
       sPi=0.000438*sdw
       #convert grams N to lbs or kg
       cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
-      tP=round((tPi*cnvrt*input$spatNum),1)
-      sP=round((sPi*cnvrt*input$spatNum),1)
+      tP=round((tPi*cnvrt*input$seedNum),1)
+      sP=round((sPi*cnvrt*input$seedNum),1)
     }
     else {
       tdw1=taval*(input$sizeIn)^tbval
@@ -908,16 +912,16 @@ server <- function(input, output, session) {
       tP=tP2-tP1
     }
     df3=data.frame(matrix(tP, nrow=1, ncol=1))
-    colnames(df3)="Phosphorous"
+    colnames(df3)="Phosphorus"
     df3$var="Tissue"
-    df3=rbind(df3, list(Phosphorous=sP, var="Shell" ))
-    df3=rbind(df3, list(Phosphorous=sP+tP, var="Total" ))
+    df3=rbind(df3, list(Phosphorus=sP, var="Shell" ))
+    df3=rbind(df3, list(Phosphorus=sP+tP, var="Total" ))
     df3$units=input$units
-    P2=ggplot(df3, aes(x=var, y=Phosphorous))+
+    P2=ggplot(df3, aes(x=var, y=Phosphorus))+
       geom_bar(stat="identity" , fill="firebrick", width = 0.65)+
       theme_minimal()+
       ylab(input$units)+
-      xlab("Phosphorous Removed")+
+      xlab("Phosphorus Removed")+
       theme(axis.title.x = element_text(size = 16),
             axis.text.x = element_text(size = 14),
             axis.text.y = element_text(size = 14),
@@ -943,16 +947,16 @@ server <- function(input, output, session) {
     sbval=2.579747757
     
     if(input$seedonly==T){
-      tdw=taval*(input$spatSizeOut)^tbval
-      sdw=saval*(input$spatSizeOut)^sbval
+      tdw=taval*(input$seedSizeOut)^tbval
+      sdw=saval*(input$seedSizeOut)^sbval
       
       tNi=0.0770*tdw
       sNi=0.0019*sdw
       
       #convert grams N to lbs or kg
       cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
-      tN=round((tNi*cnvrt*input$spatNum),1)
-      sN=round((sNi*cnvrt*input$spatNum),1)
+      tN=round((tNi*cnvrt*input$seedNum),1)
+      sN=round((sNi*cnvrt*input$seedNum),1)
     }
     else{
       tdw1=taval*(input$sizeIn)^tbval
@@ -1029,16 +1033,16 @@ server <- function(input, output, session) {
     saval=0.00039042
     sbval=2.579747757
     if(input$seedonly==T){
-      tdw=taval*(input$spatSizeOut)^tbval
-      sdw=saval*(input$spatSizeOut)^sbval
+      tdw=taval*(input$seedSizeOut)^tbval
+      sdw=saval*(input$seedSizeOut)^sbval
       
       tNi=0.0770*tdw
       sNi=0.0019*sdw
       
       #convert grams N to lbs or kg
       cnvrt=ifelse(input$units=="Pounds (lbs)",0.00220462,0.001)
-      tN=round((tNi*cnvrt*input$spatNum),1)
-      sN=round((sNi*cnvrt*input$spatNum),1)
+      tN=round((tNi*cnvrt*input$seedNum),1)
+      sN=round((sNi*cnvrt*input$seedNum),1)
     }
     else{
       tdw1=taval*(input$sizeIn)^tbval
@@ -1198,28 +1202,30 @@ server <- function(input, output, session) {
             input = "report.Rmd",
             output_file = "built_report.pdf",
             params = list(
-              SeedOnly=input$seedonly,
+              Seed=input$seedonly,
               NurseryLocDiff=input$nurseryloc,
               table = table(),
               Nplot = Nplot(),
-              Pplot = Plot(),
-              Location=input$projloc, 
+              Pplot = Pplot(),
+              Location=input$projloc,
+              seedLocation=input$seedprojloc,
               Units=input$units, 
               gear=input$gear, 
               ploidy=input$ploidy, 
-              spatsize=input$spatSizeOut,
+              seedsize=input$seedSizeOut,
               size=input$sizeOut,
               Farm=input$farmname,
-              spatNumber=input$spatNum,
+              seedNumber=input$seedNum,
               Number=input$HNum,
               Dates=input$Htime,
-              spatLat=input$mymap_draw_new_feature$geometry$coordinates[[2]],
-              spatLon=input$mymap_draw_new_feature$geometry$coordinates[[1]],
+              seedDates=input$seedTime,
+              HLat=input$mymap_draw_new_feature$geometry$coordinates[[2]],
+              HLon=input$mymap_draw_new_feature$geometry$coordinates[[1]],
               nurseLat=input$spatmap_draw_new_feature$geometry$coordinates[[2]],
               nurseLon=input$spatmap_draw_new_feature$geometry$coordinates[[1]],
-              HLat=input$spatonlymap_draw_new_feature$geometry$coordinates[[2]],
-              HLon=input$spatonlymap_draw_new_feature$geometry$coordinates[[1]]
-              )
+              seedLat=input$seedonlymap_draw_new_feature$geometry$coordinates[[2]],
+              seedLon=input$seedonlymap_draw_new_feature$geometry$coordinates[[1]]
+            )
           ) 
           readBin(con = "built_report.pdf", 
                   what = "raw",

@@ -1,0 +1,37 @@
+---
+title: "seedText"
+output: html_document
+date: "`r format(Sys.Date(),'%B %e, %Y')`"
+params: 
+  Seed: NA
+  NurseryLocDiff: NA
+  table: 'NULL'
+  Nplot: 'NULL'
+  Pplot: 'NULL'
+  Farm: NA
+  Location: NA
+  seedLocation: NA
+  Dates: NA
+  seedDates: NA
+  Units: NA 
+  gear: NA 
+  ploidy: NA
+  seedsize: NA  
+  size: NA  
+  Number: NA
+  seedNumber: NA
+  seedLat: NA
+  seedLon: NA
+  nurseLat: NA
+  nurseLon: NA
+  HLat: NA
+  HLon: NA
+---
+
+```{r, echo = F, warning=FALSE, echo=FALSE}
+library(knitr)
+opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
+```
+
+# **Summary**  
+Shellfish incorporate nutrients into their tissues and shell as they grow. At harvest, these nutrients are permanently removed from the coastal environment, providing a benefit to water quality in the form of excess nutrient reduction. The harvest of `r params[["Number"]]` oysters at an average size of `r  params[["size"]]` inches is expected to result in the removal of a total of `r round(params[["Nplot"]]$data$N[3], 2)` pounds (lbs) of nitrogen and `r round(params[["Pplot"]]$data$P[3], 2)` pounds (lbs) of phosphorus during the harvest period.  
