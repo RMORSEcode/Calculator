@@ -78,7 +78,7 @@ Seb=Seb.1 %>% left_join(Sebastiano2, by=c('Date', 'Site'))
 Sebtest=Sebastiano[complete.cases(Sebastiano$`Site mean`),]
 # Seb=Sebtest %>% left_join(Sebastiano2, by=c('Date', 'Site'))
 Seb2=Seb[complete.cases(Seb$`Cage Mean (dry weight)`),]
-plot(Seb2$`Cage Mean (dry weight)`~Seb2$MeanSH, type='p', xlab='SH (mm)', ylab='DW (g)', las=1, ylim=c(0,3), xlim=c(45,80))
+plot(Seb2$MeanSH ~ Seb2$`Cage Mean (dry weight)`, type='p', xlab='SH (cm)', ylab='DW (g)', las=1, xlim=c(0,3), ylim=c(45,80))
 #drop Shelter Island sites
 # Seb3=Seb2 %>% filter(Site != 'SI')
 # plot(Seb3$`DW (g)`~Seb3$`Site mean`, type='p', xlab='SH (mm)', ylab='DW (g)', las=1, 

@@ -1,5 +1,5 @@
 ### RM 2023
-# Load all shellfish data for calculator, add columns and QA/QC data
+# Load all shellfish data for ANRC calculator, add columns and QA/QC data
 # TO DO: organize files into single location; QA/QC data removal -> outliers for size, N content, weight
 
 library(readxl)
