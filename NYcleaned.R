@@ -786,11 +786,40 @@ a2=ax*5
 #   lines(x, yval, col=i, lwd=1)
 # }
 
-my_comparisons=list(unique(RegionFarm$State[complete.cases(RegionFarm$Tissue_TP_Percent)]))
+my_comparisons=list(unique(RegionFarm$st_abrv[complete.cases(RegionFarm$Tissue_TP_Percent)]))
 RegionFarm[complete.cases(RegionFarm$Tissue_TP_Percent),] %>% select(State, Ploidy, Tissue_TP_Percent) %>% 
   ggboxplot(y='Tissue_TP_Percent', x='State', fill='Ploidy',ylab = 'Tissue P Percent', xlab='', ylim=c(0.25,2)) +
   stat_compare_means(label = "p.signif", method = "anova", ref.group = ".all.") +
   stat_compare_means(comparisons = my_comparisons, label.y = c(1.75), label= "p.signif")
+
+RegionFarm[complete.cases(RegionFarm$Tissue_TP_Percent),] %>% select(State, st_abrv, Ploidy, Tissue_TP_Percent) %>% 
+  ggboxplot(y='Tissue_TP_Percent', x='st_abrv', ylab = 'Tissue P Percent', xlab='', ylim=c(0,2)) +
+  geom_hline(yintercept=mean(RegionFarm$Tissue_TP_Percent, na.rm=T), lty=2)+
+  geom_point(aes(color=State), position=position_jitterdodge()) + 
+  stat_compare_means(aes(group=st_abrv), label = "p.signif", method = "anova", ref.group = ".all.") 
+  # stat_compare_means(comparisons = my_comparisons, label = "p.signif", method = "anova", ref.group = ".all.") 
+
+# Fit the ANOVA model
+model <- aov(Tissue_TP_Percent ~ st_abrv, data = RegionFarm[complete.cases(RegionFarm$Tissue_TP_Percent),])
+# Print the ANOVA table
+summary(model)
+# Perform Tukey's HSD test
+TukeyHSD(model)
+
+# https://stackoverflow.com/questions/55213124/use-stat-compare-means-to-test-whether-multiple-groups-are-significantly-differe
+# Test whether each group differs from a value (mean of all groups)
+t_tests = RegionFarm[complete.cases(RegionFarm$Tissue_TP_Percent),] %>%
+  group_by(st_abrv) %>%
+  summarise(P = t.test(Tissue_TP_Percent, mu = 0.83)$p.value,
+            Sig = ifelse(P < 0.05, "*", "ns"),
+            MaxWidth = max(Tissue_TP_Percent))
+ggplot(RegionFarm[complete.cases(RegionFarm$Tissue_TP_Percent),], aes(x = st_abrv, y = Tissue_TP_Percent)) +
+  geom_boxplot() +
+  geom_hline(yintercept=mean(RegionFarm$Tissue_TP_Percent, na.rm=T), lty=2)+
+  
+  # Use the prepared table of test results as data for the geom
+  geom_text(aes(label = Sig, y = MaxWidth + 0.2), size = 6,
+            data = t_tests)
 
 my_comparisons=list(unique(RegionFarm$State[complete.cases(RegionFarm$Tissue_N_Percent)]))
 RegionFarm[complete.cases(RegionFarm$Tissue_N_Percent),] %>% select(State, Ploidy, Tissue_N_Percent) %>% 
