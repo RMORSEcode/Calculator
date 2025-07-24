@@ -8,6 +8,24 @@ library(quantreg)
 
 wd="C:/Users/ryan.morse/Documents/Aquaculture/Shellfish permitting and ecosystem services/Shellfish Calculators/"
 
+testT = RegionFarm %>% 
+  group_by(st_abrv)%>%
+  summarise(across(c(Tissue_TP_Percent, Tissue_C_Percent, Tissue_N_Percent),
+                   list(Mean = ~mean(., na.rm=T), Med= ~median(., na.rm=T), SD = ~sd(.,na.rm=T), Num = ~sum(!is.na(.)))
+  ))
+write.csv(testT, file=paste0(wd,'manuscript/Phosphorus/Tissue_states.csv'))
+# write.csv(testT, file=paste0(wd,'manuscript/Phosphorus/Tissue.csv'))
+
+testS = RegionFarm %>% 
+  group_by(st_abrv)%>%
+  summarise(across(c(Shell_TP_Percent, Shell_C_Percent, Shell_N_Percent),
+                   list(Mean = ~mean(., na.rm=T), Med= ~median(., na.rm=T), SD = ~sd(.,na.rm=T), Num = ~sum(!is.na(.)))
+  ))
+write.csv(testS, file=paste0(wd,'manuscript/Phosphorus/Shell_states.csv'))
+# write.csv(testS, file=paste0(wd,'manuscript/Phosphorus/Shell.csv'))
+
+
+
 ### tests for difference between state means
 my_comparisons <- list( c("MA","CT"), c("MD","CT"),c("ME","CT"),c("NH","CT"),
                         c("RI","CT"),c("VA","CT"),c("MD","MA"),c("ME","MA"),
@@ -38,10 +56,10 @@ RegionFarm[complete.cases(RegionFarm$Shell_TP_Percent),] %>% select(State, st_ab
   ggboxplot(y='Shell_TP_Percent', x='st_abrv', ylab = 'Shell P Percent', xlab='', ylim=c(0,0.1)) +
   geom_hline(yintercept=mean(RegionFarm$Shell_TP_Percent, na.rm=T), lty=2) +
   geom_point(aes(color=State), position=position_jitterdodge(0.2))
-Tmodel <- aov(Shell_TP_Percent ~ st_abrv, data = RegionFarm[complete.cases(RegionFarm$Shell_TP_Percent),])
-summary(Tmodel)
+Smodel <- aov(Shell_TP_Percent ~ st_abrv, data = RegionFarm[complete.cases(RegionFarm$Shell_TP_Percent),])
+summary(Smodel)
 # Perform Tukey's HSD test to see which combinations are different
-TukeyHSD(Tmodel)
+TukeyHSD(Smodel)
 
 ### Test whether each group differs from a value (the overall mean of all groups)
 # https://stackoverflow.com/questions/55213124/use-stat-compare-means-to-test-whether-multiple-groups-are-significantly-differe
@@ -51,12 +69,12 @@ myt_tests = RegionFarm[complete.cases(RegionFarm$Tissue_TP_Percent),] %>%
             Sig = ifelse(P < 0.05, "*", "ns"),
             MaxWidth = max(Tissue_TP_Percent))
 ggplot(RegionFarm[complete.cases(RegionFarm$Tissue_TP_Percent),], aes(x = st_abrv, y = Tissue_TP_Percent)) +
-  # geom_boxplot() +
-  geom_violin(trim = FALSE)+
-  geom_hline(yintercept=mean(RegionFarm$Tissue_TP_Percent, na.rm=T), lty=2)+
+  geom_boxplot() +
+  # geom_violin(trim = FALSE)+
+  geom_hline(yintercept=mean(RegionFarm$Tissue_TP_Percent, na.rm=T), lty=2, lwd=2)+
   # Use the prepared table of test results as data for the geom
-  geom_text(aes(label = Sig, y = MaxWidth + 0.2), size = 6,
-            data = myt_tests)
+  geom_text(aes(label = Sig, y = 1.53, col='red'), size = 6, data = myt_tests) +
+  guides(colour=FALSE)
 ## Shell
 myt_tests = RegionFarm[complete.cases(RegionFarm$Shell_TP_Percent),] %>%
   group_by(st_abrv) %>%
@@ -64,12 +82,13 @@ myt_tests = RegionFarm[complete.cases(RegionFarm$Shell_TP_Percent),] %>%
             Sig = ifelse(P < 0.05, "*", "ns"),
             MaxWidth = max(Shell_TP_Percent))
 ggplot(RegionFarm[complete.cases(RegionFarm$Shell_TP_Percent),], aes(x = st_abrv, y = Shell_TP_Percent)) +
-  # geom_boxplot() +
-  geom_violin(trim = FALSE)+
-  geom_hline(yintercept=mean(RegionFarm$Shell_TP_Percent, na.rm=T), lty=2)+
+  ylim(0,0.1)+
+  geom_boxplot() +
+  # geom_violin(trim = FALSE)+
+  geom_hline(yintercept=mean(RegionFarm$Shell_TP_Percent, na.rm=T), lty=2, lwd=2)+
   # Use the prepared table of test results as data for the geom
-  geom_text(aes(label = Sig, y = MaxWidth + 0.2), size = 6,
-            data = myt_tests)
+  geom_text(aes(label = Sig, y = 0.075, col='red'), size = 6,data = myt_tests) + 
+  guides(colour=FALSE)
 
 ### Line plot with SD segments as in the ANRC manuscript for CT Greenwich Cove time series
 test = RegionFarm %>% 
