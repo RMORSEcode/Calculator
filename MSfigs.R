@@ -29,9 +29,12 @@ map('state', fill = F, add=T) # add state lines
 # plot stations with N in different color
 stations2=stations %>% filter(Waterbody_Name %in% RegionFarm$Waterbody_Name[complete.cases(RegionFarm$Tissue_N_Percent)])
 stations3=stations %>% filter(!(Waterbody_Name %in% RegionFarm$Waterbody_Name[complete.cases(RegionFarm$Tissue_N_Percent)]))
+# stations4=stations %>% filter((Waterbody_Name %in% RegionFarm$Waterbody_Name[complete.cases(RegionFarm$Tissue_TP_Percent)]))# has duplicates
+stations4=stations %>% filter(notes=='P')
+
 ## plot
-tiff("Fig1_Rose_et_al_12_17.tiff", height = 12, width = 17, units = 'cm', 
-     compression = "lzw", res = 300)
+tiff(paste0(wd,"Fig1map_Rose_et_al_12_17.tiff"), height = 12, width = 17, units = 'cm', compression = "lzw", res = 300)
+tiff(paste0(wd,"Fig1map_Morse_et_al_12_17.tiff"), height = 12, width = 17, units = 'cm',  compression = "lzw", res = 300)
 par(mar = c(2,2,0,0)) #(b,l,t,r)
 par(oma = c(2,2,0,0))
 par(family = "Arial")
@@ -42,8 +45,12 @@ map('state', fill = F, add=T) # add state lines
 mtext(c("Longitude", "Latitude"), side=c(1,2), line = 2.5)
 points(stations3$Longitude, stations3$Latitude, pch=23, col='black', bg='orange', cex=1.15)
 points(stations2$Longitude, stations2$Latitude, pch=21, col='black', bg='green', cex=1.15)
+points(stations4$Longitude, stations4$Latitude, pch=23, col='black', bg='red', cex=1.15)
 legend(-76,36, pch=c(23,21), col='black', pt.bg=c('orange', 'green'),legend=c('Morphometric data', 'Morphometric + N'), bty='n', )
+legend(-76,36, pch=c(23), col='black', pt.bg=c('red'),legend=c('Phosphorus data'), bty='n', )
 dev.off()
+
+
 #_________________________________________________________________
 ### Figure 2 ### boxplot of N data for tissue
 # A - Tissue N

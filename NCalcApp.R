@@ -1,7 +1,13 @@
 ### Open version:
-# https://connect.fisheries.noaa.gov/ANRC/ open version
+# https://connect.fisheries.noaa.gov/ANRC/
 ### Test version (NOAA internal):
 # https://test-connect.fisheries.noaa.gov/Calculator/
+# v2.0 upload for review:
+# https://connect.fisheries.noaa.gov/connect/#/apps/4baea4d7-8b64-4104-8e27-c5d885e395c6
+## github
+# C:/Users/ryan.morse/Documents/GitHub/Calculator
+
+
 
 library(shiny)
 library(shinyWidgets)
@@ -299,8 +305,14 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              br(),
                              h6(tags$a(target="_blank", href="https://doi.org/10.5281/zenodo.11966672",
                                        "Access publicly available data used to create this tool >")),
+                             br(),
+                             helpText(h6("Read about methods used to create this tool:")),
+                             # h6(tags$a(target="_blank", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062",
+                             #           "Read about methods used to create this tool >")),
                              h6(tags$a(target="_blank", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062",
-                                       "Read about methods used to create this tool >")),
+                                       "Nitrogen analysis >")),
+                             h6(tags$a(target="_blank", href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310062",
+                                       "Phosphorus analysis >")),
                              br(),
                              h4("Disclaimer"),
                              p("This is a scientific product and is not an official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government."
@@ -387,13 +399,13 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              br(),
                              tags$p(
                                h4("Data Contributors:"),
-                               p("ME: Damian Brady and Tom Kiffney - University of Maine"
+                               p("ME: Damian Brady and Tom Kiffney - University of Maine; Doug Niven - Mere Point"
                                ),
-                               p("NH: Ray Grizzle and Krystin Ward - University of New Hampshire"
+                               p("NH: Ray Grizzle and Krystin Ward - University of New Hampshire; Brian Gennaco - Virgin Oyster Co."
                                ),
-                               p("MA: Josh Reitsma - Cape Cod Cooperative Extension"
+                               p("MA: Josh Reitsma - Cape Cod Cooperative Extension; Dale Leavitt - Blue Stream Shellfish"
                                ),
-                               p("RI: Suzy Ayvazian - EPA Narragansett"
+                               p("RI: Suzy Ayvazian - EPA Narragansett; Matt Griffin - Saltbox Oysters"
                                ),
                                p("CT: Skylar Bayer, Matt Poach, Shannon Meseck, and Julie Rose - NOAA Milford"
                                ),
@@ -412,7 +424,7 @@ ui <- fluidPage(style = 'margin-left: 10%; margin-right: 10%;',
                              tags$p(
                                h4("Project Team"),
                                tags$a(target="_blank", href="https://www.linkedin.com/in/julie-m-rose/", "Julie Rose,"),
-                               tags$a(target="_blank", href="https://coastalscience.noaa.gov/staff/christopher-schillaci/", "Chris Schillaci,"),
+                               tags$a(target="_blank", href="https://coastalscience.noaa.gov/staff/christopher-schillaci/", "Chris Schillaci,"), #https://www.linkedin.com/in/chris-schillaci/
                                tags$a(target="_blank", href="https://seagrant.uconn.edu/person/zachary-gordon/", "Zach Gordon,"),
                                tags$a(target="_blank", href="https://www.fisheries.noaa.gov/contact/ryan-morse-phd","Ryan Morse"),
                              ),
